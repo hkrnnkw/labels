@@ -15,8 +15,8 @@ const Callback: FC = () => {
     // クエリ文字列からパラメータを取得
     const getParameters = (queryStr: string): StrKeyObj => {
         const queryObj: StrKeyObj = {};
-        queryStr = queryStr.substring(1);
-        const rawParams: string[] = queryStr.split('&');
+        const temp = queryStr.substring(1);
+        const rawParams: string[] = temp.split('&');
         for (let i = 0; i < rawParams.length; i++) {
             const elem: string[] = rawParams[i].split('=');
             const key: string = decodeURIComponent(elem[0]);
