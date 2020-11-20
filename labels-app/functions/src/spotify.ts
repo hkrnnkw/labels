@@ -5,7 +5,7 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const spotifyApi = new SpotifyWebApi({
     clientId: functions.config().spotify.client_id,
     clientSecret: functions.config().spotify.client_secret,
-    redirectUri: 'https://la-bels.web.app/auth',
+    redirectUri: 'https://la-bels.web.app/callback',
 });
 const scopes = ['user-read-private', 'user-read-email'];
 
