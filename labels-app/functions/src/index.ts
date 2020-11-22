@@ -4,9 +4,11 @@ import * as Spotify from './spotify';
 admin.initializeApp();
 
 const spotifyRedirect = Spotify.redirect;
+const spotifyToken = Spotify.token;
 
 export {
     spotifyRedirect,
+    spotifyToken,
 };
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
