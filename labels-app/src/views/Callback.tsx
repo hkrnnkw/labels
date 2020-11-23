@@ -1,7 +1,12 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter } from 'react-router';
+import firebase from 'firebase';
+import 'firebase/functions';
 import { StrKeyObj } from '../utils/types';
 
+interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
+    readonly data: string | null;
+}
 
 const Callback: FC = () => {
     const [params, setParams] = useState<StrKeyObj>();
@@ -26,8 +31,32 @@ const Callback: FC = () => {
         return result;
     };
 
+    // CloudFunctions経由で、Spotifyのアクセストークン認証
+    // その後、Firestoreにアカウントを作成、カスタムトークンを受領
+    const requestFirestoreCustomToken = async (): Promise<void> => {
+        if (!params) return;
+        const f = firebase.app().functions('asia-northeast1');
+        const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
+        const res: SpotifyTokenResponse = await spotifyToken(params);
+        const customToken: string | null = res.data;
+        if (!customToken) return;
+        firebase.auth().signInWithCustomToken(customToken)
+            .then(response => {
+                console.log(`ログイン成功 uid：${response.user?.uid}`);
+                console.log(`ログイン成功 refreshToken：${response.user?.refreshToken}`);
+            })
+            .catch(error => {
+                console.log(`カスタムトークンによるログインでエラーが発生しました：${error.message} (ErrorCode ${error.code})`);
+            });
+    };
+
     return (
         <div>
+            <button
+                onClick={requestFirestoreCustomToken}
+            >
+                アカウント作成
+            </button>
         </div>
     )
 };
