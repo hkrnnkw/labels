@@ -1,5 +1,5 @@
 import * as functions from 'firebase-functions';
-import { createAccount } from './firebase';
+import { manageUser } from './firestore';
 
 const f = functions.region('asia-northeast1');
 const SpotifyWebApi = require('spotify-web-api-node');
@@ -32,10 +32,10 @@ export const token = f.https.onCall(async (data, context) => {
         .then(async (res: { body: { [x: string]: any; }; }) => {
             const spotifyUserID: string = res.body['id'];
             const userName: string = res.body['display_name'];
-            const email: string = res.body['email'];
             const img = res.body['images'][0];
-            const profilePic: string | undefined = img ? img['url'] : undefined;
-            return await createAccount(spotifyToken, spotifyUserID, userName, email, profilePic);
+            const profilePic: string | null = img ? img['url'] : null;
+            const email: string = res.body['email'];
+            return await manageUser(spotifyToken, spotifyUserID, userName, profilePic, email);
         })
         .catch((err: { message: any; }) => {
             console.log('不具合が発生 getMe：', err.message);
