@@ -1,7 +1,9 @@
 import * as admin from 'firebase-admin';
 
 // ユーザ管理
-export const manageUser = async (accessToken: string, spotifyID: string, displayName: string, photoURL: string | null, email: string) => {
+export const manageUser = async (accessToken: string, spotifyID: string, displayName: string,
+    photoURL: string | null, email: string): Promise<string | null> => {
+        
     // Spotifyのアクセストークンを保存
     const databaseTask = admin.firestore()
         .collection('users').doc(spotifyID).set({
@@ -32,12 +34,14 @@ export const manageUser = async (accessToken: string, spotifyID: string, display
         });
 
     await Promise.all([userAccountTask, databaseTask]);
-    await admin.auth().createCustomToken(spotifyID)
+    const result: string | null = await admin.auth().createCustomToken(spotifyID)
         .then(customToken => {
             console.log(`${spotifyID}のカスタムトークンを作成しました：${customToken}`);
             return customToken;
         })
         .catch(error => {
             console.log('カスタムトークン作成中にエラーが発生しました：', error);
+            return null;
         });
+    return result;
 }
