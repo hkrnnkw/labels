@@ -1,14 +1,16 @@
 import React, { FC, useState, useEffect } from 'react';
-import { withRouter } from 'react-router';
+import { withRouter, useHistory } from 'react-router';
 import firebase from 'firebase';
 import 'firebase/functions';
 import { StrKeyObj } from '../utils/types';
+import { Button } from '@material-ui/core';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string | null;
 }
 
 const Callback: FC = () => {
+    const history = useHistory();
     const [params, setParams] = useState<StrKeyObj>();
 
     useEffect(() => {
@@ -44,6 +46,7 @@ const Callback: FC = () => {
             .then(response => {
                 console.log(`ログイン成功 uid：${response.user?.uid}`);
                 console.log(`ログイン成功 refreshToken：${response.user?.refreshToken}`);
+                history.push('/');
             })
             .catch(error => {
                 console.log(`カスタムトークンによるログインでエラーが発生しました：${error.message} (ErrorCode ${error.code})`);
@@ -52,11 +55,11 @@ const Callback: FC = () => {
 
     return (
         <div>
-            <button
+            <Button
                 onClick={requestFirestoreCustomToken}
             >
                 アカウント作成
-            </button>
+            </Button>
         </div>
     )
 };
