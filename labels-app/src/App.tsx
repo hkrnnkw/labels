@@ -1,9 +1,11 @@
 import React, { FC, useState, useEffect } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from './stores/index';
 import firebase from 'firebase';
 import 'firebase/functions';
-import Display from './views/Display';
-import Callback from './views/Callback';
+import Display from './components/Display';
+import Callback from './components/Callback';
 import { Link } from '@material-ui/core';
 import { StrKeyObj } from './utils/types';
 
