@@ -11,8 +11,8 @@ const spotifyApi = new SpotifyWebApi({
 const scopes = ['user-read-private', 'user-read-email'];
 
 // ユーザの承認用URLを取得し、返す
-export const redirect = f.https.onCall(async () => {
-    const state = 'some-state-of-my-choice';
+export const redirect = f.https.onCall(async (data, context) => {
+    const state: string = data.state;
     const authorizeURL: string = await spotifyApi.createAuthorizeURL(scopes, state);
     return authorizeURL;
 });

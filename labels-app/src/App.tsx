@@ -5,6 +5,7 @@ import 'firebase/functions';
 import Display from './views/Display';
 import Callback from './views/Callback';
 import { Link } from '@material-ui/core';
+import { StrKeyObj } from './utils/types';
 
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
@@ -20,13 +21,19 @@ const App: FC = () => {
         firebase.initializeApp(config);
     };
 
+    // ユニークな文字列を生成
+    const getUniqueStr = (): string => {
+        return new Date().getTime().toString(16) + Math.random().toString(32).substring(2);
+    }
+
     useEffect(() => {
         initFirebase()
             .then(async (): Promise<void> => {
                 const f = firebase.app().functions('asia-northeast1');
                 // CloudFunctionsからauthorizeURLをリクエスト
                 const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotifyRedirect');
-                const res: SpotifyRedirectResponse = await spotifyRedirect();
+                const param: StrKeyObj = { state: getUniqueStr() };
+                const res: SpotifyRedirectResponse = await spotifyRedirect(param);
                 setAuthUrl(res.data);
             })
             .catch(err => console.log(`Firebase構成エラー：${err}`));
