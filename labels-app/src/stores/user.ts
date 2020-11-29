@@ -1,26 +1,44 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-type UserState = {
-    name: string,
+export type UserState = {
+    uid: string,
+    signedIn: boolean,
+    refreshToken: string,
+    displayName: string,
+    email: string,
+    photoURL: string | null,
 };
 
 const initialState: UserState = {
-    name: '',
+    uid: '',
+    signedIn: false,
+    refreshToken: '',
+    displayName: '',
+    email: '',
+    photoURL: null,
 };
 
 const slice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        setName: (state: UserState, action: PayloadAction<string>) => {
-            return Object.assign({}, state, { name: action.payload })
+        setAuth: (state: UserState, action: PayloadAction<UserState>) => {
+            return Object.assign({}, state, {
+                uid: action.payload.uid,
+                signedIn: action.payload.signedIn,
+                refreshToken: action.payload.refreshToken,
+            });
         },
-        clearName: state => {
-            return Object.assign({}, state, { name: "" })
+        setProfile: (state: UserState, action: PayloadAction<UserState>) => {
+            return Object.assign({}, state, {
+                displayName: action.payload.displayName,
+                email: action.payload.email,
+                photoURL: action.payload.photoURL,
+            });
         },
-    }
+    },
 });
 
 export default slice;
 
-export const { setName, clearName } = slice.actions;
+export const { setAuth, setProfile } = slice.actions;
