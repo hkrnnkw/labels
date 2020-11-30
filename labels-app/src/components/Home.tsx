@@ -8,7 +8,7 @@ interface Props extends RouteComponentProps {
 
 }
 
-const Display: FC<Props> = () => {
+const Home: FC<Props> = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const { email, emailVerified } = useSelector((rootState: RootState) => rootState.user);
 
@@ -39,4 +39,4 @@ const Display: FC<Props> = () => {
     )
 };
 
-export default withRouter(Display);
+export default withRouter(Home);
