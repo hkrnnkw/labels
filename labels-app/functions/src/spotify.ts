@@ -4,9 +4,12 @@ import { manageUser } from './firestore';
 const f = functions.region('asia-northeast1');
 const SpotifyWebApi = require('spotify-web-api-node');
 const spotifyApi = new SpotifyWebApi({
-    clientId: functions.config().spotify.client_id,
-    clientSecret: functions.config().spotify.client_secret,
-    redirectUri: 'https://la-bels.web.app/callback',
+    // clientId: functions.config().spotify.client_id,
+    // clientSecret: functions.config().spotify.client_secret,
+    // redirectUri: 'https://la-bels.web.app/callback',
+    clientId: 'd3047cbde8024e9f8ea04e0205be4a7c',
+    clientSecret: '319ba476889548c89f4ed26f094a303a',
+    redirectUri: 'http://localhost:5000/callback',
 });
 const scopes = ['user-read-private', 'user-read-email'];
 
