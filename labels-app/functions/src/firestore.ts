@@ -18,7 +18,6 @@ export const manageUser = async (accessToken: string, spotifyID: string, display
         .updateUser(spotifyID, {
             displayName: displayName,
             email: email,
-            emailVerified: true,
         })
         .catch((error) => {
             // ユーザが存在しなければ作成する
@@ -27,7 +26,6 @@ export const manageUser = async (accessToken: string, spotifyID: string, display
                     uid: spotifyID,
                     displayName: displayName,
                     email: email,
-                    emailVerified: true,
                 });
             }
             throw error;

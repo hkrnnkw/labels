@@ -1,11 +1,10 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter, useHistory } from 'react-router';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import firebase, { f, auth } from '../firebase';
-import { RootState } from '../stores/index';
 import { StrKeyObj } from '../utils/types';
 import { Button } from '@material-ui/core';
-import { UserState, setAuth } from '../stores/user';
+import { UserState, setUserProfile } from '../stores/user';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string | null;
@@ -14,7 +13,6 @@ interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
 const Callback: FC = () => {
     const dispatch = useDispatch();
     const history = useHistory();
-    const state: UserState = useSelector((rootState: RootState) => rootState.user);
     const [params, setParams] = useState<StrKeyObj>();
 
     useEffect(() => {
@@ -46,7 +44,7 @@ const Callback: FC = () => {
                     history.push('/error');
                     return;
                 }
-                const newState: UserState = Object.assign(state, {
+                const newState: UserState = {
                     uid: user.uid,
                     signedIn: true,
                     refreshToken: user.refreshToken,
@@ -54,8 +52,9 @@ const Callback: FC = () => {
                     // TODO emailがnullなら、要求する？
                     email: user.email || '',
                     photoURL: user.photoURL,
-                });
-                dispatch(setAuth(newState));
+                    emailVerified: user.emailVerified,
+                };
+                dispatch(setUserProfile(newState));
                 history.push('/');
             })
             .catch(error => {

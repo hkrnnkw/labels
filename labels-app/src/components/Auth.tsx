@@ -4,7 +4,7 @@ import { Redirect } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { auth } from '../firebase';
 import { RootState } from '../stores/index';
-import { UserState, setAuth } from '../stores/user';
+import { UserState, setUserProfile } from '../stores/user';
 
 const Auth: FC = (props) => {
     const dispatch = useDispatch();
@@ -29,8 +29,9 @@ const Auth: FC = (props) => {
                 displayName: user.displayName || user.uid,
                 email: user.email || email,
                 photoURL: user.photoURL,
+                emailVerified: user.emailVerified,
             };
-            dispatch(setAuth(newState));
+            dispatch(setUserProfile(newState));
             setRedirect(props.children);
         });
     }, []);

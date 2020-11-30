@@ -7,6 +7,7 @@ export type UserState = {
     displayName: string,
     email: string,
     photoURL: string | null,
+    emailVerified: boolean,
 };
 
 const initialState: UserState = {
@@ -16,24 +17,22 @@ const initialState: UserState = {
     displayName: '',
     email: '',
     photoURL: null,
+    emailVerified: false,
 };
 
 const slice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        setAuth: (state: UserState, action: PayloadAction<UserState>) => {
+        setUserProfile: (state: UserState, action: PayloadAction<UserState>) => {
             return Object.assign({}, state, {
                 uid: action.payload.uid,
                 signedIn: action.payload.signedIn,
                 refreshToken: action.payload.refreshToken,
-            });
-        },
-        setProfile: (state: UserState, action: PayloadAction<UserState>) => {
-            return Object.assign({}, state, {
                 displayName: action.payload.displayName,
                 email: action.payload.email,
                 photoURL: action.payload.photoURL,
+                emailVerified: action.payload.emailVerified,
             });
         },
     },
@@ -41,4 +40,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setAuth, setProfile } = slice.actions;
+export const { setUserProfile } = slice.actions;
