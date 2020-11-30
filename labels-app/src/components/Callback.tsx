@@ -37,26 +37,23 @@ const Callback: FC = () => {
         return result;
     };
 
-    // CloudFunctions経由で、Spotifyのアクセストークン認証
-    // その後、Firestoreにアカウントを作成、カスタムトークンを受領
-    const requestFirestoreCustomToken = async (): Promise<void> => {
-        if (!params) return;
-        const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
-        const res: SpotifyTokenResponse = await spotifyToken(params);
-        const customToken: string | null = res.data;
-        if (!customToken) return;
+    // Firebaseログイン
+    const signInWithCustomToken = (customToken : string) => {
         auth.signInWithCustomToken(customToken)
             .then(response => {
-                console.log(`ログイン成功 uid：${response.user?.uid}`);
-                console.log(`ログイン成功 refreshToken：${response.user?.refreshToken}`);
-                if (!response.user) {
+                const user = response.user;
+                if (!user) {
                     history.push('/error');
                     return;
                 }
                 const newState: UserState = Object.assign(state, {
-                    uid: response.user.uid,
+                    uid: user.uid,
                     signedIn: true,
-                    refreshToken: response.user.refreshToken,
+                    refreshToken: user.refreshToken,
+                    displayName: user.displayName || user.uid,
+                    // TODO emailがnullなら、要求する？
+                    email: user.email || '',
+                    photoURL: user.photoURL,
                 });
                 dispatch(setAuth(newState));
                 history.push('/');
@@ -65,6 +62,16 @@ const Callback: FC = () => {
                 console.log(`カスタムトークンによるログインでエラーが発生しました：${error.message} (ErrorCode ${error.code})`);
                 history.push('/error');
             });
+    };
+
+    // CloudFunctions経由で、Spotifyのアクセストークン認証
+    // その後、Firestoreにアカウントを作成、カスタムトークンを受領
+    const requestFirestoreCustomToken = async (): Promise<void> => {
+        if (!params) return;
+        const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
+        const res: SpotifyTokenResponse = await spotifyToken(params);
+        const customToken: string | null = res.data;
+        if (customToken && customToken.length) signInWithCustomToken(customToken);
     };
 
     // const a = (refreshToken: string) => {
