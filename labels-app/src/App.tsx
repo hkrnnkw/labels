@@ -4,10 +4,11 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { auth } from './firebase';
 import Home from './components/Home';
 import Page from './components/Page';
+import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { UserState, setUserProfile } from './stores/user';
-import { home, page, callback } from './utils/paths';
+import { home, page, account, callback } from './utils/paths';
 
 const App: FC = () => {
     const dispatch = useDispatch();
@@ -36,6 +37,7 @@ const App: FC = () => {
             <Switch>
                 <Route path={home} exact component={Home} />
                 <Route path={page} component={Page} />
+                <Route path={account} component={Account} />
                 <Route path={callback} component={Callback} />
                 <Route component={NotFound} />
             </Switch>

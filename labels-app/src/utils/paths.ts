@@ -1,6 +1,7 @@
 // 正常系
 export const home = '/';
 export const page = '/page';
+export const account = '/account';
 export const callback = '/callback';
 
 // 異常系
