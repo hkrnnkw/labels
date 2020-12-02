@@ -1,10 +1,8 @@
 import React, { FC, useEffect } from 'react';
 import { withRouter, useHistory } from 'react-router';
-import { useDispatch } from 'react-redux';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
-import { UserState, setUserProfile } from '../stores/user';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
@@ -12,7 +10,6 @@ interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
 }
 
 const Callback: FC = () => {
-    const dispatch = useDispatch();
     const history = useHistory();
 
     useEffect(() => {
@@ -39,23 +36,7 @@ const Callback: FC = () => {
     const signInWithCustomToken = async (customToken : string) => {
         try {
             const response: firebase.auth.UserCredential = await auth.signInWithCustomToken(customToken);
-            const user = response.user;
-            if (!user) {
-                history.push(userNotFound);
-                return;
-            }
-            const newState: UserState = {
-                uid: user.uid,
-                signedIn: true,
-                refreshToken: user.refreshToken,
-                displayName: user.displayName || user.uid,
-                // TODO emailがnullなら、要求する？
-                email: user.email || '',
-                photoURL: user.photoURL,
-                emailVerified: user.emailVerified,
-            };
-            dispatch(setUserProfile(newState));
-            history.push(home);
+            history.push(response.user ? home : userNotFound);
         } catch (err) {
             console.log(`カスタムトークンによるログインでエラーが発生しました：${err.message}`);
             history.push(errorOccurred);

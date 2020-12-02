@@ -12,7 +12,7 @@ import { home, page, callback } from './utils/paths';
 const App: FC = () => {
     const dispatch = useDispatch();
 
-    // Firebaseログインチェック
+    // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
     const didLogInFireAuth = () => {
         auth.onAuthStateChanged(user => {
             console.log(`Firebaseログインチェック：${user?.displayName}`);
