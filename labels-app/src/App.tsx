@@ -36,7 +36,7 @@ const App: FC = () => {
                 <Route path='/' exact component={Home} />
                 <Route path='/page' component={Page} />
                 <Route path='/callback' component={Callback} />
-                <Route path='/notfound' component={NotFound} />
+                <Route component={NotFound} />
             </Switch>
         </BrowserRouter>
     )

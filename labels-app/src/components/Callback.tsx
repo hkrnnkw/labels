@@ -5,6 +5,7 @@ import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
 import { UserState, setUserProfile } from '../stores/user';
+import { errorOccurred, userNotFound } from '../utils/paths';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string | null;
@@ -40,7 +41,7 @@ const Callback: FC = () => {
             const response: firebase.auth.UserCredential = await auth.signInWithCustomToken(customToken);
             const user = response.user;
             if (!user) {
-                history.push('/notfound');
+                history.push(userNotFound);
                 return;
             }
             const newState: UserState = {
@@ -57,7 +58,7 @@ const Callback: FC = () => {
             history.push('/');
         } catch (err) {
             console.log(`カスタムトークンによるログインでエラーが発生しました：${err.message}`);
-            history.push('/notfound');
+            history.push(errorOccurred);
         }
     };
 
