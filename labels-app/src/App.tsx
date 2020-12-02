@@ -5,6 +5,7 @@ import Page from './components/Page';
 import Callback from './components/Callback';
 import Auth from './components/Auth';
 import SignIn from './components/SignIn';
+import NotFound from './components/NotFound';
 
 const App: FC = () =>
     <BrowserRouter>
@@ -17,6 +18,7 @@ const App: FC = () =>
                     <Route exact path="/page" component={Page} />
                 </Switch>
             </Auth>
+            <Route path='/notfound' component={NotFound} />
         </Switch>
     </BrowserRouter>
 
