@@ -5,7 +5,7 @@ import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
 import { UserState, setUserProfile } from '../stores/user';
-import { errorOccurred, userNotFound } from '../utils/paths';
+import { home, errorOccurred, userNotFound } from '../utils/paths';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string | null;
@@ -55,7 +55,7 @@ const Callback: FC = () => {
                 emailVerified: user.emailVerified,
             };
             dispatch(setUserProfile(newState));
-            history.push('/');
+            history.push(home);
         } catch (err) {
             console.log(`カスタムトークンによるログインでエラーが発生しました：${err.message}`);
             history.push(errorOccurred);

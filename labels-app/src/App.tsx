@@ -7,6 +7,7 @@ import Page from './components/Page';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { UserState, setUserProfile } from './stores/user';
+import { home, page, callback } from './utils/paths';
 
 const App: FC = () => {
     const dispatch = useDispatch();
@@ -33,9 +34,9 @@ const App: FC = () => {
     return (
         <BrowserRouter>
             <Switch>
-                <Route path='/' exact component={Home} />
-                <Route path='/page' component={Page} />
-                <Route path='/callback' component={Callback} />
+                <Route path={home} exact component={Home} />
+                <Route path={page} component={Page} />
+                <Route path={callback} component={Callback} />
                 <Route component={NotFound} />
             </Switch>
         </BrowserRouter>
