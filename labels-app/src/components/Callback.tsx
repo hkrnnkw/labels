@@ -1,9 +1,9 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import { withRouter, useHistory } from 'react-router';
 import { useDispatch } from 'react-redux';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
-import { Button } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { UserState, setUserProfile } from '../stores/user';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
@@ -13,12 +13,11 @@ interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
 const Callback: FC = () => {
     const dispatch = useDispatch();
     const history = useHistory();
-    const [params, setParams] = useState<StrKeyObj>();
 
     useEffect(() => {
         const queryStr: string = window.location.search;
         const results: StrKeyObj = getParameters(queryStr);
-        setParams(results);
+        requestFirestoreCustomToken(results).catch(err => console.log(err));
     }, []);
 
     // クエリ文字列からパラメータを取得
@@ -54,7 +53,7 @@ const Callback: FC = () => {
                 photoURL: user.photoURL,
                 emailVerified: user.emailVerified,
             };
-            await dispatch(setUserProfile(newState));
+            dispatch(setUserProfile(newState));
             history.push('/');
         } catch (err) {
             console.log(`カスタムトークンによるログインでエラーが発生しました：${err.message}`);
@@ -64,8 +63,7 @@ const Callback: FC = () => {
 
     // CloudFunctions経由で、Spotifyのアクセストークン認証
     // その後、Firestoreにアカウントを作成、カスタムトークンを受領
-    const requestFirestoreCustomToken = async (): Promise<void> => {
-        if (!params) return;
+    const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<void> => {
         const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
         const res: SpotifyTokenResponse = await spotifyToken(params);
         const customToken: string | null = res.data;
@@ -89,13 +87,7 @@ const Callback: FC = () => {
     // };
 
     return (
-        <div>
-            <Button
-                onClick={requestFirestoreCustomToken}
-            >
-                アカウント作成
-            </Button>
-        </div>
+        <Typography>ログイン中・・・</Typography>
     )
 };
 
