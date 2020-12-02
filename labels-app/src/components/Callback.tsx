@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { withRouter, useHistory } from 'react-router';
+import { withRouter, useHistory, useLocation } from 'react-router';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
@@ -11,9 +11,10 @@ interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
 
 const Callback: FC = () => {
     const history = useHistory();
+    const location = useLocation();
 
     useEffect(() => {
-        const queryStr: string = window.location.search;
+        const queryStr: string = location.search;
         const results: StrKeyObj = getParameters(queryStr);
         requestFirestoreCustomToken(results).catch(err => console.log(err));
     }, []);
