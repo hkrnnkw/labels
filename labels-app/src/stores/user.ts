@@ -10,7 +10,7 @@ export type UserState = {
     emailVerified: boolean,
 };
 
-const initialState: UserState = {
+export const initialState: UserState = {
     uid: '',
     signedIn: false,
     refreshToken: '',

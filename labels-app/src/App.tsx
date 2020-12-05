@@ -9,7 +9,7 @@ import Page from './components/Page';
 import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
-import { UserState, setUserProfile } from './stores/user';
+import { initialState, UserState, setUserProfile } from './stores/user';
 import { home, page, account, callback } from './utils/paths';
 
 const App: FC = () => {
@@ -18,18 +18,22 @@ const App: FC = () => {
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
     const didLogInFireAuth = () => {
         auth.onAuthStateChanged(user => {
-            console.log(`Firebaseログインチェック：${user?.displayName}`);
-            if (!user) return;
-            const newState: UserState = {
-                uid: user.uid,
-                signedIn: true,
-                refreshToken: user.refreshToken,
-                displayName: user.displayName || user.uid,
-                email: user.email || '',
-                photoURL: user.photoURL,
-                emailVerified: user.emailVerified,
-            };
-            dispatch(setUserProfile(newState));
+            if (user) {
+                console.log(`ログイン中です：${user.displayName}`);
+                const newState: UserState = {
+                    uid: user.uid,
+                    signedIn: true,
+                    refreshToken: user.refreshToken,
+                    displayName: user.displayName || user.uid,
+                    email: user.email || '',
+                    photoURL: user.photoURL,
+                    emailVerified: user.emailVerified,
+                };
+                dispatch(setUserProfile(newState));
+            } else {
+                console.log(`ログインしていません`);
+                dispatch(setUserProfile(initialState));
+            }
         });
     };
     useEffect(didLogInFireAuth, []);
