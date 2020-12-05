@@ -15,26 +15,6 @@ const Callback: FC = () => {
     const [authed, setAuthed] = useState<boolean>();
     const location = useLocation();
 
-    useEffect(() => {
-        const queryStr: string = location.search;
-        const results: StrKeyObj = getParameters(queryStr);
-        requestFirestoreCustomToken(results).catch(err => console.log(err));
-    }, []);
-
-    // クエリ文字列からパラメータを取得
-    const getParameters = (queryStr: string): StrKeyObj => {
-        const result: StrKeyObj = {};
-        const temp = queryStr.substring(1);
-        const rawParams: string[] = temp.split('&');
-        for (let i = 0; i < rawParams.length; i++) {
-            const elem: string[] = rawParams[i].split('=');
-            const key: string = decodeURIComponent(elem[0]);
-            const value: string = decodeURIComponent(elem[1]);
-            result[key] = value;
-        }
-        return result;
-    };
-
     // Firebaseログイン
     const signInWithCustomToken = async (customToken : string) => {
         try {
@@ -58,6 +38,26 @@ const Callback: FC = () => {
             setErrorOccur(true);
         }
     };
+
+    // クエリ文字列からパラメータを取得
+    const getParameters = (queryStr: string): StrKeyObj => {
+        const result: StrKeyObj = {};
+        const temp = queryStr.substring(1);
+        const rawParams: string[] = temp.split('&');
+        for (let i = 0; i < rawParams.length; i++) {
+            const elem: string[] = rawParams[i].split('=');
+            const key: string = decodeURIComponent(elem[0]);
+            const value: string = decodeURIComponent(elem[1]);
+            result[key] = value;
+        }
+        return result;
+    };
+
+    useEffect(() => {
+        const queryStr: string = location.search;
+        const results: StrKeyObj = getParameters(queryStr);
+        requestFirestoreCustomToken(results).catch(err => console.log(err));
+    }, []);
 
     // TODO? https://qiita.com/zaburo/items/92920fa955bdb890c52e
     // const a = (refreshToken: string) => {
