@@ -1,5 +1,6 @@
-import React, { FC, useEffect } from 'react';
-import { withRouter, useHistory, useLocation } from 'react-router';
+import React, { FC, useEffect, useState } from 'react';
+import { withRouter, useLocation } from 'react-router';
+import { Redirect } from 'react-router-dom';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
@@ -10,7 +11,8 @@ interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
 }
 
 const Callback: FC = () => {
-    const history = useHistory();
+    const [errorOccur, setErrorOccur] = useState(false);
+    const [authed, setAuthed] = useState<boolean>();
     const location = useLocation();
 
     useEffect(() => {
@@ -37,10 +39,10 @@ const Callback: FC = () => {
     const signInWithCustomToken = async (customToken : string) => {
         try {
             const response: firebase.auth.UserCredential = await auth.signInWithCustomToken(customToken);
-            history.push(response.user ? home : userNotFound);
+            setAuthed(response.user !== null);
         } catch (err) {
             console.log(`カスタムトークンによるログインでエラーが発生しました：${err.message}`);
-            history.push(errorOccurred);
+            setErrorOccur(true);
         }
     };
 
@@ -50,7 +52,11 @@ const Callback: FC = () => {
         const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
         const res: SpotifyTokenResponse = await spotifyToken(params);
         const customToken: string | null = res.data;
-        if (customToken && customToken.length) signInWithCustomToken(customToken).catch(err => console.log(err));
+        if (customToken && customToken.length) {
+            signInWithCustomToken(customToken).catch(err => console.log(err));
+        } else {
+            setErrorOccur(true);
+        }
     };
 
     // TODO? https://qiita.com/zaburo/items/92920fa955bdb890c52e
@@ -70,7 +76,11 @@ const Callback: FC = () => {
     // };
 
     return (
-        <Typography>ログイン中・・・</Typography>
+        errorOccur ? <Redirect to={errorOccurred} />
+        :
+        authed === undefined ? <Typography>ログイン中・・・</Typography>
+        :
+        <Redirect to={authed ? home : userNotFound} />
     )
 };
 

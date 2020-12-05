@@ -2,6 +2,7 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 import { auth } from './firebase';
+import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
 import Page from './components/Page';
 import Account from './components/Account';
@@ -38,7 +39,7 @@ const App: FC = () => {
                 <Route path={home} exact component={Home} />
                 <Route path={page} component={Page} />
                 <Route path={account} component={Account} />
-                <Route path={callback} component={Callback} />
+                <GuestRoute path={callback} component={Callback} />
                 <Route component={NotFound} />
             </Switch>
         </BrowserRouter>
