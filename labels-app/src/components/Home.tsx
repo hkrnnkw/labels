@@ -1,11 +1,13 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import firebase, { f } from '../firebase';
 import { RootState } from '../stores/index';
 import { Button, Snackbar } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 import { StrKeyObj } from '../utils/types';
+import { account } from '../utils/paths';
 
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
@@ -20,7 +22,6 @@ const Home: FC<Props> = () => {
     const { signedIn, email, emailVerified } = useSelector((rootState: RootState) => rootState.user);
 
     useEffect(() => {
-        console.log(`Homeを表示します`);
         if (signedIn && !emailVerified) sendEmailVerification();
     }, []);
 
@@ -48,6 +49,7 @@ const Home: FC<Props> = () => {
             {signedIn ?
                 <p>ログイン済みです</p> : <Button onClick={requestAuthUrl}>Spotifyでログイン</Button>
             }
+            <Link to={account}>マイページ</Link>
             <Snackbar
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 open={snackbarOpen}
