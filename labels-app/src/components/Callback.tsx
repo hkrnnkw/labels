@@ -7,7 +7,7 @@ import { Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: string | null;
+    readonly data: StrKeyObj;
 }
 
 const Callback: FC = () => {
@@ -31,9 +31,8 @@ const Callback: FC = () => {
     const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<void> => {
         const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
         const res: SpotifyTokenResponse = await spotifyToken(params);
-        const customToken: string | null = res.data;
-        if (customToken && customToken.length) {
-            signInWithCustomToken(customToken).catch(err => console.log(err));
+        if (Object.keys(res.data).length >= 2 && res.data.customToken.length) {
+            signInWithCustomToken(res.data.customToken).catch(err => console.log(err));
         } else {
             setErrorOccur(true);
         }

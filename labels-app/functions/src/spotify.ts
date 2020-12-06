@@ -22,27 +22,23 @@ export const redirect = f.https.onCall((data, context) => {
 
 // アクセストークンを取得（正常に処理されたら、Firestoreにアカウントを作成）
 export const token = f.https.onCall(async (data, context) => {
-    let spotifyToken: string;
-    await spotifyApi.authorizationCodeGrant(data.code)
-        .then((res: { body: { [x: string]: any; }; }) => {
-            spotifyToken = res.body['access_token'];
-            spotifyApi.setAccessToken(spotifyToken);
-        })
-        .catch((err: { message: any; }) => {
-            console.log('不具合が発生 authorizationCodeGrant：', err.message);
-        });
-    const result: string | null = spotifyApi.getMe()
-        .then(async (res: { body: { [x: string]: any; }; }) => {
-            const spotifyUserID: string = res.body['id'];
-            const userName: string = res.body['display_name'];
-            const img = res.body['images'][0];
-            const profilePic: string | null = img ? img['url'] : null;
-            const email: string = res.body['email'];
-            return await manageUser(spotifyToken, spotifyUserID, userName, profilePic, email);
-        })
-        .catch((err: { message: any; }) => {
-            console.log('不具合が発生 getMe：', err.message);
-            return null;
-        });
-    return result;
+    try {
+        const response: { body: { [x: string]: any; } } = await spotifyApi.authorizationCodeGrant(data.code)
+        const spotifyToken: string = response.body['access_token'];
+        spotifyApi.setAccessToken(spotifyToken);
+        const user: { body: { [x: string]: any; } } = await spotifyApi.getMe();
+        const spotifyUserID: string = user.body['id'];
+        const userName: string = user.body['display_name'];
+        const img = user.body['images'][0];
+        const profilePic: string | null = img ? img['url'] : null;
+        const email: string = user.body['email'];
+        const customToken: string = await manageUser(spotifyToken, spotifyUserID, userName, profilePic, email);
+        return {
+            spotifyToken: spotifyToken,
+            customToken: customToken,
+        }
+    } catch (err) {
+        console.log(`不具合が発生：${err.message}`);
+        return {};
+    };
 });
