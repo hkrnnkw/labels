@@ -2,7 +2,7 @@ import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import firebase, { f } from '../firebase';
+import firebase, { f, auth } from '../firebase';
 import { RootState } from '../stores/index';
 import { Button, Snackbar } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,8 +36,13 @@ const Home: FC<Props> = () => {
         setSnackbarOpen(false);
     };
 
-    // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
-    const requestAuthUrl = async (): Promise<void> => {
+    // サインイン／アウト
+    const signInOut = async (): Promise<void> => {
+        if (signedIn) {
+            await auth.signOut();
+            return;
+        }
+        // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
         const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotifyRedirect');
         const param: StrKeyObj = { state: uuidv4() };
         const response: SpotifyRedirectResponse = await spotifyRedirect(param);
@@ -46,9 +51,7 @@ const Home: FC<Props> = () => {
 
     return (
         <div>
-            {signedIn ?
-                <p>ログイン済みです</p> : <Button onClick={requestAuthUrl}>Spotifyでログイン</Button>
-            }
+            <Button onClick={signInOut}>{signedIn ? 'ログアウト' : 'Spotifyでログイン'}</Button>
             <Link to={account}>マイページ</Link>
             <Snackbar
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
