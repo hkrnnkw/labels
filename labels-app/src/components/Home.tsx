@@ -8,6 +8,7 @@ import { Button, Snackbar } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
 import { StrKeyObj } from '../utils/types';
 import { account } from '../utils/paths';
+import axios from 'axios';
 
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
@@ -19,10 +20,41 @@ interface Props extends RouteComponentProps {
 
 const Home: FC<Props> = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const { signedIn, email, emailVerified } = useSelector((rootState: RootState) => rootState.user);
+    const { signedIn, email, emailVerified, spotifyToken } = useSelector((rootState: RootState) => rootState.user);
 
+    // レーベルの情報を取得
+    const fetchLabels = async () => {
+        const endpoint = `https://api.spotify.com/v1/search`;
+        const label = 'PAN';
+        const year = 2020;
+        const search = `label%3A${label}%20AND%20year%3A${year}`;
+        const type = 'album';
+        const limit = 10;
+        const offset = 5;
+        const query = `?query=${search}&type=${type}&limit=${limit}&offset=${offset}`;
+        const url = `${endpoint}${query}`;
+        try {
+            const response = await axios.get(url, {
+                headers: {
+                    Authorization: `Bearer ${spotifyToken}`,
+                },
+            });
+
+            // TODO responseを加工
+            Object.keys(response.data.albums.items).forEach(num => {
+                const temp = response.data.albums.items[`${num}`];
+                Object.keys(temp).forEach(key => {
+                    console.log(`結果 ${num} : ${key} : ${temp[`${key}`]}`);
+                });
+                console.log(`////////////////// ${num} //////////////////`);
+            });
+        } catch (err) {
+            console.log(`Spotifyフェッチエラー：${err}`);
+        }
+    };
     useEffect(() => {
         if (signedIn && !emailVerified) sendEmailVerification();
+        fetchLabels().catch(err => console.log(err));
     }, []);
 
     // TODO 確認メール送信

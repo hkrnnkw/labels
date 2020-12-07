@@ -19,6 +19,7 @@
     "@types/react-router-dom": "^5.1.6",
     "@types/request": "^2.48.5",
     "@types/uuid": "^8.3.0",
+    "axios": "^0.21.0",
     "firebase": "^8.0.2",
     "node-sass": "^4.14.1",
     "react": "^17.0.1",
