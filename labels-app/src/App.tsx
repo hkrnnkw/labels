@@ -9,7 +9,7 @@ import Page from './components/Page';
 import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
-import { initialState, UserProfile, Auth, setUserProfile, setAuth, setSpotifyToken } from './stores/user';
+import { UserProfile, Auth, setUserProfile, setAuth, setClearUser } from './stores/user';
 import { home, page, account, callback } from './utils/paths';
 
 const App: FC = () => {
@@ -17,7 +17,7 @@ const App: FC = () => {
 
     useEffect(() => {
         // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
-        return auth.onAuthStateChanged(user => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
                 console.log(`ログイン中です：${user.displayName}`);
                 const newProfile: UserProfile = {
@@ -35,10 +35,11 @@ const App: FC = () => {
                 dispatch(setAuth(newAuth));
             } else {
                 console.log(`ログインしていません`);
-                dispatch(setUserProfile(initialState));
+                dispatch(setClearUser());
             }
         });
-    }, []);
+        return () => unsubscribe();
+    });
     
     return (
         <BrowserRouter>

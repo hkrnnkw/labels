@@ -13,11 +13,11 @@ export interface Auth {
     emailVerified: boolean;
 }
 
-export type UserState = UserProfile & Auth & {
+type UserState = UserProfile & Auth & {
     spotifyToken: string;
 };
 
-export const initialState: UserState = {
+const initialState: UserState = {
     uid: '',
     signedIn: false,
     refreshToken: '',
@@ -48,9 +48,12 @@ const slice = createSlice({
         setSpotifyToken: (state: UserState, action: PayloadAction<string>) => {
             state.spotifyToken = action.payload;
         },
+        setClearUser: () => {
+            return initialState;
+        },
     },
 });
 
 export default slice;
 
-export const { setUserProfile, setAuth, setSpotifyToken } = slice.actions;
+export const { setUserProfile, setAuth, setSpotifyToken, setClearUser } = slice.actions;
