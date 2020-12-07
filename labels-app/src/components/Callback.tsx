@@ -1,10 +1,12 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter, useLocation } from 'react-router';
 import { Redirect } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
+import { setSpotifyToken } from '../stores/user';
 
 interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: StrKeyObj;
@@ -14,6 +16,7 @@ const Callback: FC = () => {
     const [errorOccur, setErrorOccur] = useState(false);
     const [authed, setAuthed] = useState<boolean>();
     const location = useLocation();
+    const dispatch = useDispatch();
 
     // Firebaseログイン
     const signInWithCustomToken = async (customToken : string) => {
@@ -32,6 +35,7 @@ const Callback: FC = () => {
         const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
         const res: SpotifyTokenResponse = await spotifyToken(params);
         if (Object.keys(res.data).length >= 2 && res.data.customToken.length) {
+            dispatch(setSpotifyToken(res.data.spotifyToken));
             signInWithCustomToken(res.data.customToken).catch(err => console.log(err));
         } else {
             setErrorOccur(true);
