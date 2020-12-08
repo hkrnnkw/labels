@@ -31,7 +31,7 @@ const Home: FC<Props> = () => {
         const type = 'album';
         const limit = 10;
         const offset = 5;
-        const query = `?query=${search}&type=${type}&limit=${limit}&offset=${offset}`;
+        const query = `?q=${search}&type=${type}&limit=${limit}&offset=${offset}`;
         const url = `${endpoint}${query}`;
         try {
             const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
