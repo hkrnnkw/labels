@@ -34,12 +34,14 @@ const Home: FC<Props> = () => {
         const query = `?query=${search}&type=${type}&limit=${limit}&offset=${offset}`;
         const url = `${endpoint}${query}`;
         try {
+            const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
+            const res: SpotifyRedirectResponse = await getAlbumsOfLabels();
+
             const response = await axios.get(url, {
                 headers: {
                     Authorization: `Bearer ${spotifyToken}`,
                 },
             });
-
             // TODO responseを加工
             Object.keys(response.data.albums.items).forEach(num => {
                 const temp = response.data.albums.items[`${num}`];
