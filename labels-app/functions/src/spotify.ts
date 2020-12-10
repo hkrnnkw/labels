@@ -10,26 +10,71 @@ const clientId = 'd3047cbde8024e9f8ea04e0205be4a7c';
 const clientSecret = '319ba476889548c89f4ed26f094a303a';
 const redirectUri = 'http://localhost:5000/callback';
 
-// ClientCredentialsFlowによりアクセストークンを取得し、セットする
-const processTokenByClientCredentials = async () => {
+type Album = {
+    label: string;
+    artists: Object[];
+    id: string;
+    images: Object[];
+    name: string;
+    releaseDate: string;
+    genres: string[];
+};
+
+// ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
+export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
     const spotifyApi = new SpotifyWebApi({
         clientId: clientId,
         clientSecret: clientSecret,
     });
+    const labels = ['PAN', 'WARP RECORDS', 'AD 93'];
+    const today = new Date();
+    const year = today.getFullYear();
+    const limit = 20;
     try {
-        const response = await spotifyApi.clientCredentialsGrant();
-        spotifyApi.setAccessToken(response.body['access_token']);
-    } catch (err) {
-        console.log('Something went wrong when retrieving an access token', err);
-    }
-};
+        const auth = await spotifyApi.clientCredentialsGrant();
+        spotifyApi.setAccessToken(auth.body['access_token']);
 
-// レーベルごとのアルバムデータを取得する
-export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
-    try {
-        await processTokenByClientCredentials();
+        // 各レーベルにおけるアルバム群の各idを取得
+        const albumIdsOfLabels: string[][] = [];
+        const response = await Promise.all(labels.map(async (label) => {
+            return await spotifyApi.searchAlbums(`label:${label.includes(' ') ? `"${label}"` : label} year:${year} tag:new`, {limit: limit});
+        }));
+        response.forEach(res => {
+            const albumIds: string[] = [];
+            const items = res.body.albums.items;
+            Object.keys(items).forEach(num => {
+                const id = items[num].id;
+                albumIds.push(id);
+            });
+            albumIdsOfLabels.push(albumIds);
+        });
+
+        // idを元にalbum object (full)を取得し、それを整型してから返す
+        const oneLabel = new Map<string | null, Album[]>();
+        const result = await Promise.all(albumIdsOfLabels.map(async (albumId) => {
+            const res = await spotifyApi.getAlbums(albumId);
+            const rawArray: any[] = res.body.albums;
+            const albums: Album[] = [];
+            rawArray.forEach(elem => {
+                const labelName = elem.label;
+                if (!labels.includes(labelName.toUpperCase())) return;
+                const album: Album = {
+                    label: elem.label as string,
+                    artists: elem.artists as Object[],
+                    id: elem.id as string,
+                    images: elem.images as Object[],
+                    name: elem.name as string,
+                    releaseDate: elem.releaseDate as string,
+                    genres: elem.genres as string[],
+                }
+                albums.push(album);
+            });
+            return oneLabel.set(albums.length ? albums[0].label : null, albums);
+        }));
+        return result;
     } catch (err) {
         console.log(err);
+        return [];
     }
 });
 

@@ -6,12 +6,15 @@ import firebase, { f, auth } from '../firebase';
 import { RootState } from '../stores/index';
 import { Button, Snackbar } from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
-import { StrKeyObj } from '../utils/types';
+import { Album, StrKeyObj } from '../utils/types';
 import { account } from '../utils/paths';
 import axios from 'axios';
 
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
+}
+interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
+    readonly data: Map<string | null, Album[]>[];
 }
 
 interface Props extends RouteComponentProps {
@@ -35,7 +38,7 @@ const Home: FC<Props> = () => {
         const url = `${endpoint}${query}`;
         try {
             const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
-            const res: SpotifyRedirectResponse = await getAlbumsOfLabels();
+            const res: GetAlbumsOfLabelsResponse = await getAlbumsOfLabels();
 
             const response = await axios.get(url, {
                 headers: {
