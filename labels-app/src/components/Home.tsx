@@ -14,7 +14,7 @@ interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult
     readonly data: string;
 }
 interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: Map<string | null, Album[]>[];
+    readonly data: Album[][];
 }
 
 interface Props extends RouteComponentProps {
@@ -24,6 +24,7 @@ interface Props extends RouteComponentProps {
 const Home: FC<Props> = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const { signedIn, email, emailVerified, spotifyToken } = useSelector((rootState: RootState) => rootState.user);
+    const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
@@ -37,8 +38,13 @@ const Home: FC<Props> = () => {
         const query = `?q=${search}&type=${type}&limit=${limit}&offset=${offset}`;
         const url = `${endpoint}${query}`;
         try {
-            const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
-            const res: GetAlbumsOfLabelsResponse = await getAlbumsOfLabels();
+            if (!spotifyToken) {
+                const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
+                const res: GetAlbumsOfLabelsResponse = await getAlbumsOfLabels();
+                setAlbumsOfLabels(res.data);
+                return;
+            }
+
 
             const response = await axios.get(url, {
                 headers: {
@@ -90,6 +96,8 @@ const Home: FC<Props> = () => {
         <div>
             <Button onClick={signInOut}>{signedIn ? 'ログアウト' : 'Spotifyでログイン'}</Button>
             <Link to={account}>マイページ</Link>
+            {albumsOfLabels.length > 0 &&
+            }
             <Snackbar
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                 open={snackbarOpen}

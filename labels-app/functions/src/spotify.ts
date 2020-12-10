@@ -26,7 +26,7 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
         clientId: clientId,
         clientSecret: clientSecret,
     });
-    const labels = ['PAN', 'WARP RECORDS', 'AD 93'];
+    const labels = ['PAN', 'Warp Records', 'AD 93'];
     const today = new Date();
     const year = today.getFullYear();
     const limit = 20;
@@ -50,14 +50,12 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
         });
 
         // idを元にalbum object (full)を取得し、それを整型してから返す
-        const oneLabel = new Map<string | null, Album[]>();
         const result = await Promise.all(albumIdsOfLabels.map(async (albumId) => {
             const res = await spotifyApi.getAlbums(albumId);
             const rawArray: any[] = res.body.albums;
             const albums: Album[] = [];
             rawArray.forEach(elem => {
-                const labelName = elem.label;
-                if (!labels.includes(labelName.toUpperCase())) return;
+                if (!labels.includes(elem.label)) return;
                 const album: Album = {
                     label: elem.label as string,
                     artists: elem.artists as Object[],
@@ -69,7 +67,7 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
                 }
                 albums.push(album);
             });
-            return oneLabel.set(albums.length ? albums[0].label : null, albums);
+            return albums;
         }));
         return result;
     } catch (err) {
