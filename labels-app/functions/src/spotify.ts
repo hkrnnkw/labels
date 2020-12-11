@@ -83,7 +83,8 @@ export const redirect = f.https.onCall((data, context) => {
         clientSecret: clientSecret,
         redirectUri: redirectUri,
     });
-    const scopes = ['user-read-private', 'user-read-email'];
+    const scopes = ['user-read-private', 'user-read-email', 'user-top-read', 'user-read-recently-played',
+        'streaming', 'playlist-modify-public', 'user-library-modify'];
     const state: string = data.state;
     const authorizeURL: string = spotifyApi.createAuthorizeURL(scopes, state);
     return authorizeURL;
