@@ -26,50 +26,38 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
         clientId: clientId,
         clientSecret: clientSecret,
     });
-    const labels = ['PAN', 'Warp Records', 'AD 93'];
-    const today = new Date();
-    const year = today.getFullYear();
+    const labels = data.labels;
     const limit = 20;
     try {
         const auth = await spotifyApi.clientCredentialsGrant();
         spotifyApi.setAccessToken(auth.body['access_token']);
 
         // 各レーベルにおけるアルバム群の各idを取得
-        const albumIdsOfLabels: string[][] = [];
-        const response = await Promise.all(labels.map(async (label) => {
-            return await spotifyApi.searchAlbums(`label:${label.includes(' ') ? `"${label}"` : label} year:${year} tag:new`, {limit: limit});
-        }));
-        response.forEach(res => {
-            const albumIds: string[] = [];
-            const items = res.body.albums.items;
-            Object.keys(items).forEach(num => {
-                const id = items[num].id;
-                albumIds.push(id);
+        const fetchAlbumIdsOfLabels = async (labelList: string[]): Promise<string[][]> => {
+            const response = await Promise.all(labelList.map(async (label) => {
+                return await spotifyApi.searchAlbums(`label:${label.includes(' ') ? `"${label}"` : label} tag:new`, {limit: limit});
+            }));
+            return response.map(res => {
+                const items = res.body.albums.items;
+                const ids: string[] = Object.keys(items).map(num => items[num].id);
+                return ids;
             });
-            albumIdsOfLabels.push(albumIds);
-        });
+        };
 
         // idを元にalbum object (full)を取得し、それを整型してから返す
-        const result = await Promise.all(albumIdsOfLabels.map(async (albumId) => {
-            const res = await spotifyApi.getAlbums(albumId);
-            const rawArray: any[] = res.body.albums;
-            const albums: Album[] = [];
-            rawArray.forEach(elem => {
-                if (!labels.includes(elem.label)) return;
-                const album: Album = {
-                    label: elem.label as string,
-                    artists: elem.artists as Object[],
-                    id: elem.id as string,
-                    images: elem.images as Object[],
-                    name: elem.name as string,
-                    releaseDate: elem.releaseDate as string,
-                    genres: elem.genres as string[],
-                }
-                albums.push(album);
+        const fetchAlbumsOfLabels = async (albumIds: string[][], labelList: string[]): Promise<Album[][]> => {
+            const response = await Promise.all(albumIds.map(async (albumId) => {
+                return await spotifyApi.getAlbums(albumId);
+            }));
+            return response.map(res => {
+                const albums: Album[] = res.body.albums.filter((elem: Album) => labelList.includes(elem.label));
+                return albums;
             });
-            return albums;
-        }));
-        return result;
+        }
+
+        const albumIdsOfLabels: string[][] = await fetchAlbumIdsOfLabels(labels);
+        const albumsOfLabels: Album[][] = await fetchAlbumsOfLabels(albumIdsOfLabels, labels);
+        return albumsOfLabels;
     } catch (err) {
         console.log(err);
         return [];
