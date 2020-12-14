@@ -57,7 +57,7 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
 
         const albumIdsOfLabels: string[][] = await fetchAlbumIdsOfLabels(labels);
         const albumsOfLabels: Album[][] = await fetchAlbumsOfLabels(albumIdsOfLabels, labels);
-        return albumsOfLabels;
+        return albumsOfLabels.filter((elem: Album[]) => elem.length);
     } catch (err) {
         console.log(err);
         return [];
