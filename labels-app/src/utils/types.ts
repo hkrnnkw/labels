@@ -8,3 +8,18 @@ export type Album = {
     releaseDate: string;
     genres: string[];
 };
+export type Image = {
+    height: number,
+    url: string,
+    width: number,
+};
+export type Artist = {
+    external_urls: {
+        spotify: string,
+    },
+    href: string,
+    id: string,
+    name: string,
+    type: string,
+    uri: string,
+};
