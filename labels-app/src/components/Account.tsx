@@ -26,11 +26,14 @@ const Account: FC = () => {
             Object.keys(response.data.albums.items).forEach(num => {
                 const item = response.data.albums.items[`${num}`];
                 const album: Album = {
+                    label: item.label,
                     artists: item.artists,
                     id: item.id,
                     images: item.images,
                     name: item.name,
-                    releaseDate: item.releaseDate,
+                    release_date: item.release_date,
+                    genres: item.genres,
+                    album_type: item.album_type,
                 };
                 results.push(album);
             });

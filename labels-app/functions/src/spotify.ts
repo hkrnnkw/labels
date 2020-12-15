@@ -16,8 +16,9 @@ type Album = {
     id: string;
     images: Object[];
     name: string;
-    releaseDate: string;
+    release_date: string;
     genres: string[];
+    album_type: string;
 };
 
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
