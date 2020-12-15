@@ -65,15 +65,6 @@ const Home: FC<Props> = () => {
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
-        const endpoint = `https://api.spotify.com/v1/search`;
-        const label = 'PAN';
-        const year = 2020;
-        const search = `label%3A${label}%20AND%20year%3A${year}`;
-        const type = 'album';
-        const limit = 10;
-        const offset = 5;
-        const query = `?q=${search}&type=${type}&limit=${limit}&offset=${offset}`;
-        const url = `${endpoint}${query}`;
         try {
             if (!spotifyToken) {
                 const labels = [
@@ -88,20 +79,6 @@ const Home: FC<Props> = () => {
                 return;
             }
 
-
-            const response = await axios.get(url, {
-                headers: {
-                    Authorization: `Bearer ${spotifyToken}`,
-                },
-            });
-            // TODO responseを加工
-            Object.keys(response.data.albums.items).forEach(num => {
-                const temp = response.data.albums.items[`${num}`];
-                Object.keys(temp).forEach(key => {
-                    console.log(`結果 ${num} : ${key} : ${temp[`${key}`]}`);
-                });
-                console.log(`////////////////// ${num} //////////////////`);
-            });
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
