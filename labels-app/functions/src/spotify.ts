@@ -30,6 +30,8 @@ type Album = {
 export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
     const labels = data.labels;
     const limit = 20;
+    const today = new Date();
+    const year = today.getFullYear();
     try {
         const auth = await spotifyApi.clientCredentialsGrant();
         spotifyApi.setAccessToken(auth.body['access_token']);
@@ -37,7 +39,7 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
         // 各レーベルにおけるアルバム群の各idを取得
         const fetchAlbumIdsOfLabels = async (labelList: string[]): Promise<string[][]> => {
             const response = await Promise.all(labelList.map(async (label) => {
-                return await spotifyApi.searchAlbums(`label:${label.includes(' ') ? `"${label}"` : label} tag:new`, {limit: limit});
+                return await spotifyApi.searchAlbums(`label:"${label}" year:${year}`, { limit: limit });
             }));
             return response.map(res => {
                 const items = res.body.albums.items;

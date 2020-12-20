@@ -69,7 +69,7 @@ const Home: FC<Props> = () => {
                 const labels = [
                     'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
                     'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-                    'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'L-M Records', 'EQT Recordings',
+                    'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                     'Republic Records', 'Smalltown Supersound', 'aritech',
                 ];
                 const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
