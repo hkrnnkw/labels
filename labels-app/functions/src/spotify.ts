@@ -83,6 +83,8 @@ export const signIn = f.https.onCall(async (data, context) => {
         const refreshToken: string = response.body['refresh_token'];
         spotifyApi.setAccessToken(token);
         spotifyApi.setRefreshToken(refreshToken);
+        const date = new Date();
+        const expiresIn = date.setMinutes(date.getMinutes() + 58);
         const user: { body: { [x: string]: any; } } = await spotifyApi.getMe();
         const spotifyUserID: string = user.body['id'];
         const userName: string = user.body['display_name'];
@@ -92,7 +94,7 @@ export const signIn = f.https.onCall(async (data, context) => {
         const customToken: string = await manageUser(refreshToken, spotifyUserID, userName, profilePic, email);
         return {
             token: token,
-            expiresIn: response.body['expires_in'],
+            expiresIn: expiresIn.toString(),
             refreshToken: refreshToken,
             customToken: customToken,
         }
