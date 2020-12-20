@@ -7,7 +7,7 @@ import axios from 'axios';
 import { Album } from '../utils/types';
 
 const Account: FC = () => {
-    const { uid, spotifyToken } = useSelector((rootState: RootState) => rootState.user);
+    const { uid, spotify } = useSelector((rootState: RootState) => rootState.user);
     const [albums, setAlbums] = useState<Album[]>([]);
 
     // アルバムの情報を取得
@@ -18,7 +18,7 @@ const Account: FC = () => {
         try {
             const response = await axios.get(url, {
                 headers: {
-                    Authorization: `Bearer ${spotifyToken}`,
+                    Authorization: `Bearer ${spotify.token}`,
                 },
             });
             // TODO responseを加工

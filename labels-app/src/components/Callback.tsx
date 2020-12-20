@@ -6,7 +6,7 @@ import firebase, { f, auth } from '../firebase';
 import { StrKeyObj } from '../utils/types';
 import { Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
-import { setSpotifyToken } from '../stores/user';
+import { setSpotifyTokens, Spotify } from '../stores/user';
 
 interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
     readonly data: StrKeyObj;
@@ -34,8 +34,16 @@ const Callback: FC = () => {
     const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<void> => {
         const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
         const res: SpotifySignInResponse = await spotifySignIn(params);
-        if (Object.keys(res.data).length >= 2 && res.data.customToken.length) {
-            dispatch(setSpotifyToken(res.data.spotifyToken));
+        if (Object.keys(res.data).length >= 4 && res.data.customToken.length) {
+            const spotifyTokens: Spotify = {
+                spotify: {
+                    token: res.data.token,
+                    expiresIn: res.data.expiresIn,
+                    refreshToken: res.data.refreshToken,
+                },
+            };
+            dispatch(setSpotifyTokens(spotifyTokens));
+            // TODO サーバ側でそのままサインインする？
             signInWithCustomToken(res.data.customToken).catch(err => console.log(err));
         } else {
             setErrorOccur(true);
@@ -59,6 +67,7 @@ const Callback: FC = () => {
     useEffect(() => {
         const queryStr: string = location.search;
         const results: StrKeyObj = getParameters(queryStr);
+        // TODO spotifyでの承認がされてるかチェック。trueなら、requestFirestoreCustomToken()
         requestFirestoreCustomToken(results).catch(err => console.log(err));
     }, []);
 

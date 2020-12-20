@@ -11,13 +11,6 @@ export type Album = {
     album_type: string,
 };
 
-export type SimpleAlbum = {
-    artists: Object[],
-    id: string;
-    images: Object[];
-    name: string;
-};
-
 export type Image = {
     height: number,
     url: string,

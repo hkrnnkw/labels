@@ -1,21 +1,14 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import firebase, { f, auth } from '../firebase';
+import firebase, { f } from '../firebase';
 import { RootState } from '../stores/index';
 import {
-    Button, Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography,
-    createStyles, makeStyles,
+    createStyles, makeStyles, Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography,
 } from '@material-ui/core';
-import { v4 as uuidv4 } from 'uuid';
-import { Album, SimpleAlbum, StrKeyObj, Image, Artist } from '../utils/types';
-import { account } from '../utils/paths';
+import { Album, Image, Artist } from '../utils/types';
 import axios from 'axios';
 
-interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: string;
-}
 interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
     readonly data: Album[][];
 }
@@ -62,13 +55,13 @@ const ambiguousStyles = makeStyles(() =>
 const Home: FC<Props> = () => {
     const classes = ambiguousStyles();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const { signedIn, email, emailVerified, spotifyToken } = useSelector((rootState: RootState) => rootState.user);
     const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
+    const { signedIn, email, emailVerified, spotify } = useSelector((rootState: RootState) => rootState.user);
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
         try {
-            if (!spotifyToken) {
+            if (!spotify.token) {
                 const labels = [
                     'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
                     'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
@@ -101,19 +94,6 @@ const Home: FC<Props> = () => {
         setSnackbarOpen(false);
     };
 
-    // サインイン／アウト
-    const signInOut = async (): Promise<void> => {
-        if (signedIn) {
-            await auth.signOut();
-            return;
-        }
-        // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
-        const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotify_redirect');
-        const param: StrKeyObj = { state: uuidv4() };
-        const response: SpotifyRedirectResponse = await spotifyRedirect(param);
-        window.location.href = response.data;
-    };
-
     const generateAlbums = (label: Album[]): JSX.Element => {
         const labelName: string = label[0].label;
         const albumGridListTiles: JSX.Element[] = label.map(album => {
@@ -141,8 +121,6 @@ const Home: FC<Props> = () => {
 
     return (
         <div>
-            <Button onClick={signInOut}>{signedIn ? 'ログアウト' : 'Spotifyでログイン'}</Button>
-            <Link to={account}>マイページ</Link>
             {albumsOfLabels.length > 0 &&
                 albumsOfLabels.map(label => generateAlbums(label))
             }
