@@ -6,12 +6,13 @@ import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
 import Page from './components/Page';
+import Search from './components/Search';
 import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { UserProfile, Auth, setUserProfile, setAuth, setClearUser } from './stores/user';
 import { StrKeyObj } from './utils/types';
-import { home, page, account, callback } from './utils/paths';
+import { home, page, account, callback, search } from './utils/paths';
 import { v4 as uuidv4 } from 'uuid';
 import {
     SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider,
@@ -84,11 +85,11 @@ const App: FC = () => {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                <ListItem button key={'account'}>
-                    <Link to={account}>
+                <Link to={account}>
+                    <ListItem button key={'account'}>
                         <ListItemIcon><PersonIcon /></ListItemIcon><ListItemText primary={'マイページ'} />
-                    </Link>
-                </ListItem>
+                    </ListItem>
+                </Link>
             </List>
             <Divider />
             <List>
@@ -114,6 +115,7 @@ const App: FC = () => {
             <Switch>
                 <Route path={home} exact component={Home} />
                 <Route path={page} component={Page} />
+                <PrivateRoute path={search} component={Search} />
                 <PrivateRoute path={account} component={Account} />
                 <GuestRoute path={callback} component={Callback} />
                 <Route component={NotFound} />

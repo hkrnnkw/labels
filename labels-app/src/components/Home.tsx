@@ -1,12 +1,16 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import firebase, { f } from '../firebase';
 import { RootState } from '../stores/index';
 import {
-    createStyles, makeStyles, Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography,
+    createStyles, makeStyles, Snackbar, GridList, GridListTile, GridListTileBar, Container,
+    Typography, IconButton,
 } from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
 import { Album, Image, Artist } from '../utils/types';
+import { search } from '../utils/paths';
 import axios from 'axios';
 
 interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
@@ -121,6 +125,7 @@ const Home: FC<Props> = () => {
 
     return (
         <div>
+            <Link to={search}><IconButton><SearchIcon /></IconButton></Link>
             {albumsOfLabels.length > 0 &&
                 albumsOfLabels.map(label => generateAlbums(label))
             }
