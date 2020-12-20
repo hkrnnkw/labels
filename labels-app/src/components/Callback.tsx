@@ -8,7 +8,7 @@ import { Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
 import { setSpotifyToken } from '../stores/user';
 
-interface SpotifyTokenResponse extends firebase.functions.HttpsCallableResult {
+interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
     readonly data: StrKeyObj;
 }
 
@@ -32,8 +32,8 @@ const Callback: FC = () => {
     // CloudFunctions経由で、Spotifyのアクセストークン認証
     // その後、Firestoreにアカウントを作成、カスタムトークンを受領
     const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<void> => {
-        const spotifyToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyToken');
-        const res: SpotifyTokenResponse = await spotifyToken(params);
+        const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
+        const res: SpotifySignInResponse = await spotifySignIn(params);
         if (Object.keys(res.data).length >= 2 && res.data.customToken.length) {
             dispatch(setSpotifyToken(res.data.spotifyToken));
             signInWithCustomToken(res.data.customToken).catch(err => console.log(err));

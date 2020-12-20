@@ -4,10 +4,12 @@ import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import firebase, { f, auth } from '../firebase';
 import { RootState } from '../stores/index';
-import { Button, Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography,
-    createStyles, makeStyles } from '@material-ui/core';
+import {
+    Button, Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography,
+    createStyles, makeStyles,
+} from '@material-ui/core';
 import { v4 as uuidv4 } from 'uuid';
-import { Album, StrKeyObj, Image, Artist } from '../utils/types';
+import { Album, SimpleAlbum, StrKeyObj, Image, Artist } from '../utils/types';
 import { account } from '../utils/paths';
 import axios from 'axios';
 
@@ -106,7 +108,7 @@ const Home: FC<Props> = () => {
             return;
         }
         // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
-        const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotifyRedirect');
+        const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotify_redirect');
         const param: StrKeyObj = { state: uuidv4() };
         const response: SpotifyRedirectResponse = await spotifyRedirect(param);
         window.location.href = response.data;

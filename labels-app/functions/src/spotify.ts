@@ -9,6 +9,11 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const clientId = 'd3047cbde8024e9f8ea04e0205be4a7c';
 const clientSecret = '319ba476889548c89f4ed26f094a303a';
 const redirectUri = 'http://localhost:5000/callback';
+const spotifyApi = new SpotifyWebApi({
+    clientId: clientId,
+    clientSecret: clientSecret,
+    redirectUri: redirectUri,
+});
 
 type Album = {
     label: string;
@@ -23,10 +28,6 @@ type Album = {
 
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
 export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
-    const spotifyApi = new SpotifyWebApi({
-        clientId: clientId,
-        clientSecret: clientSecret,
-    });
     const labels = data.labels;
     const limit = 20;
     try {
@@ -67,11 +68,6 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
 
 // ユーザの承認用URLを取得し、返す
 export const redirect = f.https.onCall((data, context) => {
-    const spotifyApi = new SpotifyWebApi({
-        clientId: clientId,
-        clientSecret: clientSecret,
-        redirectUri: redirectUri,
-    });
     const scopes = ['user-read-private', 'user-read-email', 'user-top-read', 'user-read-recently-played',
         'streaming', 'playlist-modify-public', 'user-library-modify'];
     const state: string = data.state;
@@ -80,23 +76,20 @@ export const redirect = f.https.onCall((data, context) => {
 });
 
 // アクセストークンを取得（正常に処理されたら、Firestoreにアカウントを作成）
-export const token = f.https.onCall(async (data, context) => {
-    const spotifyApi = new SpotifyWebApi({
-        clientId: clientId,
-        clientSecret: clientSecret,
-        redirectUri: redirectUri,
-    });
+export const signIn = f.https.onCall(async (data, context) => {
     try {
         const response: { body: { [x: string]: any; } } = await spotifyApi.authorizationCodeGrant(data.code)
         const spotifyToken: string = response.body['access_token'];
         spotifyApi.setAccessToken(spotifyToken);
+        const refreshToken: string = response.body['refresh_token'];
+        spotifyApi.setRefreshToken(refreshToken);
         const user: { body: { [x: string]: any; } } = await spotifyApi.getMe();
         const spotifyUserID: string = user.body['id'];
         const userName: string = user.body['display_name'];
         const img = user.body['images'][0];
         const profilePic: string | null = img ? img['url'] : null;
         const email: string = user.body['email'];
-        const customToken: string = await manageUser(spotifyToken, spotifyUserID, userName, profilePic, email);
+        const customToken: string = await manageUser(refreshToken, spotifyUserID, userName, profilePic, email);
         return {
             spotifyToken: spotifyToken,
             customToken: customToken,
@@ -105,4 +98,19 @@ export const token = f.https.onCall(async (data, context) => {
         console.log(`不具合が発生：${err.message}`);
         return {};
     };
+});
+
+// この呼び出しの前にspotifyApiへ clientId, clientSecret, refreshToken が設定されている必要があります
+export const refreshAccessToken = f.https.onCall(async (data, context) => {
+    try {
+        spotifyApi.setRefreshToken(data.refreshToken);
+        const response = await spotifyApi.refreshAccessToken();
+        const spotifyToken: string = response.body['access_token'];
+        spotifyApi.setAccessToken(spotifyToken);
+        console.log(`アクセストークンを更新しました：${spotifyToken}`);
+        return spotifyToken;
+    } catch (err) {
+        console.log('アクセストークンを更新できませんでした ', err);
+        return '';
+    }
 });

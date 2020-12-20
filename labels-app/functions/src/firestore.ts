@@ -1,12 +1,12 @@
 import * as admin from 'firebase-admin';
 
 // ユーザ管理
-export const manageUser = async (accessToken: string, spotifyID: string, displayName: string,
+export const manageUser = async (spotifyRefreshToken: string, spotifyID: string, displayName: string,
     photoURL: string | null, email: string): Promise<string> => {
         
-    // Spotifyのアクセストークンを保存
+    // Spotifyのリフレッシュトークンを保存
     const databaseTask = admin.firestore().collection('users').doc(spotifyID).set({
-        spotifyToken: accessToken,
+        spotifyRefreshToken: spotifyRefreshToken,
         displayName: displayName,
         photoURL: photoURL,
         email: email,
