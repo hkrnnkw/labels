@@ -69,7 +69,7 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
 // ユーザの承認用URLを取得し、返す
 export const redirect = f.https.onCall((data, context) => {
     const scopes = ['user-read-private', 'user-read-email', 'user-top-read', 'user-read-recently-played',
-        'streaming', 'playlist-modify-public', 'user-library-modify'];
+        'streaming', 'playlist-modify-public', 'user-library-read', 'user-library-modify'];
     const state: string = data.state;
     const authorizeURL: string = spotifyApi.createAuthorizeURL(scopes, state);
     return authorizeURL;
@@ -79,9 +79,9 @@ export const redirect = f.https.onCall((data, context) => {
 export const signIn = f.https.onCall(async (data, context) => {
     try {
         const response: { body: { [x: string]: any; } } = await spotifyApi.authorizationCodeGrant(data.code)
-        const spotifyToken: string = response.body['access_token'];
-        spotifyApi.setAccessToken(spotifyToken);
+        const token: string = response.body['access_token'];
         const refreshToken: string = response.body['refresh_token'];
+        spotifyApi.setAccessToken(token);
         spotifyApi.setRefreshToken(refreshToken);
         const user: { body: { [x: string]: any; } } = await spotifyApi.getMe();
         const spotifyUserID: string = user.body['id'];
@@ -91,7 +91,9 @@ export const signIn = f.https.onCall(async (data, context) => {
         const email: string = user.body['email'];
         const customToken: string = await manageUser(refreshToken, spotifyUserID, userName, profilePic, email);
         return {
-            spotifyToken: spotifyToken,
+            token: token,
+            expiresIn: response.body['expires_in'],
+            refreshToken: refreshToken,
             customToken: customToken,
         }
     } catch (err) {
