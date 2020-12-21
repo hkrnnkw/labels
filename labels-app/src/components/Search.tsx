@@ -6,8 +6,7 @@ import {
     createStyles, makeStyles, GridList, GridListTile, GridListTileBar,
 } from '@material-ui/core';
 import { Album, Image, Artist } from '../utils/types';
-import axios from 'axios';
-import { checkTokenExpired } from '../utils/spotifyHandler';
+import { getSavedAlbums } from '../utils/spotifyHandler';
 
 const ambiguousStyles = makeStyles(() =>
     createStyles({
@@ -39,17 +38,15 @@ const Search: FC = () => {
     const classes = ambiguousStyles();
     const [savedAlbums, setSavedAlbums] = useState<Album[]>([]);
     const { spotify } = useSelector((rootState: RootState) => rootState.user);
+    const { token, refreshToken, expiresIn } = spotify;
 
     const fetchSavedAlbums = async () => {
-        const token = await checkTokenExpired(spotify.token, spotify.refreshToken, spotify.expiresIn);
-        const response = await axios.get(`https://api.spotify.com/v1/me/albums?limit=20`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
-        const items = response.data.items;
-        const results: Album[] = items.map((item: { album: Album; }) => item.album);
-        setSavedAlbums(results);
+        try {
+            const results: Album[] = await getSavedAlbums(token, refreshToken, expiresIn);
+            setSavedAlbums(results);
+        } catch (err) {
+            console.log(`Spotifyフェッチエラー：${err}`);
+        }
     };
     useEffect(() => {
         fetchSavedAlbums().catch(err => console.log(err));

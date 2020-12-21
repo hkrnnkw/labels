@@ -2,7 +2,6 @@ import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import firebase, { f } from '../firebase';
 import { RootState } from '../stores/index';
 import {
     createStyles, makeStyles, Snackbar, GridList, GridListTile, GridListTileBar, Container,
@@ -11,12 +10,7 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import { Album, Image, Artist } from '../utils/types';
 import { search } from '../utils/paths';
-import axios from 'axios';
-import { checkTokenExpired } from '../utils/spotifyHandler';
-
-interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: Album[][];
-}
+import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../utils/spotifyHandler';
 
 interface Props extends RouteComponentProps {
 
@@ -62,54 +56,14 @@ const Home: FC<Props> = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
     const { signedIn, email, emailVerified, spotify } = useSelector((rootState: RootState) => rootState.user);
+    const { token, refreshToken, expiresIn } = spotify;
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
         try {
-            const today = new Date();
-            const year = today.getFullYear();
-            if (!spotify.token) {
-                const labels = [
-                    'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
-                    'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-                    'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
-                    'Republic Records', 'Smalltown Supersound', 'aritech',
-                ];
-                const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
-                const res: GetAlbumsOfLabelsResponse = await getAlbumsOfLabels({ labels: labels, year: year });
-                setAlbumsOfLabels(res.data);
-                return;
-            }
-
-            const token = await checkTokenExpired(spotify.token, spotify.refreshToken, spotify.expiresIn);
-            // TODO DBなどから取得
-            const favLabels = [
-                'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-            ];
-            const albumIdsArray = await Promise.all(favLabels.map(async (label) => {
-                const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20year%3A${year}&type=album&limit=20`;
-                const res = await axios.get(url, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const albums: Album[] = res.data.albums.items;
-                return albums.map(album => album.id);
-            }));
-            const albumIdsFiltered = albumIdsArray.filter(album => album.length);
-
-            const albumsArray = await Promise.all(albumIdsFiltered.map(async (albumIds) => {
-                const ids: string = albumIds.join();
-                const url = `https://api.spotify.com/v1/albums?ids=${ids.replace(',', '%2C')}`;
-                const res = await axios.get(url, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-                const albums: Album[] = res.data.albums.filter((elem: Album) => favLabels.includes(elem.label));
-                return albums;
-            }));
-            setAlbumsOfLabels(albumsArray.filter(album => album.length));
+            const results: Album[][] = token ?
+                await getAlbumsOfLabelsWithToken(token, refreshToken, expiresIn) : await getAlbumsOfLabelsWithCC();
+            setAlbumsOfLabels(results);
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
