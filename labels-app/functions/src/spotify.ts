@@ -28,10 +28,9 @@ type Album = {
 
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
 export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
-    const labels = data.labels;
+    const labels: string[] = data.labels;
+    const year: number = data.year;
     const limit = 20;
-    const today = new Date();
-    const year = today.getFullYear();
     try {
         const auth = await spotifyApi.clientCredentialsGrant();
         spotifyApi.setAccessToken(auth.body['access_token']);
@@ -42,9 +41,8 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
                 return await spotifyApi.searchAlbums(`label:"${label}" year:${year}`, { limit: limit });
             }));
             return response.map(res => {
-                const items = res.body.albums.items;
-                const ids: string[] = Object.keys(items).map(num => items[num].id);
-                return ids;
+                const albums: Album[] = res.body.albums.items;
+                return albums.map(album => album.id);
             });
         };
 
