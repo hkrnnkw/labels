@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Album, Image, Artist } from '../utils/types';
-import { search } from '../utils/paths';
+import { page, search } from '../utils/paths';
 import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../utils/spotifyHandler';
 
 interface Props extends RouteComponentProps {
@@ -42,6 +42,9 @@ const ambiguousStyles = makeStyles(() =>
         titleBar: {
             background:
                 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+        },
+        jacket: {
+            width: '100%',
         },
         '@media (min-width: 960px)': {
             contentClass: {
@@ -89,24 +92,42 @@ const Home: FC<Props> = () => {
         const albumGridListTiles: JSX.Element[] = label.map(album => {
             const img = album.images[0] as Image;
             const artists = album.artists as Artist[];
-            return <GridListTile key={`${artists[0].name} - ${album.name}`}>
-                <img src={img.url} alt={`${artists[0].name} - ${album.name}`} />
-                <GridListTileBar
-                    title={album.name}
-                    subtitle={artists[0].name}
-                    classes={{
-                        root: classes.titleBar,
-                        title: classes.title,
-                    }}
-                />
-            </GridListTile>;
+            return (
+                <GridListTile
+                    key={`${artists[0].name} - ${album.name}`}
+                    cols={2}
+                    rows={0.8}
+                >
+                    <Link to={{ pathname: `${page}/${album.id}`, state: { album: album } }}>
+                        <img
+                            src={img.url}
+                            alt={`${artists[0].name} - ${album.name}`}
+                            className={classes.jacket}
+                        />
+                        <GridListTileBar
+                            title={album.name}
+                            subtitle={artists[0].name}
+                            classes={{
+                                root: classes.titleBar,
+                                title: classes.title,
+                            }}
+                        />
+                    </Link>
+                </GridListTile>
+            );
         });
-        return <Container className={classes.container} id={labelName}>
-            <Typography className={classes.labelName}>{labelName}</Typography>
-            <GridList className={classes.gridList}>
-                {albumGridListTiles}
-            </GridList>
-        </Container>;
+        return (
+            <Container className={classes.container} id={labelName}>
+                <Typography className={classes.labelName}>{labelName}</Typography>
+                <GridList
+                    className={classes.gridList}
+                    cols={5}
+                    spacing={0}
+                >
+                    {albumGridListTiles}
+                </GridList>
+            </Container>
+        );
     };
 
     return (
