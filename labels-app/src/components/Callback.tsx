@@ -3,10 +3,10 @@ import { withRouter, useLocation } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import firebase, { f, auth } from '../firebase';
-import { StrKeyObj } from '../utils/types';
+import { StrKeyObj, Spotify } from '../utils/types';
 import { Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
-import { setSpotifyTokens, Spotify } from '../stores/user';
+import { setSpotifyTokens } from '../stores/user';
 
 interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
     readonly data: StrKeyObj;

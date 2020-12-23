@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation } from 'react-router-dom';
-import { Album } from '../utils/types';
+import { Album } from '../utils/interfaces';
 
 const Page: FC = () => {
     const { state } = useLocation<{ album: Album }>();

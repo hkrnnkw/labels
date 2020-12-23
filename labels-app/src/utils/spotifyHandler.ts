@@ -1,5 +1,5 @@
 import firebase, { f } from '../firebase';
-import { Album } from './types';
+import { Album } from './interfaces';
 import axios from 'axios';
 
 interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult {

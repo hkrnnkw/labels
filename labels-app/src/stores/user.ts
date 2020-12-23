@@ -1,25 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-export interface UserProfile {
-    uid: string;
-    displayName: string;
-    email: string;
-    photoURL: string | null;
-}
-
-export interface Auth {
-    signedIn: boolean;
-    refreshToken: string;
-    emailVerified: boolean;
-}
-
-export interface Spotify {
-    spotify: {
-        token: string;
-        expiresIn: string;
-        refreshToken: string;
-    },
-}
+import { UserProfile } from "../utils/interfaces";
+import { Auth, Spotify } from "../utils/types";
 
 type UserState = UserProfile & Auth & Spotify;
 

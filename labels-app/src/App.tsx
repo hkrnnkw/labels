@@ -10,8 +10,9 @@ import Search from './components/Search';
 import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
-import { UserProfile, Auth, setUserProfile, setAuth, setClearUser } from './stores/user';
-import { StrKeyObj } from './utils/types';
+import { setUserProfile, setAuth, setClearUser } from './stores/user';
+import { StrKeyObj, Auth } from './utils/types';
+import { UserProfile } from './utils/interfaces';
 import { home, page, account, callback, search } from './utils/paths';
 import { v4 as uuidv4 } from 'uuid';
 import {

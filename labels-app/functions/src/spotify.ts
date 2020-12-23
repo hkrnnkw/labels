@@ -15,7 +15,7 @@ const spotifyApi = new SpotifyWebApi({
     redirectUri: redirectUri,
 });
 
-type Album = {
+interface Album {
     label: string;
     artists: Object[];
     id: string;

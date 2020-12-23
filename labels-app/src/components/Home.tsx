@@ -8,7 +8,8 @@ import {
     Typography, IconButton,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { Album, Image, Artist } from '../utils/types';
+import { Album, Artist } from '../utils/interfaces';
+import { Image } from '../utils/types';
 import { page, search } from '../utils/paths';
 import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../utils/spotifyHandler';
 

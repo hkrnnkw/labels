@@ -5,7 +5,8 @@ import { RootState } from '../stores/index';
 import {
     createStyles, makeStyles, GridList, GridListTile, GridListTileBar,
 } from '@material-ui/core';
-import { Album, Image, Artist } from '../utils/types';
+import { Album, Artist } from '../utils/interfaces';
+import { Image } from '../utils/types';
 import { getSavedAlbums } from '../utils/spotifyHandler';
 
 const ambiguousStyles = makeStyles(() => createStyles({
