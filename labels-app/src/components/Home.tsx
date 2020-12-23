@@ -16,43 +16,41 @@ interface Props extends RouteComponentProps {
 
 }
 
-const ambiguousStyles = makeStyles(() =>
-    createStyles({
+const ambiguousStyles = makeStyles(() => createStyles({
+    contentClass: {
+        minHeight: '100vh',
+    },
+    container: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+        padding: 0,
+        marginBottom: '30px',
+    },
+    gridList: {
+        flexWrap: 'nowrap',
+        transform: 'translateZ(0)',
+    },
+    labelName: {
+        width: '100%',
+    },
+    title: {
+        color: '#FFFFFF',
+    },
+    titleBar: {
+        background:
+            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+    },
+    jacket: {
+        width: '100%',
+    },
+    '@media (min-width: 960px)': {
         contentClass: {
-            minHeight: '100vh',
-        },
-        container: {
             display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            overflow: 'hidden',
-            padding: 0,
-            marginBottom: '30px',
         },
-        gridList: {
-            flexWrap: 'nowrap',
-            transform: 'translateZ(0)',
-        },
-        labelName: {
-            width: '100%',
-        },
-        title: {
-            color: '#FFFFFF',
-        },
-        titleBar: {
-            background:
-                'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
-        },
-        jacket: {
-            width: '100%',
-        },
-        '@media (min-width: 960px)': {
-            contentClass: {
-                display: 'flex',
-            },
-        },
-    }),
-);
+    },
+}));
 
 const Home: FC<Props> = () => {
     const classes = ambiguousStyles();

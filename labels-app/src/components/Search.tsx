@@ -8,31 +8,29 @@ import {
 import { Album, Image, Artist } from '../utils/types';
 import { getSavedAlbums } from '../utils/spotifyHandler';
 
-const ambiguousStyles = makeStyles(() =>
-    createStyles({
+const ambiguousStyles = makeStyles(() => createStyles({
+    contentClass: {
+        minHeight: '100vh',
+    },
+    root: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
+        overflow: 'hidden',
+    },
+    title: {
+        color: '#FFFFFF',
+    },
+    titleBar: {
+        background:
+            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+    },
+    '@media (min-width: 960px)': {
         contentClass: {
-            minHeight: '100vh',
-        },
-        root: {
             display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            overflow: 'hidden',
         },
-        title: {
-            color: '#FFFFFF',
-        },
-        titleBar: {
-            background:
-                'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
-        },
-        '@media (min-width: 960px)': {
-            contentClass: {
-                display: 'flex',
-            },
-        },
-    }),
-);
+    },
+}));
 
 const Search: FC = () => {
     const classes = ambiguousStyles();
