@@ -2,14 +2,15 @@ import React, { FC, useState, useEffect } from 'react';
 import { withRouter } from 'react-router';
 import { useSelector } from 'react-redux';
 import { RootState } from '../stores/index';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    createStyles, makeStyles, GridList, GridListTile, GridListTileBar,
+    GridList, GridListTile, GridListTileBar,
 } from '@material-ui/core';
 import { Album, Artist } from '../utils/interfaces';
 import { Image } from '../utils/types';
 import { getSavedAlbums } from '../utils/spotifyHandler';
 
-const ambiguousStyles = makeStyles(() => createStyles({
+const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },

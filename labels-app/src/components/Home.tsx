@@ -3,9 +3,9 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { RootState } from '../stores/index';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    createStyles, makeStyles, Snackbar, GridList, GridListTile, GridListTileBar, Container,
-    Typography, IconButton,
+    Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography, IconButton,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Album, Artist } from '../utils/interfaces';
@@ -17,9 +17,12 @@ interface Props extends RouteComponentProps {
 
 }
 
-const ambiguousStyles = makeStyles(() => createStyles({
+const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
+    },
+    root: {
+        backgroundColor: theme.palette.background.default,
     },
     container: {
         display: 'flex',
@@ -121,7 +124,7 @@ const Home: FC<Props> = () => {
                 <GridList
                     className={classes.gridList}
                     cols={5}
-                    spacing={0}
+                    spacing={8}
                 >
                     {albumGridListTiles}
                 </GridList>
@@ -130,7 +133,7 @@ const Home: FC<Props> = () => {
     };
 
     return (
-        <div>
+        <div className={classes.root}>
             <Link to={search}><IconButton><SearchIcon /></IconButton></Link>
             {albumsOfLabels.length > 0 &&
                 albumsOfLabels.map(label => generateAlbums(label))
