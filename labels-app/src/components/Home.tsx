@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -8,6 +8,7 @@ import {
     Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography, IconButton,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
+import { setGuestHome, setPrivateHome } from '../stores/albums';
 import { Album, Artist } from '../utils/interfaces';
 import { Image } from '../utils/types';
 import { page, search } from '../utils/paths';
@@ -57,10 +58,12 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 const Home: FC<Props> = () => {
+    const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
     const { signedIn, email, emailVerified, spotify } = useSelector((rootState: RootState) => rootState.user);
+    const { guestHome, privateHome } = useSelector((rootState: RootState) => rootState.albums);
     const { token, refreshToken, expiresIn } = spotify;
 
     // レーベルの情報を取得
@@ -69,14 +72,18 @@ const Home: FC<Props> = () => {
             const results: Album[][] = token ?
                 await getAlbumsOfLabelsWithToken(token, refreshToken, expiresIn) : await getAlbumsOfLabelsWithCC();
             setAlbumsOfLabels(results);
+            dispatch(token ? setPrivateHome(results) : setGuestHome(results));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
     };
     useEffect(() => {
+        if (!signedIn) setAlbumsOfLabels([]);
         if (signedIn && !emailVerified) sendEmailVerification();
-        fetchLabels().catch(err => console.log(err));
-    }, []);
+        const home: Album[][] | null = signedIn && privateHome.length ? privateHome :
+            guestHome.length ? guestHome : null;
+        home ? setAlbumsOfLabels(home) : fetchLabels().catch(err => console.log(err));
+    }, [signedIn]);
 
     // TODO 確認メール送信
     const sendEmailVerification = () => {

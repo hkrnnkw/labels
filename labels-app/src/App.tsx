@@ -104,6 +104,7 @@ const App: FC = () => {
     
     return (
         <BrowserRouter>
+            <Link to={home}>Labels</Link>
             <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
             <SwipeableDrawer
                 anchor={'bottom'}
