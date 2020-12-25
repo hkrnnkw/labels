@@ -12,7 +12,7 @@ import { setGuestHome, setPrivateHome } from '../stores/albums';
 import { Album, Artist } from '../utils/interfaces';
 import { Image } from '../utils/types';
 import { page, search } from '../utils/paths';
-import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../utils/spotifyHandler';
+import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../handlers/spotifyHandler';
 
 interface Props extends RouteComponentProps {
 

@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import { Album, Artist } from '../utils/interfaces';
 import { Image } from '../utils/types';
-import { getSavedAlbums } from '../utils/spotifyHandler';
+import { getSavedAlbums } from '../handlers/spotifyHandler';
 import { setSearch } from '../stores/albums';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
