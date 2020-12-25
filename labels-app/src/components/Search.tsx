@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter } from 'react-router';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -9,6 +9,7 @@ import {
 import { Album, Artist } from '../utils/interfaces';
 import { Image } from '../utils/types';
 import { getSavedAlbums } from '../utils/spotifyHandler';
+import { setSearch } from '../stores/albums';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -35,6 +36,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 const Search: FC = () => {
+    const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [savedAlbums, setSavedAlbums] = useState<Album[]>([]);
     const { spotify } = useSelector((rootState: RootState) => rootState.user);
@@ -44,6 +46,7 @@ const Search: FC = () => {
         try {
             const results: Album[] = await getSavedAlbums(token, refreshToken, expiresIn);
             setSavedAlbums(results);
+            dispatch(setSearch(results));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
