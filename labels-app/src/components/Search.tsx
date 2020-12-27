@@ -7,7 +7,7 @@ import {
     GridList, GridListTile, GridListTileBar,
 } from '@material-ui/core';
 import { Album, Artist } from '../utils/interfaces';
-import { Image } from '../utils/types';
+import { Image, SearchResult } from '../utils/types';
 import { getSavedAlbums } from '../handlers/spotifyHandler';
 import { setSearch } from '../stores/albums';
 
@@ -46,7 +46,10 @@ const Search: FC = () => {
         try {
             const results: Album[] = await getSavedAlbums(token, refreshToken, expiresIn);
             setSavedAlbums(results);
-            dispatch(setSearch(results));
+            const search: SearchResult = {
+                search: { keywords: '', results: results },
+            }
+            dispatch(setSearch(search));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
