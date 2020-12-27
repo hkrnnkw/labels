@@ -16,14 +16,16 @@ const spotifyApi = new SpotifyWebApi({
 });
 
 interface Album {
-    label: string;
+    album_type: string;
     artists: Object[];
+    copyright: Object;
+    genres: string[];
     id: string;
     images: Object[];
+    label: string;
     name: string;
     release_date: string;
-    genres: string[];
-    album_type: string;
+    tracks: Object;
 };
 
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する

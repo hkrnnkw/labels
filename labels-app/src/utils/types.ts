@@ -1,6 +1,6 @@
 import { Album } from "./interfaces";
 
-export type StrKeyObj = {[key: string]: string};
+export type StrKeyObj = { [key: string]: string };
 
 export type Image = {
     width: number;
