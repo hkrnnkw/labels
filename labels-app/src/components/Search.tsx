@@ -6,8 +6,8 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     GridList, GridListTile, GridListTileBar,
 } from '@material-ui/core';
-import { Album, Artist } from '../utils/interfaces';
-import { Image, SearchResult } from '../utils/types';
+import { Album } from '../utils/interfaces';
+import { SearchResult } from '../utils/types';
 import { getSavedAlbums } from '../handlers/spotifyHandler';
 import { setSearch } from '../stores/albums';
 
@@ -60,13 +60,11 @@ const Search: FC = () => {
 
     const generateAlbums = (albums: Album[]): JSX.Element => {
         const albumGridListTiles: JSX.Element[] = albums.map(album => {
-            const img = album.images[0] as Image;
-            const artists = album.artists as Artist[];
-            return <GridListTile key={`${artists[0].name} - ${album.name}`}>
-                <img src={img.url} alt={`${artists[0].name} - ${album.name}`} />
+            return <GridListTile key={`${album.artists[0].name} - ${album.name}`}>
+                <img src={album.images[0].url} alt={`${album.artists[0].name} - ${album.name}`} />
                 <GridListTileBar
                     title={album.name}
-                    subtitle={artists[0].name}
+                    subtitle={album.artists[0].name}
                     classes={{
                         root: classes.titleBar,
                         title: classes.title,

@@ -9,8 +9,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setGuestHome, setPrivateHome } from '../stores/albums';
-import { Album, Artist } from '../utils/interfaces';
-import { Image } from '../utils/types';
+import { Album } from '../utils/interfaces';
 import { page, search } from '../utils/paths';
 import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../handlers/spotifyHandler';
 
@@ -99,23 +98,21 @@ const Home: FC<Props> = () => {
     const generateAlbums = (label: Album[]): JSX.Element => {
         const labelName: string = label[0].label;
         const albumGridListTiles: JSX.Element[] = label.map(album => {
-            const img = album.images[0] as Image;
-            const artists = album.artists as Artist[];
             return (
                 <GridListTile
-                    key={`${artists[0].name} - ${album.name}`}
+                    key={`${album.artists[0].name} - ${album.name}`}
                     cols={2}
                     rows={0.8}
                 >
                     <Link to={{ pathname: `${page}/${album.id}`, state: { album: album } }}>
                         <img
-                            src={img.url}
-                            alt={`${artists[0].name} - ${album.name}`}
+                            src={album.images[0].url}
+                            alt={`${album.artists[0].name} - ${album.name}`}
                             className={classes.jacket}
                         />
                         <GridListTileBar
                             title={album.name}
-                            subtitle={artists[0].name}
+                            subtitle={album.artists[0].name}
                             classes={{
                                 root: classes.titleBar,
                                 title: classes.title,
