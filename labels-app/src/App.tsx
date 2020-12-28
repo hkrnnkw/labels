@@ -13,7 +13,7 @@ import NotFound from './components/NotFound';
 import { setUserProfile, setAuth, setClearUser } from './stores/user';
 import { StrKeyObj, Auth } from './utils/types';
 import { UserProfile } from './utils/interfaces';
-import { home, page, account, callback, search } from './utils/paths';
+import { home, album, artist, account, callback, search } from './utils/paths';
 import { v4 as uuidv4 } from 'uuid';
 import {
     SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider,
@@ -116,7 +116,8 @@ const App: FC = () => {
             </SwipeableDrawer>
             <Switch>
                 <Route path={home} exact component={Home} />
-                <Route path={page} component={Page} />
+                <Route path={album} component={Page} />
+                <PrivateRoute path={artist} component={Page} />
                 <PrivateRoute path={search} component={Search} />
                 <PrivateRoute path={account} component={Account} />
                 <GuestRoute path={callback} component={Callback} />

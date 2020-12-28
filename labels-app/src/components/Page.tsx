@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import { RootState } from '../stores/index';
 import { Album, Artist, SimpleArtist } from '../utils/interfaces';
-import { page } from '../utils/paths';
+import { artist as artistPath} from '../utils/paths';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -45,7 +45,7 @@ const Page: FC = () => {
         const result: JSX.Element[] = [];
         for (let i = 0; i < sa.length; i++) {
             if (i !== 0) result.push(<Typography className={classes.comma}>, </Typography>);
-            result.push(<Link to={`${page}/${sa[i].id}`}>{sa[i].name}</Link>);
+            result.push(<Link to={`${artistPath}/${sa[i].id}`}>{sa[i].name}</Link>);
         }
         return result;
     };

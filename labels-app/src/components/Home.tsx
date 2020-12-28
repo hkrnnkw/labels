@@ -10,7 +10,7 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import { setGuestHome, setPrivateHome } from '../stores/albums';
 import { Album } from '../utils/interfaces';
-import { page, search } from '../utils/paths';
+import { album as albumPath, search } from '../utils/paths';
 import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../handlers/spotifyHandler';
 
 interface Props extends RouteComponentProps {
@@ -104,7 +104,7 @@ const Home: FC<Props> = () => {
                     cols={2}
                     rows={0.8}
                 >
-                    <Link to={{ pathname: `${page}/${album.id}`, state: { album: album } }}>
+                    <Link to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}
