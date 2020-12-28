@@ -6,6 +6,7 @@ import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
 import Album from './components/Album';
+import Artist from './components/Artist';
 import Search from './components/Search';
 import Account from './components/Account';
 import Callback from './components/Callback';
@@ -117,6 +118,7 @@ const App: FC = () => {
             <Switch>
                 <Route path={home} exact component={Home} />
                 <PrivateRoute path={album} component={Album} />
+                <PrivateRoute path={artist} component={Artist} />
                 <PrivateRoute path={search} component={Search} />
                 <PrivateRoute path={account} component={Account} />
                 <GuestRoute path={callback} component={Callback} />
