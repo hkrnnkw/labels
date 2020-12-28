@@ -30,35 +30,35 @@ interface Album {
 
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
 export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
+    const auth = await spotifyApi.clientCredentialsGrant();
+    spotifyApi.setAccessToken(auth.body['access_token']);
     const labels: string[] = data.labels;
     const year: number = data.year;
     const limit = 20;
+
+    // 各レーベルにおけるアルバム群の各idを取得
+    const fetchAlbumIdsOfLabels = async (labelList: string[]): Promise<string[][]> => {
+        const response = await Promise.all(labelList.map(async (label) => {
+            return await spotifyApi.searchAlbums(`label:"${label}" year:${year}`, { limit: limit });
+        }));
+        return response.map(res => {
+            const albums: Album[] = res.body.albums.items;
+            return albums.map(album => album.id);
+        });
+    };
+
+    // idを元にalbum object (full)を取得し、それを整型してから返す
+    const fetchAlbumsOfLabels = async (albumIds: string[][], labelList: string[]): Promise<Album[][]> => {
+        const response = await Promise.all(albumIds.map(async (albumId) => {
+            return await spotifyApi.getAlbums(albumId);
+        }));
+        return response.map(res => {
+            const albums: Album[] = res.body.albums.filter((elem: Album) => labelList.includes(elem.label));
+            return albums;
+        });
+    }
+
     try {
-        const auth = await spotifyApi.clientCredentialsGrant();
-        spotifyApi.setAccessToken(auth.body['access_token']);
-
-        // 各レーベルにおけるアルバム群の各idを取得
-        const fetchAlbumIdsOfLabels = async (labelList: string[]): Promise<string[][]> => {
-            const response = await Promise.all(labelList.map(async (label) => {
-                return await spotifyApi.searchAlbums(`label:"${label}" year:${year}`, { limit: limit });
-            }));
-            return response.map(res => {
-                const albums: Album[] = res.body.albums.items;
-                return albums.map(album => album.id);
-            });
-        };
-
-        // idを元にalbum object (full)を取得し、それを整型してから返す
-        const fetchAlbumsOfLabels = async (albumIds: string[][], labelList: string[]): Promise<Album[][]> => {
-            const response = await Promise.all(albumIds.map(async (albumId) => {
-                return await spotifyApi.getAlbums(albumId);
-            }));
-            return response.map(res => {
-                const albums: Album[] = res.body.albums.filter((elem: Album) => labelList.includes(elem.label));
-                return albums;
-            });
-        }
-
         const albumIdsOfLabels: string[][] = await fetchAlbumIdsOfLabels(labels);
         const albumsOfLabels: Album[][] = await fetchAlbumsOfLabels(albumIdsOfLabels, labels);
         return albumsOfLabels.filter((elem: Album[]) => elem.length);
