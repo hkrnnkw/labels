@@ -5,7 +5,7 @@ import firebase, { f, auth } from './firebase';
 import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
-import Page from './components/Page';
+import Album from './components/Album';
 import Search from './components/Search';
 import Account from './components/Account';
 import Callback from './components/Callback';
@@ -116,8 +116,7 @@ const App: FC = () => {
             </SwipeableDrawer>
             <Switch>
                 <Route path={home} exact component={Home} />
-                <Route path={album} component={Page} />
-                <PrivateRoute path={artist} component={Page} />
+                <PrivateRoute path={album} component={Album} />
                 <PrivateRoute path={search} component={Search} />
                 <PrivateRoute path={account} component={Account} />
                 <GuestRoute path={callback} component={Callback} />

@@ -36,7 +36,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Page: FC = () => {
+const Album: FC = () => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: Album }>();
 
@@ -68,4 +68,4 @@ const Page: FC = () => {
     )
 };
 
-export default withRouter(Page);
+export default withRouter(Album);
