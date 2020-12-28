@@ -7,7 +7,7 @@ import {
     Typography, Avatar, List, ListItem,
 } from '@material-ui/core';
 import { RootState } from '../stores/index';
-import { Album as AlbumObj, Artist, SimpleArtist } from '../utils/interfaces';
+import { Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath} from '../utils/paths';
 import { getArtists } from '../handlers/spotifyHandler';
 
@@ -50,16 +50,17 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Album: FC = () => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: AlbumObj }>();
-    const [artists, setArtists] = useState<Artist[]>([]);
+    const { artists: simpleArtists, images, name: title, label, tracks, release_date } = state.album;
+    const [fullArtists, setFullArtists] = useState<Artist[]>([]);
     const { spotify } = useSelector((rootState: RootState) => rootState.user);
     const { token, refreshToken, expiresIn } = spotify;
 
     // アーティストの情報を取得
     const fetchArtists = async () => {
         try {
-            const artistIds: string[] = state.album.artists.map(artist => artist.id);
+            const artistIds: string[] = simpleArtists.map(artist => artist.id);
             const results: Artist[] = await getArtists(artistIds, token, refreshToken, expiresIn).catch();
-            setArtists(results);
+            setFullArtists(results);
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
@@ -69,17 +70,12 @@ const Album: FC = () => {
     });
 
     // アーティスト名を並べる
-    const createArtistNames = (sa: SimpleArtist[]): JSX.Element[] => {
+    const createArtistNames = (artists: Artist[]): JSX.Element[] => {
         const result: JSX.Element[] = [];
-        for (let i = 0; i < sa.length; i++) {
+        for (let i = 0; i < artists.length; i++) {
             if (i !== 0) result.push(<Typography className={classes.comma}>, </Typography>);
             result.push(
-                <Link to={{
-                    pathname: `${artistPath}/${sa[i].id}`,
-                    state: { artist: artists.find(artist => artist.id === sa[i].id) },
-                }}>
-                    {sa[i].name}
-                </Link>,
+                <Link to={{ pathname: `${artistPath}/${artists[i].id}`, state: { artist: artists[i] } }}>{artists[i].name}</Link>,
             );
         }
         return result;
@@ -88,29 +84,29 @@ const Album: FC = () => {
     return (
         <div className={classes.root}>
             <img
-                src={state.album.images[0].url}
-                alt={`${state.album.artists[0].name} - ${state.album.name}`}
+                src={images[0].url}
+                alt={`${simpleArtists[0].name} - ${title}`}
                 className={classes.jacket}
             />
-            <Typography>{state.album.name}</Typography>
-            <div className={classes.names}>{createArtistNames(state.album.artists)}</div>
-            <Typography>{state.album.label}</Typography>
+            <Typography>{title}</Typography>
+            <div className={classes.names}>
+                {createArtistNames(fullArtists)}
+            </div>
+            <Typography>{label}</Typography>
             <List>
-                {state.album.tracks.items.map(track => <ListItem>{track.name}</ListItem>)}
+                {tracks.items.map(track => <ListItem>{track.name}</ListItem>)}
             </List>
-            <Typography>{state.album.release_date}</Typography>
-            {artists.length > 0 &&
-                <List>
-                    {artists.map(artist => { return (
-                        <Link to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }} className={classes.artist}>
-                            <ListItem>
-                                <Avatar src={artist.images[0].url} className={classes.artistAvatar} />
-                                <Typography className={classes.artistName}>{artist.name}</Typography>
-                            </ListItem>
-                        </Link>
-                    )})}
-                </List>
-            }
+            <Typography>{release_date}</Typography>
+            <List>
+                {fullArtists.map(artist => { return (
+                    <Link to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }} className={classes.artist}>
+                        <ListItem>
+                            <Avatar src={artist.images[0].url} className={classes.artistAvatar} />
+                            <Typography className={classes.artistName}>{artist.name}</Typography>
+                        </ListItem>
+                    </Link>
+                )})}
+            </List>
         </div>
     )
 };

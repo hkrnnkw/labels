@@ -1,6 +1,6 @@
 import { Image } from './types';
 
-export interface SimpleArtist {
+interface SimpleArtist {
     external_urls: {
         spotify: string;
     };
