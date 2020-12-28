@@ -28,6 +28,16 @@ interface Album {
     tracks: Object;
 };
 
+// ClientCredentialsを1時間ごとに更新
+export const updateClientCredentials = f.pubsub.schedule('every 60 minutes').onRun(async (context) => {
+    try {
+        const auth = await spotifyApi.clientCredentialsGrant();
+        spotifyApi.setAccessToken(auth.body['access_token']);
+    } catch (err) {
+        console.log(err);
+    }
+});
+
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
 export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
     const auth = await spotifyApi.clientCredentialsGrant();
