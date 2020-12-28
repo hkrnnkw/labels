@@ -1,5 +1,5 @@
 import firebase, { f } from '../firebase';
-import { Album } from '../utils/interfaces';
+import { Album, Artist } from '../utils/interfaces';
 import axios from 'axios';
 
 interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult {
@@ -91,4 +91,18 @@ export const searchAlbums = async (keywords: string, accessToken: string, refres
         },
     });
     return response.data.albums.items;
+}
+
+// アーティストの情報を取得
+export const getArtists = async (artistIds: string[], accessToken: string, refreshToken: string, expiresIn: string): Promise<Artist[]> => {
+    const token = await checkTokenExpired(accessToken, refreshToken, expiresIn);
+    const ids: string = artistIds.join();
+    const url = `https://api.spotify.com/v1/artists?ids=${ids.replace(',', '%2C')}`;
+    const res = await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    const artists: Artist[] = res.data.artists;
+    return artists;
 }
