@@ -8,10 +8,6 @@ interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult 
     readonly data: string;
 }
 
-interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: Album[][];
-}
-
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
 }
@@ -23,21 +19,7 @@ const checkTokenExpired = async (token: string, refreshToken: string, expiration
     const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
     const res: newAccessTokenResponse = await getAlbumsOfLabels({ refreshToken: refreshToken });
     return res.data;
-};
 
-// Client credentials flowによりレーベル情報を取得
-export const getAlbumsOfLabelsWithCC = async (): Promise<Album[][]> => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const labels = [
-        'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
-        'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-        'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
-        'Republic Records', 'Smalltown Supersound', 'aritech',
-    ];
-    const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_getAlbumsOfLabels');
-    const res: GetAlbumsOfLabelsResponse = await getAlbumsOfLabels({ labels: labels, year: year });
-    return res.data;
 };
 
 // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
@@ -49,13 +31,16 @@ export const signIn = async (): Promise<void> => {
 }
 
 // Authorization code grantによりレーベル情報を取得
-export const getAlbumsOfLabelsWithToken = async (accessToken: string, refreshToken: string, expiresIn: string): Promise<Album[][]> => {
+export const getAlbumsOfLabels = async (accessToken: string, refreshToken: string, expiresIn: string): Promise<Album[][]> => {
     const today = new Date();
     const year = today.getFullYear();
     const token = await checkTokenExpired(accessToken, refreshToken, expiresIn);
     // TODO DBなどから取得（dbHandler.tsにて処理）
     const favLabels = [
+        'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
         'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
+        'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
+        'Republic Records', 'Smalltown Supersound', 'aritech',
     ];
     const albumIdsArray = await Promise.all(favLabels.map(async (label) => {
         const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20year%3A${year}&type=album&limit=20`;

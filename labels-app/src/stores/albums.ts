@@ -3,13 +3,11 @@ import { Album } from '../utils/interfaces';
 import { SearchResult } from "../utils/types";
 
 type AlbumsState = SearchResult & {
-    guestHome: Album[][];
-    privateHome: Album[][];
+    home: Album[][];
 }
 
 const initialState: AlbumsState = {
-    guestHome: [],
-    privateHome: [],
+    home: [],
     search: {
         keywords: '',
         results: [],
@@ -20,11 +18,8 @@ const slice = createSlice({
     name: "albums",
     initialState,
     reducers: {
-        setGuestHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
-            state.guestHome = action.payload;
-        },
-        setPrivateHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
-            state.privateHome = action.payload;
+        setHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
+            state.home = action.payload;
         },
         setSearch: (state: AlbumsState, action: PayloadAction<SearchResult>) => {
             const { keywords: keyword, results: result } = action.payload.search;
@@ -39,4 +34,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setGuestHome, setPrivateHome, setSearch, setClearAlbums } = slice.actions;
+export const { setHome, setSearch, setClearAlbums } = slice.actions;

@@ -5,13 +5,13 @@ import { Link } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography, IconButton,
+    Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography, IconButton, Button,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setGuestHome, setPrivateHome } from '../stores/albums';
+import { setHome } from '../stores/albums';
 import { Album } from '../utils/interfaces';
 import { album as albumPath, search } from '../utils/paths';
-import { getAlbumsOfLabelsWithToken, getAlbumsOfLabelsWithCC } from '../handlers/spotifyHandler';
+import { getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
 
 interface Props extends RouteComponentProps {
 
@@ -62,26 +62,26 @@ const Home: FC<Props> = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
     const { signedIn, email, emailVerified, spotify } = useSelector((rootState: RootState) => rootState.user);
-    const { guestHome, privateHome } = useSelector((rootState: RootState) => rootState.albums);
     const { token, refreshToken, expiresIn } = spotify;
+    const { home } = useSelector((rootState: RootState) => rootState.albums);
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
         try {
-            const results: Album[][] = token ?
-                await getAlbumsOfLabelsWithToken(token, refreshToken, expiresIn) : await getAlbumsOfLabelsWithCC();
+            const results: Album[][] = await getAlbumsOfLabels(token, refreshToken, expiresIn);
             setAlbumsOfLabels(results);
-            dispatch(token ? setPrivateHome(results) : setGuestHome(results));
+            dispatch(setHome(results));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
     };
     useEffect(() => {
-        if (!signedIn) setAlbumsOfLabels([]);
-        if (signedIn && !emailVerified) sendEmailVerification();
-        const home: Album[][] | null = signedIn && privateHome.length ? privateHome :
-            guestHome.length ? guestHome : null;
-        home ? setAlbumsOfLabels(home) : fetchLabels().catch(err => console.log(err));
+        if (signedIn) {
+            if (!emailVerified) sendEmailVerification();
+            home.length ? setAlbumsOfLabels(home) : fetchLabels().catch(err => console.log(err));
+        } else {
+            setAlbumsOfLabels([]);
+        }
     }, [signedIn]);
 
     // TODO 確認メール送信
@@ -136,20 +136,30 @@ const Home: FC<Props> = () => {
         );
     };
 
-    return (
-        <div className={classes.root}>
-            <Link to={search}><IconButton><SearchIcon /></IconButton></Link>
-            {albumsOfLabels.length > 0 &&
-                albumsOfLabels.map(label => generateAlbums(label))
-            }
-            <Snackbar
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                open={snackbarOpen}
-                onClose={handleSnackbarClose}
-                message={`${email}に確認メールを送信しました`}
-            />
-        </div>
-    )
+    const privateHome = (arr: Album[][]): JSX.Element => {
+        return (
+            <div className={classes.root}>
+                <Link to={search}><IconButton><SearchIcon /></IconButton></Link>
+                {arr.map(label => generateAlbums(label))}
+                <Snackbar
+                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                    open={snackbarOpen}
+                    onClose={handleSnackbarClose}
+                    message={`${email}に確認メールを送信しました`}
+                />
+            </div>
+        )
+    };
+
+    const guestHome = (): JSX.Element => {
+        return (
+            <div className={classes.root}>
+                <Button onClick={signIn}>はじめる</Button>
+            </div>
+        )
+    };
+
+    return signedIn ? privateHome(albumsOfLabels) : guestHome();
 };
 
 export default withRouter(Home);
