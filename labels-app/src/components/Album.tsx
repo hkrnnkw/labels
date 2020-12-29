@@ -73,7 +73,7 @@ const Album: FC = () => {
     };
     useEffect(() => {
         fetchArtists().catch(err => console.log(err));
-    });
+    }, []);
 
     // アーティスト名を並べる
     const createArtistNames = (artists: Artist[]): JSX.Element[] => {
