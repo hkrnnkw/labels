@@ -53,7 +53,7 @@ const App: FC = () => {
             }
         });
         return () => unsubscribe();
-    });
+    }, []);
 
     // サインイン／アウト
     const signInOut = async (): Promise<void> => {
