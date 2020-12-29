@@ -1,25 +1,39 @@
 import firebase, { f } from '../firebase';
 import { Album, Artist } from '../utils/interfaces';
-import { StrKeyObj } from '../utils/types';
+import { Spotify, StrKeyObj } from '../utils/types';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { takeOutSpotifyRefreshTokenFromFirestore } from './dbHandler';
 
 interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: string;
+    readonly data: StrKeyObj;
 }
 
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
 }
 
-const checkTokenExpired = async (token: string, refreshToken: string, expiration: string): Promise<string> => {
+// トークンの有効期限を確認
+export const checkTokenExpired = async (obj: Spotify, uid: string): Promise<string | Spotify> => {
+    const { token, refreshToken, expiresIn: expiration } = obj.spotify;
     const now = new Date();
     const expiresIn = new Date(Number(expiration));
     if (now < expiresIn) return token;
-    const getAlbumsOfLabels: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
-    const res: newAccessTokenResponse = await getAlbumsOfLabels({ refreshToken: refreshToken });
-    return res.data;
 
+    const refresh: string | null = refreshToken.length ? refreshToken :
+        await takeOutSpotifyRefreshTokenFromFirestore(uid).catch(() => { return null });
+    if (!refresh) throw new Error('リフレッシュトークンを取得できませんでした');
+
+    const refreshAccessToken: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
+    const res: newAccessTokenResponse = await refreshAccessToken({ refreshToken: refresh });
+    const spotifyTokens: Spotify = {
+        spotify: {
+            token: res.data.token,
+            expiresIn: res.data.expiresIn,
+            refreshToken: refresh,
+        },
+    };
+    return spotifyTokens;
 };
 
 // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
@@ -31,10 +45,9 @@ export const signIn = async (): Promise<void> => {
 }
 
 // Authorization code grantによりレーベル情報を取得
-export const getAlbumsOfLabels = async (accessToken: string, refreshToken: string, expiresIn: string): Promise<Album[][]> => {
+export const getAlbumsOfLabels = async (accessToken: string): Promise<Album[][]> => {
     const today = new Date();
     const year = today.getFullYear();
-    const token = await checkTokenExpired(accessToken, refreshToken, expiresIn);
     // TODO DBなどから取得（dbHandler.tsにて処理）
     const favLabels = [
         'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
@@ -46,7 +59,7 @@ export const getAlbumsOfLabels = async (accessToken: string, refreshToken: strin
         const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20year%3A${year}&type=album&limit=20`;
         const res = await axios.get(url, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
             },
         });
         const albums: Album[] = res.data.albums.items;
@@ -59,7 +72,7 @@ export const getAlbumsOfLabels = async (accessToken: string, refreshToken: strin
         const url = `https://api.spotify.com/v1/albums?ids=${ids.replace(',', '%2C')}`;
         const res = await axios.get(url, {
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${accessToken}`,
             },
         });
         const albums: Album[] = res.data.albums.filter((elem: Album) => favLabels.includes(elem.label));
@@ -69,11 +82,10 @@ export const getAlbumsOfLabels = async (accessToken: string, refreshToken: strin
 };
 
 // ユーザライブラリに保存したアルバムを取得
-export const getSavedAlbums = async (accessToken: string, refreshToken: string, expiresIn: string): Promise<Album[]> => {
-    const token = await checkTokenExpired(accessToken, refreshToken, expiresIn);
+export const getSavedAlbums = async (accessToken: string): Promise<Album[]> => {
     const response = await axios.get(`https://api.spotify.com/v1/me/albums?limit=20`, {
         headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
         },
     });
     const items = response.data.items;
@@ -81,25 +93,23 @@ export const getSavedAlbums = async (accessToken: string, refreshToken: string, 
 };
 
 // アルバム検索
-export const searchAlbums = async (keywords: string, accessToken: string, refreshToken: string, expiresIn: string): Promise<Album[]> => {
+export const searchAlbums = async (keywords: string, accessToken: string): Promise<Album[]> => {
     const url = `https://api.spotify.com/v1/search?q=${keywords.replace(' ', '%20')}&type=album`;
-    const token = await checkTokenExpired(accessToken, refreshToken, expiresIn);
     const response = await axios.get(url, {
         headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
         },
     });
     return response.data.albums.items;
 }
 
 // アーティストの情報を取得
-export const getArtists = async (artistIds: string[], accessToken: string, refreshToken: string, expiresIn: string): Promise<Artist[]> => {
-    const token = await checkTokenExpired(accessToken, refreshToken, expiresIn);
+export const getArtists = async (artistIds: string[], accessToken: string): Promise<Artist[]> => {
     const ids: string = artistIds.join();
     const url = `https://api.spotify.com/v1/artists?ids=${ids.replace(',', '%2C')}`;
     const res = await axios.get(url, {
         headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
         },
     });
     const artists: Artist[] = res.data.artists;

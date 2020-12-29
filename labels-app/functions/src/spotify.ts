@@ -123,8 +123,13 @@ export const refreshAccessToken = f.https.onCall(async (data, context) => {
         const response = await spotifyApi.refreshAccessToken();
         const spotifyToken: string = response.body['access_token'];
         spotifyApi.setAccessToken(spotifyToken);
+        const date = new Date();
+        const expiresIn = date.setMinutes(date.getMinutes() + 58);
         console.log(`アクセストークンを更新しました：${spotifyToken}`);
-        return spotifyToken;
+        return {
+            token: spotifyToken,
+            expiresIn: expiresIn.toString(),
+        };
     } catch (err) {
         console.log('アクセストークンを更新できませんでした ', err);
         return '';

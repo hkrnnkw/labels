@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, Avatar, List, ListItem,
@@ -9,7 +9,9 @@ import {
 import { RootState } from '../stores/index';
 import { Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath} from '../utils/paths';
-import { getArtists } from '../handlers/spotifyHandler';
+import { checkTokenExpired, getArtists } from '../handlers/spotifyHandler';
+import { Spotify } from '../utils/types';
+import { setSpotifyTokens } from '../stores/user';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -48,18 +50,22 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 const Album: FC = () => {
+    const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: AlbumObj }>();
     const { artists: simpleArtists, images, name: title, label, tracks, release_date } = state.album;
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
-    const { spotify } = useSelector((rootState: RootState) => rootState.user);
-    const { token, refreshToken, expiresIn } = spotify;
+    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
 
     // アーティストの情報を取得
     const fetchArtists = async () => {
         try {
+            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
+            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
+            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
+            
             const artistIds: string[] = simpleArtists.map(artist => artist.id);
-            const results: Artist[] = await getArtists(artistIds, token, refreshToken, expiresIn).catch();
+            const results: Artist[] = await getArtists(artistIds, token).catch(() => { return [] });
             setFullArtists(results);
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);

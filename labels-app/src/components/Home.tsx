@@ -9,9 +9,11 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome } from '../stores/albums';
+import { setSpotifyTokens } from '../stores/user';
+import { Spotify } from '../utils/types';
 import { Album } from '../utils/interfaces';
 import { album as albumPath, search } from '../utils/paths';
-import { getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
+import { checkTokenExpired, getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
 
 interface Props extends RouteComponentProps {
 
@@ -61,14 +63,17 @@ const Home: FC<Props> = () => {
     const classes = ambiguousStyles();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
-    const { signedIn, email, emailVerified, spotify } = useSelector((rootState: RootState) => rootState.user);
-    const { token, refreshToken, expiresIn } = spotify;
+    const { signedIn, email, emailVerified, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home } = useSelector((rootState: RootState) => rootState.albums);
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
         try {
-            const results: Album[][] = await getAlbumsOfLabels(token, refreshToken, expiresIn);
+            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
+            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
+            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
+
+            const results: Album[][] = await getAlbumsOfLabels(token);
             setAlbumsOfLabels(results);
             dispatch(setHome(results));
         } catch (err) {
