@@ -14,7 +14,7 @@ const initialState: UserState = {
     emailVerified: false,
     spotify: {
         token: '',
-        expiresIn: '',
+        expiresIn: -1,
         refreshToken: '',
     },
 };

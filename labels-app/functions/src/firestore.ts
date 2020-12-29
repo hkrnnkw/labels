@@ -29,10 +29,7 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     });
 
     await Promise.all([userAccountTask, databaseTask]);
-    const customToken: string = await admin.auth().createCustomToken(spotifyID)
-        .catch(() => {
-            return '';
-        });
+    const customToken: string = await admin.auth().createCustomToken(spotifyID).catch(err => { throw err });
     console.log(`${spotifyID}のカスタムトークンを作成しました：${customToken}`);
     return customToken;
 }

@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { takeOutSpotifyRefreshTokenFromFirestore } from './dbHandler';
 
 interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: StrKeyObj;
+    readonly data: Spotify;
 }
 
 interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
@@ -15,10 +15,9 @@ interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult
 
 // トークンの有効期限を確認
 export const checkTokenExpired = async (obj: Spotify, uid: string): Promise<string | Spotify> => {
-    const { token, refreshToken, expiresIn: expiration } = obj.spotify;
+    const { token, refreshToken, expiresIn } = obj.spotify;
     const now = new Date();
-    const expiresIn = new Date(Number(expiration));
-    if (now < expiresIn) return token;
+    if (now < new Date(expiresIn)) return token;
 
     const refresh: string | null = refreshToken.length ? refreshToken :
         await takeOutSpotifyRefreshTokenFromFirestore(uid).catch(() => { return null });
@@ -26,14 +25,7 @@ export const checkTokenExpired = async (obj: Spotify, uid: string): Promise<stri
 
     const refreshAccessToken: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
     const res: newAccessTokenResponse = await refreshAccessToken({ refreshToken: refresh });
-    const spotifyTokens: Spotify = {
-        spotify: {
-            token: res.data.token,
-            expiresIn: res.data.expiresIn,
-            refreshToken: refresh,
-        },
-    };
-    return spotifyTokens;
+    return res.data;
 };
 
 // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト

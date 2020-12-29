@@ -17,7 +17,7 @@ export type Auth = {
 export type Spotify = {
     spotify: {
         token: string;
-        expiresIn: string;
+        expiresIn: number;
         refreshToken: string;
     };
 }

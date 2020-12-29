@@ -9,7 +9,7 @@ import { home, errorOccurred, userNotFound } from '../utils/paths';
 import { setSpotifyTokens } from '../stores/user';
 
 interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: StrKeyObj;
+    readonly data: [string, Spotify];
 }
 
 const Callback: FC = () => {
@@ -18,34 +18,21 @@ const Callback: FC = () => {
     const location = useLocation();
     const dispatch = useDispatch();
 
-    // Firebaseログイン
-    const signInWithCustomToken = async (customToken : string) => {
-        try {
-            const response: firebase.auth.UserCredential = await auth.signInWithCustomToken(customToken);
-            setAuthed(response.user !== null);
-        } catch (err) {
-            console.log(`カスタムトークンによるログインでエラーが発生しました：${err.message}`);
-            setErrorOccur(true);
-        }
-    };
-
     // CloudFunctions経由で、Spotifyのアクセストークン認証
     // その後、Firestoreにアカウントを作成、カスタムトークンを受領
     const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<void> => {
-        const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
-        const res: SpotifySignInResponse = await spotifySignIn(params);
-        if (Object.keys(res.data).length >= 4 && res.data.customToken.length) {
-            const spotifyTokens: Spotify = {
-                spotify: {
-                    token: res.data.token,
-                    expiresIn: res.data.expiresIn,
-                    refreshToken: res.data.refreshToken,
-                },
-            };
-            dispatch(setSpotifyTokens(spotifyTokens));
-            // TODO サーバ側でそのままサインインする？
-            signInWithCustomToken(res.data.customToken).catch(err => console.log(err));
-        } else {
+        try {
+            const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
+            const res: SpotifySignInResponse = await spotifySignIn(params);
+            const customToken: string = res.data[0];
+            if (!customToken.length) throw new Error('カスタムトークンを取得できませんでした');
+
+            dispatch(setSpotifyTokens(res.data[1]));
+            const credential: firebase.auth.UserCredential =
+                await auth.signInWithCustomToken(customToken).catch(err => { throw err });
+            setAuthed(credential.user !== null);
+        } catch (err) {
+            console.log(`ログインエラー：${err.message}`);
             setErrorOccur(true);
         }
     };

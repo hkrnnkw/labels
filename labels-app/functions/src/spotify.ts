@@ -91,9 +91,9 @@ export const redirect = f.https.onCall((data, context) => {
 export const signIn = f.https.onCall(async (data, context) => {
     try {
         const response: { body: { [x: string]: any; } } = await spotifyApi.authorizationCodeGrant(data.code)
-        const token: string = response.body['access_token'];
+        const spotifyToken: string = response.body['access_token'];
         const refreshToken: string = response.body['refresh_token'];
-        spotifyApi.setAccessToken(token);
+        spotifyApi.setAccessToken(spotifyToken);
         spotifyApi.setRefreshToken(refreshToken);
         const date = new Date();
         const expiresIn = date.setMinutes(date.getMinutes() + 58);
@@ -104,15 +104,16 @@ export const signIn = f.https.onCall(async (data, context) => {
         const profilePic: string | null = img ? img['url'] : null;
         const email: string = user.body['email'];
         const customToken: string = await manageUser(refreshToken, spotifyUserID, userName, profilePic, email);
-        return {
-            token: token,
-            expiresIn: expiresIn.toString(),
-            refreshToken: refreshToken,
-            customToken: customToken,
-        }
+        return [customToken, {
+            spotify: {
+                token: spotifyToken,
+                expiresIn: expiresIn,
+                refreshToken: refreshToken,
+            },
+        }];
     } catch (err) {
         console.log(`不具合が発生：${err.message}`);
-        return {};
+        return ['', {}];
     };
 });
 
@@ -127,11 +128,14 @@ export const refreshAccessToken = f.https.onCall(async (data, context) => {
         const expiresIn = date.setMinutes(date.getMinutes() + 58);
         console.log(`アクセストークンを更新しました：${spotifyToken}`);
         return {
-            token: spotifyToken,
-            expiresIn: expiresIn.toString(),
+            spotify: {
+                token: spotifyToken,
+                expiresIn: expiresIn,
+                refreshToken: data.refreshToken,
+            },
         };
     } catch (err) {
         console.log('アクセストークンを更新できませんでした ', err);
-        return '';
+        return {};
     }
 });
