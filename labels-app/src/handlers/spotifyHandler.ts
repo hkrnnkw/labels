@@ -1,6 +1,8 @@
 import firebase, { f } from '../firebase';
 import { Album, Artist } from '../utils/interfaces';
+import { StrKeyObj } from '../utils/types';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: string;
@@ -8,6 +10,10 @@ interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult 
 
 interface GetAlbumsOfLabelsResponse extends firebase.functions.HttpsCallableResult {
     readonly data: Album[][];
+}
+
+interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
+    readonly data: string;
 }
 
 const checkTokenExpired = async (token: string, refreshToken: string, expiration: string): Promise<string> => {
@@ -33,6 +39,14 @@ export const getAlbumsOfLabelsWithCC = async (): Promise<Album[][]> => {
     const res: GetAlbumsOfLabelsResponse = await getAlbumsOfLabels({ labels: labels, year: year });
     return res.data;
 };
+
+// CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
+export const signIn = async (): Promise<void> => {
+    const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotify_redirect');
+    const param: StrKeyObj = { state: uuidv4() };
+    const response: SpotifyRedirectResponse = await spotifyRedirect(param);
+    window.location.href = response.data;
+}
 
 // Authorization code grantによりレーベル情報を取得
 export const getAlbumsOfLabelsWithToken = async (accessToken: string, refreshToken: string, expiresIn: string): Promise<Album[][]> => {

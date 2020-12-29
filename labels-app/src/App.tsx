@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState, KeyboardEvent, MouseEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
-import firebase, { f, auth } from './firebase';
+import { auth } from './firebase';
 import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
@@ -12,20 +12,16 @@ import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { setUserProfile, setAuth, setClearUser } from './stores/user';
-import { StrKeyObj, Auth } from './utils/types';
+import { Auth } from './utils/types';
 import { UserProfile } from './utils/interfaces';
 import { home, album, artist, account, callback, search } from './utils/paths';
-import { v4 as uuidv4 } from 'uuid';
 import {
     SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import PersonIcon from '@material-ui/icons/Person';
 import ExitToAppSharpIcon from '@material-ui/icons/ExitToAppSharp';
-
-interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult {
-    readonly data: string;
-}
+import { signIn } from './handlers/spotifyHandler';
 
 const App: FC = () => {
     const dispatch = useDispatch();
@@ -61,15 +57,7 @@ const App: FC = () => {
 
     // サインイン／アウト
     const signInOut = async (): Promise<void> => {
-        if (userExists) {
-            await auth.signOut();
-            return;
-        }
-        // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
-        const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotify_redirect');
-        const param: StrKeyObj = { state: uuidv4() };
-        const response: SpotifyRedirectResponse = await spotifyRedirect(param);
-        window.location.href = response.data;
+        userExists ? await auth.signOut() : await signIn();
     };
 
     // メニューの開閉
