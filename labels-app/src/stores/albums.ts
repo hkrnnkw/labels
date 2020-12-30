@@ -4,10 +4,12 @@ import { SearchResult } from "../utils/types";
 
 type AlbumsState = SearchResult & {
     home: Album[][];
+    saved: Album[];
 }
 
 const initialState: AlbumsState = {
     home: [],
+    saved: [],
     search: {
         keywords: '',
         results: [],
@@ -20,6 +22,9 @@ const slice = createSlice({
     reducers: {
         setHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
             state.home = action.payload;
+        },
+        setSaved: (state: AlbumsState, action: PayloadAction<Album[]>) => {
+            state.saved = action.payload;
         },
         setSearch: (state: AlbumsState, action: PayloadAction<SearchResult>) => {
             const { keywords: keyword, results: result } = action.payload.search;
@@ -34,4 +39,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setHome, setSearch, setClearAlbums } = slice.actions;
+export const { setHome, setSaved, setSearch, setClearAlbums } = slice.actions;

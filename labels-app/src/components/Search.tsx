@@ -1,15 +1,18 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    GridList, GridListTile, GridListTileBar,
+    List, ListItem, ListItemText, IconButton, TextField, Typography,
 } from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
 import { Album } from '../utils/interfaces';
 import { SearchResult, Spotify } from '../utils/types';
-import { checkTokenExpired, getSavedAlbums } from '../handlers/spotifyHandler';
-import { setSearch } from '../stores/albums';
+import { album as albumPath } from '../utils/paths';
+import { checkTokenExpired, getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
+import { setSaved, setSearch } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -22,12 +25,19 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         justifyContent: 'space-around',
         overflow: 'hidden',
     },
-    title: {
-        color: '#FFFFFF',
+    listItem: {
+        width: '100%',
+        float: 'left',
+        padding: 0,
+        marginBottom: theme.spacing(1),
     },
-    titleBar: {
-        background:
-            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+    jacket: {
+        width: '20%',
+        float: 'left',
+        marginRight: theme.spacing(2),
+    },
+    listItemText: {
+        width: '80%',
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -39,9 +49,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Search: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const [savedAlbums, setSavedAlbums] = useState<Album[]>([]);
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { saved, search } = useSelector((rootState: RootState) => rootState.albums);
+    const [keywords, setKeywords] = useState<string>('');
 
+    // ライブラリに保存したアルバムを取得
     const fetchSavedAlbums = async () => {
         try {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
@@ -49,43 +61,87 @@ const Search: FC = () => {
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
             
             const results: Album[] = await getSavedAlbums(token);
-            setSavedAlbums(results);
-            const search: SearchResult = {
-                search: { keywords: '', results: results },
-            }
-            dispatch(setSearch(search));
+            dispatch(setSaved(results));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
     };
     useEffect(() => {
-        fetchSavedAlbums().catch(err => console.log(err));
+        if (!saved.length) fetchSavedAlbums().catch(err => console.log(err));
     }, []);
 
+    // keywordsが空になったら、searchを初期化
+    useEffect(() => {
+        if (keywords.length) return;
+        const searchResult: SearchResult = {
+            search: { keywords: '', results: [] },
+        }
+        dispatch(setSearch(searchResult));
+    }, [keywords]);
+
+    // 検索実行
+    const doSearching = async (str: string) => {
+        try {
+            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
+            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
+            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
+            
+            const results: Album[] = await searchAlbums(str, token);
+            const searchResult: SearchResult = {
+                search: { keywords: str, results: results },
+            }
+            dispatch(setSearch(searchResult));
+        } catch (err) {
+            console.log(`Spotifyフェッチエラー：${err}`);
+        }
+    };
+
+    // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
-        const albumGridListTiles: JSX.Element[] = albums.map(album => {
-            return <GridListTile key={`${album.artists[0].name} - ${album.name}`}>
-                <img src={album.images[0].url} alt={`${album.artists[0].name} - ${album.name}`} />
-                <GridListTileBar
-                    title={album.name}
-                    subtitle={album.artists[0].name}
-                    classes={{
-                        root: classes.titleBar,
-                        title: classes.title,
-                    }}
-                />
-            </GridListTile>;
+        if (!albums.length && search.keywords.length) return <Typography>見つかりませんでした</Typography>;
+
+        const albumListItems: JSX.Element[] = albums.map(album => {
+            return (
+                <ListItem
+                    key={`${album.artists[0].name} - ${album.name}`}
+                    className={classes.listItem}
+                >
+                    <Link to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>                    
+                        <img
+                            src={album.images[0].url}
+                            alt={`${album.artists[0].name} - ${album.name}`}
+                            className={classes.jacket}
+                        />
+                        <ListItemText
+                            primary={album.name}
+                            secondary={album.artists[0].name}
+                            classes={{
+                                root: classes.listItemText,
+                            }}
+                        />
+                    </Link>
+                </ListItem>
+            );
         });
-        return <GridList>
-            {albumGridListTiles}
-        </GridList>;
+        return <List>{albumListItems}</List>;
     };
 
     return (
         <div className={classes.root}>
-            {savedAlbums.length > 0 &&
-                generateAlbums(savedAlbums)
-            }
+            <TextField
+                id="search"
+                value={keywords}
+                placeholder="アーティストを検索"
+                type="search"
+                onChange={e => setKeywords(e.target.value)}
+            />
+            <IconButton
+                onClick={() => doSearching(keywords)}
+                disabled={!keywords.length || search.keywords === keywords}
+            >
+                <SearchIcon />
+            </IconButton>
+            {generateAlbums(search.keywords.length && keywords.length ? search.results : saved)}
         </div>
     )
 };
