@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState, KeyboardEvent, MouseEvent } from 'react';
 import { useDispatch } from 'react-redux';
-import { BrowserRouter, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Link as RouterLink } from 'react-router-dom';
 import { auth } from './firebase';
 import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
@@ -16,7 +16,7 @@ import { Auth } from './utils/types';
 import { UserProfile } from './utils/interfaces';
 import { home, album, artist, account, callback, search } from './utils/paths';
 import {
-    SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider,
+    SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider, Link,
 } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import PersonIcon from '@material-ui/icons/Person';
@@ -75,7 +75,7 @@ const App: FC = () => {
             onKeyDown={toggleDrawer(false)}
         >
             <List>
-                <Link to={account}>
+                <Link component={RouterLink} to={account}>
                     <ListItem button key={'account'}>
                         <ListItemIcon><PersonIcon /></ListItemIcon><ListItemText primary={'マイページ'} />
                     </ListItem>
@@ -93,7 +93,7 @@ const App: FC = () => {
     
     return (
         <BrowserRouter>
-            <Link to={home}>Labels</Link>
+            <Link component={RouterLink} to={home}>Labels</Link>
             <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
             <SwipeableDrawer
                 anchor={'bottom'}

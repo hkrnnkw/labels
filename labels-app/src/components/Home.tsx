@@ -1,11 +1,12 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography, IconButton, Button,
+    Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome } from '../stores/albums';
@@ -109,7 +110,7 @@ const Home: FC<Props> = () => {
                     cols={2}
                     rows={0.8}
                 >
-                    <Link to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
+                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}
@@ -144,7 +145,7 @@ const Home: FC<Props> = () => {
     const privateHome = (arr: Album[][]): JSX.Element => {
         return (
             <div className={classes.root}>
-                <Link to={search}><IconButton><SearchIcon /></IconButton></Link>
+                <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>
                 {arr.map(label => generateAlbums(label))}
                 <Snackbar
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}

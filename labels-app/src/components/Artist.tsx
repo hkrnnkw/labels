@@ -1,9 +1,9 @@
 import React, { FC } from 'react';
 import { withRouter } from 'react-router';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, List, ListItem,
+    Typography, List, ListItem, Link,
 } from '@material-ui/core';
 import { Album, Artist as ArtistObj } from '../utils/interfaces';
 import { album } from '../utils/paths';

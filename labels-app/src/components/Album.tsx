@@ -1,10 +1,10 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
-import { useLocation, Link } from 'react-router-dom';
+import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, Avatar, List, ListItem,
+    Typography, Avatar, List, ListItem, Link,
 } from '@material-ui/core';
 import { RootState } from '../stores/index';
 import { Album as AlbumObj, Artist } from '../utils/interfaces';
@@ -81,7 +81,12 @@ const Album: FC = () => {
         for (let i = 0; i < artists.length; i++) {
             if (i !== 0) result.push(<Typography className={classes.comma}>, </Typography>);
             result.push(
-                <Link to={{ pathname: `${artistPath}/${artists[i].id}`, state: { artist: artists[i] } }}>{artists[i].name}</Link>,
+                <Link
+                    component={RouterLink}
+                    to={{ pathname: `${artistPath}/${artists[i].id}`, state: { artist: artists[i] } }}
+                >
+                    {artists[i].name}
+                </Link>,
             );
         }
         return result;
@@ -105,7 +110,7 @@ const Album: FC = () => {
             <Typography>{release_date}</Typography>
             <List>
                 {fullArtists.map(artist => { return (
-                    <Link to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }} className={classes.artist}>
+                    <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }} className={classes.artist}>
                         <ListItem>
                             <Avatar src={artist.images[0].url} className={classes.artistAvatar} />
                             <Typography className={classes.artistName}>{artist.name}</Typography>

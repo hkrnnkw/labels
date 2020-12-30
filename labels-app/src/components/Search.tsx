@@ -1,11 +1,11 @@
 import React, { FC, useState, useEffect } from 'react';
 import { withRouter } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    List, ListItem, ListItemText, IconButton, TextField, Typography,
+    List, ListItem, ListItemText, IconButton, TextField, Typography, Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Album } from '../utils/interfaces';
@@ -101,7 +101,7 @@ const Search: FC = () => {
                     key={`${album.artists[0].name} - ${album.name}`}
                     className={classes.listItem}
                 >
-                    <Link to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>                    
+                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>                    
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}
