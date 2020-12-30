@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Album } from '../utils/interfaces';
 
 type AlbumsState = {
-    labels: string[];
+    followingLabels: string[];
     home: Album[][];
     saved: Album[];
 }
 
 const initialState: AlbumsState = {
-    labels: [],
+    followingLabels: [],
     home: [],
     saved: [],
 };
@@ -17,8 +17,8 @@ const slice = createSlice({
     name: "albums",
     initialState,
     reducers: {
-        setLabels: (state: AlbumsState, action: PayloadAction<string[]>) => {
-            state.labels = action.payload;
+        setFollowingLabels: (state: AlbumsState, action: PayloadAction<string[]>) => {
+            state.followingLabels = action.payload;
         },
         setHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
             state.home = action.payload;
@@ -34,4 +34,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setLabels, setHome, setSaved, setClearAlbums } = slice.actions;
+export const { setFollowingLabels, setHome, setSaved, setClearAlbums } = slice.actions;
