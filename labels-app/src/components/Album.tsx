@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core';
 import { RootState } from '../stores/index';
 import { Album as AlbumObj, Artist } from '../utils/interfaces';
-import { artist as artistPath} from '../utils/paths';
+import { artist as artistPath, label as labelPath } from '../utils/paths';
 import { checkTokenExpired, getArtists } from '../handlers/spotifyHandler';
 import { Spotify } from '../utils/types';
 import { setSpotifyTokens } from '../stores/user';
@@ -103,7 +103,7 @@ const Album: FC = () => {
             <div className={classes.names}>
                 {createArtistNames(fullArtists)}
             </div>
-            <Typography>{label}</Typography>
+            <Link component={RouterLink} to={{ pathname: `${labelPath}/${label}`, state: { label: label } }}>{label}</Link>
             <List>
                 {tracks.items.map(track => <ListItem>{track.name}</ListItem>)}
             </List>

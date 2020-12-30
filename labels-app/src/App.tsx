@@ -7,6 +7,7 @@ import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
 import Album from './components/Album';
 import Artist from './components/Artist';
+import Label from './components/Label';
 import Search from './components/Search';
 import Account from './components/Account';
 import Callback from './components/Callback';
@@ -14,7 +15,7 @@ import NotFound from './components/NotFound';
 import { setUserProfile, setAuth, setClearUser } from './stores/user';
 import { Auth } from './utils/types';
 import { UserProfile } from './utils/interfaces';
-import { home, album, artist, account, callback, search } from './utils/paths';
+import { home, album, artist, label, account, callback, search } from './utils/paths';
 import {
     SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider, Link,
 } from '@material-ui/core';
@@ -107,6 +108,7 @@ const App: FC = () => {
                 <Route path={home} exact component={Home} />
                 <PrivateRoute path={album} component={Album} />
                 <PrivateRoute path={artist} component={Artist} />
+                <PrivateRoute path={label} component={Label} />
                 <PrivateRoute path={search} component={Search} />
                 <PrivateRoute path={account} component={Account} />
                 <GuestRoute path={callback} component={Callback} />
