@@ -8,11 +8,30 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
 const theme = createMuiTheme({
     overrides: {
-        
+        MuiLink: {
+            root: {
+                textDecoration: 'none',
+                fontWeight: 700,
+            },
+        },
     },
     props: {
 
     },
+    // paletteには、ひとまずサンプルを設定
+    palette: {
+        primary: {
+            main: '#ff4400',
+        },
+        secondary: {
+            light: '#0066ff',
+            main: '#0044ff',
+            contrastText: '#ffcc00',
+        },
+        contrastThreshold: 3,
+        tonalOffset: 0.2,
+    },
+    spacing: 4,
 });
 
 ReactDOM.render(
