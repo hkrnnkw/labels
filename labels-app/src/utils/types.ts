@@ -23,8 +23,6 @@ export type Spotify = {
 }
 
 export type SearchResult = {
-    search: {
-        keywords: string;
-        results: Album[];
-    };
+    keywords: string;
+    results: Album[];
 }

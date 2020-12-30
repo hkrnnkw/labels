@@ -12,7 +12,7 @@ import { Album } from '../utils/interfaces';
 import { SearchResult, Spotify } from '../utils/types';
 import { album as albumPath } from '../utils/paths';
 import { checkTokenExpired, getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
-import { setSaved, setSearch } from '../stores/albums';
+import { setSaved } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -50,8 +50,9 @@ const Search: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
-    const { saved, search } = useSelector((rootState: RootState) => rootState.albums);
-    const [keywords, setKeywords] = useState<string>('');
+    const { saved } = useSelector((rootState: RootState) => rootState.albums);
+    const [typing, setTyping] = useState<string>('');
+    const [searched, setSearched] = useState<SearchResult>({ keywords: '', results: [] });
 
     // ライブラリに保存したアルバムを取得
     const fetchSavedAlbums = async () => {
@@ -70,27 +71,21 @@ const Search: FC = () => {
         if (!saved.length) fetchSavedAlbums().catch(err => console.log(err));
     }, []);
 
-    // keywordsが空になったら、searchを初期化
+    // typingが空になったら、searchedを初期化
     useEffect(() => {
-        if (keywords.length) return;
-        const searchResult: SearchResult = {
-            search: { keywords: '', results: [] },
-        }
-        dispatch(setSearch(searchResult));
-    }, [keywords]);
+        if (typing.length) return;
+        setSearched({ keywords: '', results: [] });
+    }, [typing]);
 
     // 検索実行
-    const doSearching = async (str: string) => {
+    const doSearching = async (keywords: string) => {
         try {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
             
-            const results: Album[] = await searchAlbums(str, token);
-            const searchResult: SearchResult = {
-                search: { keywords: str, results: results },
-            }
-            dispatch(setSearch(searchResult));
+            const results: Album[] = await searchAlbums(keywords, token);
+            setSearched({ keywords: keywords, results: results });
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
@@ -98,7 +93,7 @@ const Search: FC = () => {
 
     // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
-        if (!albums.length && search.keywords.length) return <Typography>見つかりませんでした</Typography>;
+        if (!albums.length && searched.keywords.length) return <Typography>見つかりませんでした</Typography>;
 
         const albumListItems: JSX.Element[] = albums.map(album => {
             return (
@@ -130,18 +125,18 @@ const Search: FC = () => {
         <div className={classes.root}>
             <TextField
                 id="search"
-                value={keywords}
+                value={typing}
                 placeholder="アーティストを検索"
                 type="search"
-                onChange={e => setKeywords(e.target.value)}
+                onChange={e => setTyping(e.target.value)}
             />
             <IconButton
-                onClick={() => doSearching(keywords)}
-                disabled={!keywords.length || search.keywords === keywords}
+                onClick={() => doSearching(typing)}
+                disabled={!typing.length || searched.keywords === typing}
             >
                 <SearchIcon />
             </IconButton>
-            {generateAlbums(search.keywords.length && keywords.length ? search.results : saved)}
+            {generateAlbums(searched.keywords.length && typing.length ? searched.results : saved)}
         </div>
     )
 };

@@ -1,8 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Album } from '../utils/interfaces';
-import { SearchResult } from "../utils/types";
 
-type AlbumsState = SearchResult & {
+type AlbumsState = {
     home: Album[][];
     saved: Album[];
 }
@@ -10,10 +9,6 @@ type AlbumsState = SearchResult & {
 const initialState: AlbumsState = {
     home: [],
     saved: [],
-    search: {
-        keywords: '',
-        results: [],
-    },
 };
 
 const slice = createSlice({
@@ -26,11 +21,6 @@ const slice = createSlice({
         setSaved: (state: AlbumsState, action: PayloadAction<Album[]>) => {
             state.saved = action.payload;
         },
-        setSearch: (state: AlbumsState, action: PayloadAction<SearchResult>) => {
-            const { keywords: keyword, results: result } = action.payload.search;
-            state.search.keywords = keyword;
-            state.search.results = result;
-        },
         setClearAlbums: () => {
             return initialState;
         },
@@ -39,4 +29,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setHome, setSaved, setSearch, setClearAlbums } = slice.actions;
+export const { setHome, setSaved, setClearAlbums } = slice.actions;
