@@ -49,6 +49,25 @@ const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise
     return albums;
 };
 
+// 各年のアルバムを取得
+export const getAlbumsOfYear = async (label: string, years: number[], accessToken: string): Promise<Album[][]> => {
+    const albumIdsArray = await Promise.all(years.map(async (year) => {
+        const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20year%3A${year}&type=album&limit=20`;
+        const res = await axios.get(url, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        const albums: SimpleAlbum[] = res.data.albums.items;
+        return albums.map(album => album.id);
+    }));
+
+    return await Promise.all(albumIdsArray.map(async (albumIds) => {
+        const albums: Album[] = await getFullAlbumObj(albumIds, accessToken);
+        return albums.filter(album => label === album.label);
+    }));
+};
+
 // Authorization code grantによりレーベル情報を取得
 export const getAlbumsOfLabels = async (labels: string[], accessToken: string): Promise<Album[][]> => {
     const today = new Date();
