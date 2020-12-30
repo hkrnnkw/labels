@@ -28,6 +28,7 @@ const Label: FC = () => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ label: string }>();
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { labels } = useSelector((rootState: RootState) => rootState.albums);
 
     useEffect(() => {
         // Redux (album.ts -> home) に保存済みでないかチェック

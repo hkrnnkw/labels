@@ -9,7 +9,7 @@ import {
     Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setHome } from '../stores/albums';
+import { setHome, setLabels } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
 import { Spotify } from '../utils/types';
 import { Album } from '../utils/interfaces';
@@ -81,6 +81,7 @@ const Home: FC<Props> = () => {
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                 'Republic Records', 'Smalltown Supersound', 'aritech',
             ];
+            dispatch(setLabels(favLabels));
             
             const results: Album[][] = await getAlbumsOfLabels(favLabels, token);
             setAlbumsOfLabels(results);
