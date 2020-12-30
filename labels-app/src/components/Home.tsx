@@ -74,7 +74,15 @@ const Home: FC<Props> = () => {
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
 
-            const results: Album[][] = await getAlbumsOfLabels(token);
+            // TODO DBからフォロー中のレーベル一覧を取得
+            const favLabels = [
+                'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
+                'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
+                'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
+                'Republic Records', 'Smalltown Supersound', 'aritech',
+            ];
+            
+            const results: Album[][] = await getAlbumsOfLabels(favLabels, token);
             setAlbumsOfLabels(results);
             dispatch(setHome(results));
         } catch (err) {

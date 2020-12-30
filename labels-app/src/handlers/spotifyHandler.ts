@@ -50,16 +50,9 @@ const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise
 };
 
 // Authorization code grantによりレーベル情報を取得
-export const getAlbumsOfLabels = async (accessToken: string): Promise<Album[][]> => {
+export const getAlbumsOfLabels = async (favLabels: string[], accessToken: string): Promise<Album[][]> => {
     const today = new Date();
     const year = today.getFullYear();
-    // TODO DBなどから取得（dbHandler.tsにて処理）
-    const favLabels = [
-        'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
-        'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-        'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
-        'Republic Records', 'Smalltown Supersound', 'aritech',
-    ];
     const albumIdsArray = await Promise.all(favLabels.map(async (label) => {
         const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20year%3A${year}&type=album&limit=20`;
         const res = await axios.get(url, {
