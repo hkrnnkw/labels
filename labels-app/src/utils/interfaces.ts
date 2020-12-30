@@ -21,7 +21,7 @@ export interface Artist extends SimpleArtist {
     popularity: number;
 }
 
-type SimpleTrack = {
+interface SimpleTrack {
     artists: SimpleArtist[];
     disc_number: number;
     duration_ms: number;
@@ -34,18 +34,21 @@ type SimpleTrack = {
     track_number: string;
 }
 
-export interface Album {
+export interface SimpleAlbum {
     album_type: string;
     artists: SimpleArtist[];
+    id: string;
+    images: Image[];
+    name: string;
+}
+
+export interface Album extends SimpleAlbum {
     copyright: {
         text: string;
         type: string;
     };
     genres: string[];
-    id: string;
-    images: Image[];
     label: string;
-    name: string;
     release_date: string;
     tracks: {
         items: SimpleTrack[];

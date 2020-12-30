@@ -1,5 +1,5 @@
 import firebase, { f } from '../firebase';
-import { Album, Artist } from '../utils/interfaces';
+import { Album, Artist, SimpleAlbum } from '../utils/interfaces';
 import { Spotify, StrKeyObj } from '../utils/types';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
@@ -36,6 +36,19 @@ export const signIn = async (): Promise<void> => {
     window.location.href = response.data;
 }
 
+// アルバムオブジェクト(Full)を取得
+const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise<Album[]> => {
+    const ids: string = albumIds.join();
+    const url = `https://api.spotify.com/v1/albums?ids=${ids.replace(',', '%2C')}`;
+    const res = await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+    const albums: Album[] = res.data.albums;
+    return albums;
+};
+
 // Authorization code grantによりレーベル情報を取得
 export const getAlbumsOfLabels = async (accessToken: string): Promise<Album[][]> => {
     const today = new Date();
@@ -54,21 +67,14 @@ export const getAlbumsOfLabels = async (accessToken: string): Promise<Album[][]>
                 Authorization: `Bearer ${accessToken}`,
             },
         });
-        const albums: Album[] = res.data.albums.items;
+        const albums: SimpleAlbum[] = res.data.albums.items;
         return albums.map(album => album.id);
     }));
     const albumIdsFiltered = albumIdsArray.filter(album => album.length);
 
     const albumsArray = await Promise.all(albumIdsFiltered.map(async (albumIds) => {
-        const ids: string = albumIds.join();
-        const url = `https://api.spotify.com/v1/albums?ids=${ids.replace(',', '%2C')}`;
-        const res = await axios.get(url, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
-        const albums: Album[] = res.data.albums.filter((elem: Album) => favLabels.includes(elem.label));
-        return albums;
+        const albums: Album[] = await getFullAlbumObj(albumIds, accessToken);
+        return albums.filter((elem: Album) => favLabels.includes(elem.label));
     }));
     return albumsArray.filter(album => album.length);
 };
@@ -92,7 +98,9 @@ export const searchAlbums = async (keywords: string, accessToken: string): Promi
             Authorization: `Bearer ${accessToken}`,
         },
     });
-    return response.data.albums.items;
+    const albums: SimpleAlbum[] = response.data.albums.items;
+    const albumIds: string[] = albums.map(album => album.id);
+    return await getFullAlbumObj(albumIds, accessToken);
 }
 
 // アーティストの情報を取得
