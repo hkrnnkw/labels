@@ -5,7 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Snackbar, GridList, GridListTile, GridListTileBar, Container, Typography, IconButton, Button,
+    Snackbar, GridList, GridListTile, GridListTileBar, Container, IconButton, Button,
     Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
@@ -13,7 +13,7 @@ import { setHome, setFollowingLabels } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
 import { Spotify } from '../utils/types';
 import { Album } from '../utils/interfaces';
-import { album as albumPath, search } from '../utils/paths';
+import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { checkTokenExpired, getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
 import { getListOfFollowingLabelsFromFirestore, setListOfFollowingLabelsToFirestore } from '../handlers/dbHandler';
 
@@ -71,6 +71,7 @@ const Home: FC<Props> = () => {
     // レーベルの情報を取得
     const fetchLabels = async () => {
         try {
+            // Spotifyトークンの有効期限チェック
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
@@ -121,7 +122,7 @@ const Home: FC<Props> = () => {
         dispatch(setFollowingLabels(labelName));
     };
 
-    const generateAlbums = (label: Album[]): JSX.Element => {
+    const generateAlbums = (label: Album[], list: string[]): JSX.Element => {
         const labelName: string = label[0].label;
         const albumGridListTiles: JSX.Element[] = label.map(album => {
             return (
@@ -150,7 +151,16 @@ const Home: FC<Props> = () => {
         });
         return (
             <Container className={classes.container} id={labelName}>
-                <Typography className={classes.labelName}>{labelName}</Typography>
+                <Link
+                    component={RouterLink}
+                    to={{ pathname: `${labelPath}/${labelName}`, state: { label: labelName } }}
+                    className={classes.labelName}
+                >
+                    {labelName}
+                </Link>
+                {list.find(elem => elem === labelName) === undefined &&
+                    <Button onClick={() => handleFollowing(labelName)}>フォロー</Button>
+                }
                 <GridList
                     className={classes.gridList}
                     cols={5}
@@ -162,11 +172,11 @@ const Home: FC<Props> = () => {
         );
     };
 
-    const privateHome = (arr: Album[][]): JSX.Element => {
+    const privateHome = (labels: Album[][], list: string[]): JSX.Element => {
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>
-                {arr.map(label => generateAlbums(label))}
+                {labels.map(label => generateAlbums(label, list))}
                 <Snackbar
                     anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                     open={snackbarOpen}
@@ -185,7 +195,7 @@ const Home: FC<Props> = () => {
         )
     };
 
-    return signedIn ? privateHome(albumsOfLabels) : guestHome();
+    return signedIn ? privateHome(albumsOfLabels, followingLabels) : guestHome();
 };
 
 export default withRouter(Home);
