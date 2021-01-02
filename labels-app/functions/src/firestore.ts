@@ -5,11 +5,13 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     photoURL: string | null, email: string): Promise<string> => {
         
     // Spotifyのリフレッシュトークンを保存
+    const followingLabels: string[] = [];
     const databaseTask = admin.firestore().collection('users').doc(spotifyID).set({
         spotifyRefreshToken: spotifyRefreshToken,
         displayName: displayName,
         photoURL: photoURL,
         email: email,
+        followingLabels: followingLabels,
     });
 
     // アカウント更新／作成

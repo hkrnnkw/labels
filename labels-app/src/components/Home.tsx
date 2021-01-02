@@ -15,6 +15,7 @@ import { Spotify } from '../utils/types';
 import { Album } from '../utils/interfaces';
 import { album as albumPath, search } from '../utils/paths';
 import { checkTokenExpired, getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
+import { getListOfFollowingLabelsFromFirestore, setListOfFollowingLabelsToFirestore } from '../handlers/dbHandler';
 
 interface Props extends RouteComponentProps {
 
@@ -74,8 +75,10 @@ const Home: FC<Props> = () => {
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
 
-            // TODO DBからフォロー中のレーベル一覧を取得
-            const favLabels = [
+            // Firestoreからフォロー中のレーベル群を取得
+            const favLabels = await getListOfFollowingLabelsFromFirestore(uid);
+
+            const defaults = [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
                 'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
@@ -109,6 +112,11 @@ const Home: FC<Props> = () => {
     // スナックバーを閉じる
     const handleSnackbarClose = () => {
         setSnackbarOpen(false);
+    };
+
+    // フォロー操作
+    const handleFollowing = async (labelName: string) => {
+        await setListOfFollowingLabelsToFirestore(uid, labelName);
     };
 
     const generateAlbums = (label: Album[]): JSX.Element => {
