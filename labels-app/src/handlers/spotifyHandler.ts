@@ -69,11 +69,11 @@ export const getAlbumsOfYear = async (label: string, years: number[], accessToke
 };
 
 // Authorization code grantによりレーベル情報を取得
-export const getAlbumsOfLabels = async (labels: string[], accessToken: string): Promise<Album[][]> => {
+export const getAlbumsOfLabels = async (labels: string[], getNew: boolean, accessToken: string): Promise<Album[][]> => {
     const today = new Date();
     const year = today.getFullYear();
     const albumIdsArray = await Promise.all(labels.map(async (label) => {
-        const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20year%3A${year}&type=album&limit=20`;
+        const url = `https://api.spotify.com/v1/search?q=label%3A"${label}"%20${getNew ? `tag%3Anew` : `year%3A${year}`}&type=album&limit=20`;
         const res = await axios.get(url, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,

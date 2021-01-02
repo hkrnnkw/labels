@@ -83,7 +83,8 @@ const Home: FC<Props> = () => {
             ];
             dispatch(setFollowingLabels(favLabels));
             
-            const results: Album[][] = await getAlbumsOfLabels(favLabels, token);
+            // フォロー中のレーベルそれぞれのアルバムを取得
+            const results: Album[][] = await getAlbumsOfLabels(favLabels.length > 3 ? favLabels : Array.from(set), true, token);
             setAlbumsOfLabels(results);
             dispatch(setHome(results));
         } catch (err) {
