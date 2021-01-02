@@ -158,7 +158,7 @@ const Home: FC<Props> = () => {
                 >
                     {labelName}
                 </Link>
-                {list.find(elem => elem === labelName) === undefined &&
+                {!list.includes(labelName) &&
                     <Button onClick={() => handleFollowing(labelName)}>フォロー</Button>
                 }
                 <GridList

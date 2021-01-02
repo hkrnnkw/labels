@@ -79,8 +79,7 @@ const Label: FC = () => {
         }
     };
     useEffect(() => {
-        const exists: string | undefined = labels.find(label => label === state.label);
-        const alreadyFollowing: boolean = exists !== undefined;
+        const alreadyFollowing: boolean = labels.includes(state.label);
         setFollowing(alreadyFollowing);
         fetchLabel().catch(err => console.log(err));
     }, []);
