@@ -5,14 +5,12 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     photoURL: string | null, email: string): Promise<string> => {
         
     // Spotifyのリフレッシュトークンを保存
-    const followingLabels: string[] = [];
     const databaseTask = admin.firestore().collection('users').doc(spotifyID).set({
         spotifyRefreshToken: spotifyRefreshToken,
         displayName: displayName,
         photoURL: photoURL,
         email: email,
-        followingLabels: followingLabels,
-    });
+    }, { merge: true });
 
     // アカウント更新／作成
     const userAccountTask = admin.auth().updateUser(spotifyID, {
@@ -31,6 +29,14 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     });
 
     await Promise.all([userAccountTask, databaseTask]);
+    const doc = await admin.firestore().collection('users').doc(spotifyID).get();
+    const data = doc.data();
+    if (data && !data.followingLabels) {
+        const followingLabels: string[] = [];
+        await admin.firestore().collection('users').doc(spotifyID).set({
+            followingLabels: followingLabels,
+        }, { merge: true });
+    }
     const customToken: string = await admin.auth().createCustomToken(spotifyID).catch(err => { throw err });
     console.log(`${spotifyID}のカスタムトークンを作成しました：${customToken}`);
     return customToken;
