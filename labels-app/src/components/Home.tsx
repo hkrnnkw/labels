@@ -66,7 +66,7 @@ const Home: FC<Props> = () => {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
     const { signedIn, email, emailVerified, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
-    const { home } = useSelector((rootState: RootState) => rootState.albums);
+    const { home, followingLabels } = useSelector((rootState: RootState) => rootState.albums);
 
     // レーベルの情報を取得
     const fetchLabels = async () => {
@@ -77,6 +77,7 @@ const Home: FC<Props> = () => {
 
             // Firestoreからフォロー中のレーベル群を取得
             const favLabels = await getListOfFollowingLabelsFromFirestore(uid);
+            dispatch(setFollowingLabels(favLabels));
 
             const defaults = [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
@@ -84,7 +85,7 @@ const Home: FC<Props> = () => {
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                 'Republic Records', 'Smalltown Supersound', 'aritech',
             ];
-            dispatch(setFollowingLabels(favLabels));
+            const set = new Set(favLabels.concat(defaults));
             
             // フォロー中のレーベルそれぞれのアルバムを取得
             const results: Album[][] = await getAlbumsOfLabels(favLabels.length > 3 ? favLabels : Array.from(set), true, token);
@@ -117,6 +118,7 @@ const Home: FC<Props> = () => {
     // フォロー操作
     const handleFollowing = async (labelName: string) => {
         await setListOfFollowingLabelsToFirestore(uid, labelName);
+        dispatch(setFollowingLabels(labelName));
     };
 
     const generateAlbums = (label: Album[]): JSX.Element => {

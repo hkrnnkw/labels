@@ -17,8 +17,12 @@ const slice = createSlice({
     name: "albums",
     initialState,
     reducers: {
-        setFollowingLabels: (state: AlbumsState, action: PayloadAction<string[]>) => {
-            state.followingLabels = action.payload;
+        setFollowingLabels: (state: AlbumsState, action: PayloadAction<string | string[]>) => {
+            if (typeof action.payload === 'string') {
+                state.followingLabels.push(action.payload);
+            } else {
+                state.followingLabels = action.payload;
+            }
         },
         setHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
             state.home = action.payload;
