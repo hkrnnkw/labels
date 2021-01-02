@@ -1,7 +1,7 @@
 import { db } from '../firebase';
 
 // FirestoreからspotifyRefreshTokenを取得
-export const takeOutSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<string | null> => {
+export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<string | null> => {
     try {
         const doc = await db.collection("users").doc(uid).get();
         const data = doc.data();

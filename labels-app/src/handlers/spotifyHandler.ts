@@ -3,7 +3,7 @@ import { Album, Artist, SimpleAlbum } from '../utils/interfaces';
 import { Spotify, StrKeyObj } from '../utils/types';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { takeOutSpotifyRefreshTokenFromFirestore } from './dbHandler';
+import { getSpotifyRefreshTokenFromFirestore } from './dbHandler';
 
 interface newAccessTokenResponse extends firebase.functions.HttpsCallableResult {
     readonly data: Spotify;
@@ -20,7 +20,7 @@ export const checkTokenExpired = async (obj: Spotify, uid: string): Promise<stri
     if (now < new Date(expiresIn)) return token;
 
     const refresh: string | null = refreshToken.length ? refreshToken :
-        await takeOutSpotifyRefreshTokenFromFirestore(uid).catch(() => { return null });
+        await getSpotifyRefreshTokenFromFirestore(uid).catch(() => { return null });
     if (!refresh) throw new Error('リフレッシュトークンを取得できませんでした');
 
     const refreshAccessToken: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
