@@ -61,11 +61,13 @@ export const getAlbumsOfYear = async (label: string, years: number[], accessToke
         const albums: SimpleAlbum[] = res.data.albums.items;
         return albums.map(album => album.id);
     }));
+    const albumIdsFiltered = albumIdsArray.filter(album => album.length);
 
-    return await Promise.all(albumIdsArray.map(async (albumIds) => {
+    const albumsArray = await Promise.all(albumIdsFiltered.map(async (albumIds) => {
         const albums: Album[] = await getFullAlbumObj(albumIds, accessToken);
         return albums.filter(album => label === album.label);
     }));
+    return albumsArray.filter(album => album.length);
 };
 
 // Authorization code grantによりレーベル情報を取得
