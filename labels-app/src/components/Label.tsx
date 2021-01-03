@@ -13,6 +13,7 @@ import { album as albumPath, artist } from '../utils/paths';
 import { setFollowingLabels } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
 import { checkTokenExpired, getAlbumsOfYear } from '../handlers/spotifyHandler';
+import { addFollowingLabelToFirestore, deleteFollowedLabelFromFirestore } from '../handlers/dbHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -85,13 +86,11 @@ const Label: FC = () => {
     }, []);
 
     // フォロー操作
-    const handleFollowing = () => {
+    const handleFollowing = async () => {
+        following ? await deleteFollowedLabelFromFirestore(uid, state.label) :
+            await addFollowingLabelToFirestore(uid, state.label);
+        dispatch(setFollowingLabels(state.label));
         setFollowing(!following);
-        // TODO DB書き換え
-
-        // TODO pushするか、除去するか
-        const newFollowingList: string[] = labels.filter(label => label !== state.label);
-        dispatch(setFollowingLabels(newFollowingList));
     };
 
     const generateAlbums = (year: Album[]): JSX.Element => {

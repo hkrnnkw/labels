@@ -18,10 +18,16 @@ const slice = createSlice({
     initialState,
     reducers: {
         setFollowingLabels: (state: AlbumsState, action: PayloadAction<string | string[]>) => {
-            if (typeof action.payload === 'string') {
-                state.followingLabels.push(action.payload);
-            } else {
+            if (typeof action.payload !== 'string') {
                 state.followingLabels = action.payload;
+                return;
+            }
+            const isFollowing: boolean = state.followingLabels.includes(action.payload);
+            if (isFollowing) {
+                const newArray = state.followingLabels.filter(label => label !== action.payload);
+                state.followingLabels = newArray;
+            } else {
+                state.followingLabels.push(action.payload);
             }
         },
         setHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {

@@ -38,3 +38,14 @@ export const addFollowingLabelToFirestore = async (uid: string, data: string) =>
         console.log(err);
     }
 };
+
+// Firestoreにフォロー中のレーベル群を格納
+export const deleteFollowedLabelFromFirestore = async (uid: string, data: string) => {
+    try {
+        await db.collection("users").doc(uid).update({
+            followingLabels: firebase.firestore.FieldValue.arrayRemove(data),
+        });
+    } catch (err) {
+        console.log(err);
+    }
+};
