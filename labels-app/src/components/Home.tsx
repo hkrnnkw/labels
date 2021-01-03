@@ -15,7 +15,7 @@ import { Spotify } from '../utils/types';
 import { Album } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { checkTokenExpired, getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
-import { getListOfFollowingLabelsFromFirestore, setListOfFollowingLabelsToFirestore } from '../handlers/dbHandler';
+import { getListOfFollowingLabelsFromFirestore, addFollowingLabelToFirestore } from '../handlers/dbHandler';
 
 interface Props extends RouteComponentProps {
 
@@ -77,7 +77,7 @@ const Home: FC<Props> = () => {
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
 
             // Firestoreからフォロー中のレーベル群を取得
-            const favLabels = await getListOfFollowingLabelsFromFirestore(uid);
+            const favLabels: string[] = await getListOfFollowingLabelsFromFirestore(uid);
             dispatch(setFollowingLabels(favLabels));
 
             const defaults = [
@@ -118,7 +118,7 @@ const Home: FC<Props> = () => {
 
     // フォロー操作
     const handleFollowing = async (labelName: string) => {
-        await setListOfFollowingLabelsToFirestore(uid, labelName);
+        await addFollowingLabelToFirestore(uid, labelName);
         dispatch(setFollowingLabels(labelName));
     };
 

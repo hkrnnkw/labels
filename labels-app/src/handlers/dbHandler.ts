@@ -29,10 +29,10 @@ export const getListOfFollowingLabelsFromFirestore = async (uid: string): Promis
 };
 
 // Firestoreにフォロー中のレーベル群を格納
-export const setListOfFollowingLabelsToFirestore = async (uid: string, newFollowing: string) => {
+export const addFollowingLabelToFirestore = async (uid: string, data: string) => {
     try {
         await db.collection("users").doc(uid).update({
-            followingLabels: firebase.firestore.FieldValue.arrayUnion(newFollowing),
+            followingLabels: firebase.firestore.FieldValue.arrayUnion(data),
         });
     } catch (err) {
         console.log(err);
