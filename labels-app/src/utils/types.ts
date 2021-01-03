@@ -22,6 +22,14 @@ export type Spotify = {
     };
 }
 
+export type SearchQuery = {
+    getNew?: boolean;
+    year?: number;
+    genre?: string;
+    label?: string;
+    keywords?: string;
+}
+
 export type SearchResult = {
     keywords: string;
     results: Album[];

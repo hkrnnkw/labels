@@ -84,7 +84,7 @@ const Search: FC = () => {
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
             
-            const results: Album[] = await searchAlbums(keywords, token);
+            const results: Album[] = await searchAlbums({ keywords: keywords }, token);
             setSearched({ keywords: keywords, results: results });
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);

@@ -14,7 +14,7 @@ import { setSpotifyTokens } from '../stores/user';
 import { Spotify } from '../utils/types';
 import { Album } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
-import { checkTokenExpired, getAlbumsOfLabels, signIn } from '../handlers/spotifyHandler';
+import { checkTokenExpired, searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFollowingLabelsFromFirestore, addFollowingLabelToFirestore } from '../handlers/dbHandler';
 
 interface Props extends RouteComponentProps {
@@ -89,9 +89,12 @@ const Home: FC<Props> = () => {
             const set = new Set(favLabels.concat(defaults));
             
             // フォロー中のレーベルそれぞれのアルバムを取得
-            const results: Album[][] = await getAlbumsOfLabels(favLabels.length > 3 ? favLabels : Array.from(set), true, token);
-            setAlbumsOfLabels(results);
-            dispatch(setHome(results));
+            const labels: string[] = favLabels.length > 3 ? favLabels : Array.from(set);
+            const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
+            const results: Album[][] = await Promise.all(tasks);
+            const temp: Album[][] = results.filter(album => album.length);
+            setAlbumsOfLabels(temp);
+            dispatch(setHome(results.filter(album => album.length)));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }

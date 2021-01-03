@@ -12,7 +12,7 @@ import { Album, Artist } from '../utils/interfaces';
 import { album as albumPath, artist } from '../utils/paths';
 import { setFollowingLabels } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
-import { checkTokenExpired, getAlbumsOfYear } from '../handlers/spotifyHandler';
+import { checkTokenExpired, searchAlbums } from '../handlers/spotifyHandler';
 import { addFollowingLabelToFirestore, deleteFollowedLabelFromFirestore } from '../handlers/dbHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -73,8 +73,9 @@ const Label: FC = () => {
             const today = new Date();
             const thisYear = today.getFullYear();
             const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
-            const results: Album[][] = await getAlbumsOfYear(state.label, last5years, token);
-            setAlbumsOfYears(results);
+            const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year }, token));
+            const results: Album[][] = await Promise.all(tasks);
+            setAlbumsOfYears(results.filter(album => album.length));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
