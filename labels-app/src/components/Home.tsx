@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect } from 'react';
-import { withRouter, RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
@@ -16,10 +16,6 @@ import { Album } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { checkTokenExpired, searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFollowingLabelsFromFirestore, addFollowingLabelToFirestore } from '../handlers/dbHandler';
-
-interface Props extends RouteComponentProps {
-
-}
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -60,7 +56,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Home: FC<Props> = () => {
+const Home: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
