@@ -64,7 +64,6 @@ const Home: FC<Props> = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [albumsOfLabels, setAlbumsOfLabels] = useState<Album[][]>([]);
     const { signedIn, email, emailVerified, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, followingLabels } = useSelector((rootState: RootState) => rootState.albums);
 
@@ -92,20 +91,15 @@ const Home: FC<Props> = () => {
             const labels: string[] = favLabels.length > 3 ? favLabels : Array.from(set);
             const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
             const results: Album[][] = await Promise.all(tasks);
-            const temp: Album[][] = results.filter(album => album.length);
-            setAlbumsOfLabels(temp);
             dispatch(setHome(results.filter(album => album.length)));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
     };
     useEffect(() => {
-        if (signedIn) {
-            if (!emailVerified) sendEmailVerification();
-            home.length ? setAlbumsOfLabels(home) : fetchLabels().catch(err => console.log(err));
-        } else {
-            setAlbumsOfLabels([]);
-        }
+        if (!signedIn) return;
+        if (!emailVerified) sendEmailVerification();
+        if (!home.length) fetchLabels().catch(err => console.log(err));
     }, [signedIn]);
 
     // TODO 確認メール送信
@@ -198,7 +192,7 @@ const Home: FC<Props> = () => {
         )
     };
 
-    return signedIn ? privateHome(albumsOfLabels, followingLabels) : guestHome();
+    return signedIn ? privateHome(home, followingLabels) : guestHome();
 };
 
 export default withRouter(Home);
