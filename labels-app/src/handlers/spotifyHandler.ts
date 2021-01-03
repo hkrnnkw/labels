@@ -58,10 +58,13 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
     if (year) options.push(`year%3A${year}`);
     if (genre) options.push(`genre%3A"${genre}"`);
     if (label) options.push(`label%3A"${label}"`);
-    const queryStr: string[] = [options.join('%20')];
-    if (keywords) queryStr.push(keywords.replace(' ', '%20'));
+    const queryStr: string = options.join('%20');
+    options.length = 0;
+    if (queryStr.length) options.push(queryStr);
+    if (keywords) options.push(keywords.replace(' ', '%20'));
+    if (!options.length) return [];
 
-    const url = `https://api.spotify.com/v1/search?q=${queryStr.join('%20')}&type=album&limit=20`;
+    const url = `https://api.spotify.com/v1/search?q=${options.join('%20')}&type=album&limit=20`;
     const response = await axios.get(url, {
         headers: {
             Authorization: `Bearer ${accessToken}`,
