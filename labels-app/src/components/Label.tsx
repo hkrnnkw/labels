@@ -7,12 +7,13 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, Link, Button, Container, GridList, GridListTile, GridListTileBar, Avatar,
 } from '@material-ui/core';
+import { AvatarGroup } from '@material-ui/lab';
 import { Spotify } from '../utils/types';
 import { Album, Artist } from '../utils/interfaces';
-import { album as albumPath, artist } from '../utils/paths';
+import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setFollowingLabels } from '../stores/albums';
 import { setSpotifyTokens } from '../stores/user';
-import { checkTokenExpired, searchAlbums } from '../handlers/spotifyHandler';
+import { checkTokenExpired, getArtists, searchAlbums } from '../handlers/spotifyHandler';
 import { addFollowingLabelToFirestore, deleteFollowedLabelFromFirestore } from '../handlers/dbHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -63,14 +64,15 @@ const Label: FC = () => {
     const already: boolean = labels.includes(state.label);
     const [following, setFollowing] = useState<boolean>(already);
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
+    const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
-    // レーベルの情報を取得
+    // レーベルの各年のアルバムを取得
     useEffect(() => {
         const fetchLabel = async (): Promise<Album[][]> => {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-            
+
             const today = new Date();
             const thisYear = today.getFullYear();
             const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
@@ -82,12 +84,49 @@ const Label: FC = () => {
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [state.label, spotify, uid, dispatch]);
 
+    // レーベルのアーティストを取得
+    useEffect(() => {
+        if (!albumsOfYears.length) return;
+
+        const idSet = new Set<string>();
+        albumsOfYears.forEach(albums => {
+            albums.forEach(album => {
+                album.artists.forEach(artist => idSet.add(artist.id));
+            });
+        });
+
+        const fetchArtists = async (): Promise<Artist[]> => {
+            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
+            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
+            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
+
+            return await getArtists(Array.from(idSet), token);
+        };
+        fetchArtists()
+            .then(artists => setArtistsOfLabel(artists))
+            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+    }, [albumsOfYears, spotify, uid, dispatch]);
+
     // フォロー操作
     const handleFollowing = async () => {
         following ? await deleteFollowedLabelFromFirestore(uid, state.label) :
             await addFollowingLabelToFirestore(uid, state.label);
         dispatch(setFollowingLabels(state.label));
         setFollowing(!following);
+    };
+
+    const generateArtists = (artists: Artist[]): JSX.Element => {
+        return (
+            <AvatarGroup max={6}>
+                {artists.map(artist => {
+                    return (
+                        <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
+                            <Avatar alt={artist.name} src={artist.images[0].url} />
+                        </Link>
+                    )
+                })}
+            </AvatarGroup>
+        )
     };
 
     const generateAlbums = (year: Album[]): JSX.Element => {
@@ -136,7 +175,7 @@ const Label: FC = () => {
         <div className={classes.root}>
             <Typography>{state.label}</Typography>
             <Button onClick={handleFollowing}>{following ? 'フォロー中' : 'フォロー'}</Button>
-            {/* TODO アーティストを取得・表示 */}
+            {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
             {albumsOfYears.map(year => generateAlbums(year))}
         </div>
     )
