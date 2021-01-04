@@ -1,12 +1,11 @@
-import React, { FC, useState, useEffect } from 'react';
+import React, { FC, useEffect } from 'react';
 import { withRouter } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Snackbar, GridList, GridListTile, GridListTileBar, Container, IconButton, Button,
-    Link,
+    GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome, setFollowingLabels } from '../stores/albums';
@@ -59,13 +58,14 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Home: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const { signedIn, email, emailVerified, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { signedIn, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, followingLabels } = useSelector((rootState: RootState) => rootState.albums);
 
-    // レーベルの情報を取得
-    const fetchLabels = async () => {
-        try {
+    useEffect(() => {
+        if (!signedIn || home.length) return;
+
+        // レーベルの情報を取得
+        const fetchLabels = async () => {
             // Spotifyトークンの有効期限チェック
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
@@ -88,26 +88,10 @@ const Home: FC = () => {
             const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
             const results: Album[][] = await Promise.all(tasks);
             dispatch(setHome(results.filter(album => album.length)));
-        } catch (err) {
-            console.log(`Spotifyフェッチエラー：${err}`);
-        }
-    };
-    useEffect(() => {
-        if (!signedIn) return;
-        if (!emailVerified) sendEmailVerification();
-        if (!home.length) fetchLabels().catch(err => console.log(err));
-    }, [signedIn]);
-
-    // TODO 確認メール送信
-    const sendEmailVerification = () => {
-
-        setSnackbarOpen(true);
-    };
-
-    // スナックバーを閉じる
-    const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
-    };
+        };
+        fetchLabels()
+            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+    }, [signedIn, home.length, spotify, uid, dispatch]);
 
     // フォロー操作
     const handleFollowing = async (labelName: string) => {
@@ -170,12 +154,6 @@ const Home: FC = () => {
             <div className={classes.root}>
                 <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>
                 {labels.map(label => generateAlbums(label, list))}
-                <Snackbar
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                    open={snackbarOpen}
-                    onClose={handleSnackbarClose}
-                    message={`${email}に確認メールを送信しました`}
-                />
             </div>
         )
     };
