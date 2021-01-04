@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState, KeyboardEvent, MouseEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { BrowserRouter, Switch, Route, Link as RouterLink } from 'react-router-dom';
-import { auth } from './firebase';
+import firebase, { auth } from './firebase';
 import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
 import Home from './components/Home';
@@ -27,38 +27,38 @@ import { signIn } from './handlers/spotifyHandler';
 const App: FC = () => {
     const dispatch = useDispatch();
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const [userExists, setUserExists] = useState(false);
+    const [user, setUser] = useState<firebase.User | null>(null);
 
+    // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
+    auth.onAuthStateChanged(firebaseUser => setUser(firebaseUser));
+
+    // ユーザステータスの切替え
     useEffect(() => {
-        // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            setUserExists(user !== null);
-            if (user) {
-                console.log(`ログイン中です：${user.displayName}`);
-                const newProfile: UserProfile = {
-                    uid: user.uid,
-                    displayName: user.displayName || user.uid,
-                    email: user.email || '',
-                    photoURL: user.photoURL,
-                };
-                dispatch(setUserProfile(newProfile));
-                const newAuth: Auth = {
-                    signedIn: true,
-                    refreshToken: user.refreshToken,
-                    emailVerified: user.emailVerified,
-                };
-                dispatch(setAuth(newAuth));
-            } else {
-                console.log(`ログインしていません`);
-                dispatch(setClearUser());
-            }
-        });
-        return () => unsubscribe();
-    }, []);
+        if (!user) {
+            console.log(`ログインしていません`);
+            dispatch(setClearUser());
+            return;
+        }
+        const { uid, displayName, email, photoURL, refreshToken, emailVerified } = user;
+        console.log(`ログイン中です：${displayName}`);
+        const newProfile: UserProfile = {
+            uid: uid,
+            displayName: displayName || uid,
+            email: email || '',
+            photoURL: photoURL,
+        };
+        dispatch(setUserProfile(newProfile));
+        const newAuth: Auth = {
+            signedIn: true,
+            refreshToken: refreshToken,
+            emailVerified: emailVerified,
+        };
+        dispatch(setAuth(newAuth));
+    }, [user, dispatch]);
 
     // サインイン／アウト
     const signInOut = async (): Promise<void> => {
-        userExists ? await auth.signOut() : await signIn();
+        user ? await auth.signOut() : await signIn();
     };
 
     // メニューの開閉
@@ -86,7 +86,7 @@ const App: FC = () => {
             <List>
                 <ListItem button key={'signInOut'} onClick={signInOut}>
                     <ListItemIcon><ExitToAppSharpIcon /></ListItemIcon>
-                    <ListItemText primary={userExists ? 'ログアウト' : 'Spotifyでログイン'} />
+                    <ListItemText primary={user ? 'ログアウト' : 'Spotifyでログイン'} />
                 </ListItem>
             </List>
         </div>
