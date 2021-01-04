@@ -16,9 +16,15 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     const userAccountTask = admin.auth().updateUser(spotifyID, {
         displayName: displayName,
         email: email,
-    }).catch((error) => {
-        // ユーザが存在しなければ作成する
+    }).catch(error => {
+        // ユーザが存在しない場合
         if (error.code === 'auth/user-not-found') {
+            const followingLabels: string[] = [];
+            admin.firestore().collection('users').doc(spotifyID).set({
+                followingLabels: followingLabels,
+            }, { merge: true }).catch(err => { throw err });
+
+            // アカウント作成
             return admin.auth().createUser({
                 uid: spotifyID,
                 displayName: displayName,
@@ -29,14 +35,6 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     });
 
     await Promise.all([userAccountTask, databaseTask]);
-    const doc = await admin.firestore().collection('users').doc(spotifyID).get();
-    const data = doc.data();
-    if (data && !data.followingLabels) {
-        const followingLabels: string[] = [];
-        await admin.firestore().collection('users').doc(spotifyID).set({
-            followingLabels: followingLabels,
-        }, { merge: true });
-    }
     const customToken: string = await admin.auth().createCustomToken(spotifyID).catch(err => { throw err });
     console.log(`${spotifyID}のカスタムトークンを作成しました：${customToken}`);
     return customToken;
