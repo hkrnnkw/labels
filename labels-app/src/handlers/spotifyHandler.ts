@@ -1,7 +1,7 @@
 import firebase, { f } from '../firebase';
 import { Album, Artist, SimpleAlbum } from '../utils/interfaces';
 import { Spotify, StrKeyObj, SearchQuery } from '../utils/types';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { getSpotifyRefreshTokenFromFirestore } from './dbHandler';
 
@@ -32,19 +32,24 @@ export const checkTokenExpired = async (obj: Spotify, uid: string): Promise<stri
 export const signIn = async (): Promise<void> => {
     const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotify_redirect');
     const param: StrKeyObj = { state: uuidv4() };
-    const response: SpotifyRedirectResponse = await spotifyRedirect(param);
-    window.location.href = response.data;
-}
+    const res: SpotifyRedirectResponse = await spotifyRedirect(param);
+    window.location.href = res.data;
+};
+
+// GETリクエストを処理
+const getReqProcessor = async (url: string, accessToken: string): Promise<AxiosResponse> => {
+    return await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+};
 
 // アルバムオブジェクト(Full)を取得
 const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise<Album[]> => {
     const ids: string = albumIds.join();
     const url = `https://api.spotify.com/v1/albums?ids=${ids.replace(',', '%2C')}`;
-    const res = await axios.get(url, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+    const res = await getReqProcessor(url, accessToken);
     const albums: Album[] = res.data.albums;
     return albums;
 };
@@ -65,12 +70,8 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
     if (!options.length) return [];
 
     const url = `https://api.spotify.com/v1/search?q=${options.join('%20')}&type=album&limit=20`;
-    const response = await axios.get(url, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
-    const simpleAlbums: SimpleAlbum[] = response.data.albums.items;
+    const res = await getReqProcessor(url, accessToken);
+    const simpleAlbums: SimpleAlbum[] = res.data.albums.items;
     if (!simpleAlbums.length) return [];
     const albumIds: string[] = simpleAlbums.map(album => album.id);
 
@@ -80,12 +81,9 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
 
 // ユーザライブラリに保存したアルバムを取得
 export const getSavedAlbums = async (accessToken: string): Promise<Album[]> => {
-    const response = await axios.get(`https://api.spotify.com/v1/me/albums?limit=20`, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
-    const items = response.data.items;
+    const url = `https://api.spotify.com/v1/me/albums?limit=20`;
+    const res = await getReqProcessor(url, accessToken);
+    const items = res.data.items;
     return items.map((item: { album: Album; }) => item.album);
 };
 
@@ -93,11 +91,7 @@ export const getSavedAlbums = async (accessToken: string): Promise<Album[]> => {
 export const getArtists = async (artistIds: string[], accessToken: string): Promise<Artist[]> => {
     const ids: string = artistIds.join();
     const url = `https://api.spotify.com/v1/artists?ids=${ids.replace(',', '%2C')}`;
-    const res = await axios.get(url, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+    const res = await getReqProcessor(url, accessToken);
     const artists: Artist[] = res.data.artists;
     return artists;
 };
@@ -105,13 +99,8 @@ export const getArtists = async (artistIds: string[], accessToken: string): Prom
 // アーティストのアルバムを取得
 export const getArtistAlbums = async (artistId: string, accessToken: string): Promise<Album[]> => {
     const url = `https://api.spotify.com/v1/artists/${artistId}/albums`;
-    const res = await axios.get(url, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-        },
-    });
+    const res = await getReqProcessor(url, accessToken);
     const simpleAlbums: SimpleAlbum[] = res.data.items;
     const albumIds: string[] = simpleAlbums.map(album => album.id);
-
     return await getFullAlbumObj(albumIds, accessToken);
 };
