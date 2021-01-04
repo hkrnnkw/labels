@@ -52,25 +52,27 @@ const Search: FC = () => {
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { saved } = useSelector((rootState: RootState) => rootState.albums);
     const [typing, setTyping] = useState<string>('');
+    // TODO searchedをReduxに移管する？ ページを戻った時に残ってないので
+    // 補足：仮に移管した場合、Homeの検索ボタンを押下で、Reduxのsearchedを初期化する？
     const [searched, setSearched] = useState<SearchResult>({ keywords: '', results: [] });
 
     // ライブラリに保存したアルバムを取得
-    const fetchSavedAlbums = async () => {
-        try {
+    useEffect(() => {
+        if (saved.length) return;
+
+        const fetchSavedAlbums = async () => {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-            
+
             const results: Album[] = await getSavedAlbums(token);
             dispatch(setSaved(results));
-        } catch (err) {
-            console.log(`Spotifyフェッチエラー：${err}`);
-        }
-    };
-    useEffect(() => {
-        if (!saved.length) fetchSavedAlbums().catch(err => console.log(err));
-    }, []);
+        };
+        fetchSavedAlbums()
+            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+    }, [saved.length, spotify, uid, dispatch]);
 
+    // TODO 仕様 要検討
     // typingが空になったら、searchedを初期化
     useEffect(() => {
         if (typing.length) return;
@@ -83,7 +85,7 @@ const Search: FC = () => {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-            
+
             const results: Album[] = await searchAlbums({ keywords: keywords }, token);
             setSearched({ keywords: keywords, results: results });
         } catch (err) {
@@ -101,7 +103,7 @@ const Search: FC = () => {
                     key={`${album.artists[0].name} - ${album.name}`}
                     className={classes.listItem}
                 >
-                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>                    
+                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}
