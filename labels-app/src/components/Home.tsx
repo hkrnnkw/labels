@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
@@ -60,6 +60,7 @@ const Home: FC = () => {
     const classes = ambiguousStyles();
     const { signedIn, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, followingLabels } = useSelector((rootState: RootState) => rootState.albums);
+    const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
         if (!signedIn || home.length) return;
@@ -149,6 +150,12 @@ const Home: FC = () => {
         );
     };
 
+    // サインインButtonの制御
+    const handleSignIn = async () => {
+        setClicked(true);
+        await signIn();
+    };
+
     const privateHome = (labels: Album[][], list: string[]): JSX.Element => {
         return (
             <div className={classes.root}>
@@ -158,15 +165,17 @@ const Home: FC = () => {
         )
     };
 
-    const guestHome = (): JSX.Element => {
+    const guestHome = (disabled: boolean): JSX.Element => {
         return (
             <div className={classes.root}>
-                <Button onClick={signIn}>はじめる</Button>
+                <Button onClick={handleSignIn} disabled={disabled}>はじめる</Button>
+                {/* TODO ローディングサークル出す */}
+                {/* {disabled && } */}
             </div>
         )
     };
 
-    return signedIn ? privateHome(home, followingLabels) : guestHome();
+    return signedIn ? privateHome(home, followingLabels) : guestHome(clicked);
 };
 
 export default withRouter(Home);
