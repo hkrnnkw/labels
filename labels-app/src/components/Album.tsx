@@ -2,15 +2,15 @@ import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, Avatar, List, ListItem, Link,
 } from '@material-ui/core';
-import { RootState } from '../stores/index';
 import { Album as AlbumObj, Artist } from '../utils/interfaces';
+import { Spotify } from '../utils/types';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
 import { checkTokenExpired, getArtists } from '../handlers/spotifyHandler';
-import { Spotify } from '../utils/types';
 import { setSpotifyTokens } from '../stores/user';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -58,22 +58,19 @@ const Album: FC = () => {
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
 
     // アーティストの情報を取得
-    const fetchArtists = async () => {
-        try {
+    useEffect(() => {
+        const fetchArtists = async (): Promise<Artist[]> => {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
             
             const artistIds: string[] = simpleArtists.map(artist => artist.id);
-            const results: Artist[] = await getArtists(artistIds, token).catch(() => { return [] });
-            setFullArtists(results);
-        } catch (err) {
-            console.log(`Spotifyフェッチエラー：${err}`);
-        }
-    };
-    useEffect(() => {
-        fetchArtists().catch(err => console.log(err));
-    }, []);
+            return await getArtists(artistIds, token);
+        };
+        fetchArtists()
+            .then(artists => setFullArtists(artists))
+            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+    }, [simpleArtists, spotify, uid, dispatch]);
 
     // アーティスト名を並べる
     const createArtistNames = (artists: Artist[]): JSX.Element[] => {
