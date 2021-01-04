@@ -76,7 +76,7 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
 
     const albums: Album[] = await getFullAlbumObj(albumIds, accessToken);
     return label ? albums.filter(album => label === album.label) : albums;
-}
+};
 
 // ユーザライブラリに保存したアルバムを取得
 export const getSavedAlbums = async (accessToken: string): Promise<Album[]> => {
@@ -100,4 +100,18 @@ export const getArtists = async (artistIds: string[], accessToken: string): Prom
     });
     const artists: Artist[] = res.data.artists;
     return artists;
-}
+};
+
+// アーティストのアルバムを取得
+export const getArtistAlbums = async (artistId: string, accessToken: string): Promise<Album[]> => {
+    const url = `https://api.spotify.com/v1/artists/${artistId}/albums`;
+    const res = await axios.get(url, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+    const simpleAlbums: SimpleAlbum[] = res.data.items;
+    const albumIds: string[] = simpleAlbums.map(album => album.id);
+
+    return await getFullAlbumObj(albumIds, accessToken);
+};
