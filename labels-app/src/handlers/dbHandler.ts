@@ -28,7 +28,7 @@ export const getListOfFollowingLabelsFromFirestore = async (uid: string): Promis
     }
 };
 
-// Firestoreにフォロー中のレーベル群を格納
+// Firestoreにフォローしたレーベルを格納
 export const addFollowingLabelToFirestore = async (uid: string, data: string) => {
     try {
         await db.collection("users").doc(uid).update({
@@ -39,7 +39,7 @@ export const addFollowingLabelToFirestore = async (uid: string, data: string) =>
     }
 };
 
-// Firestoreにフォロー中のレーベル群を格納
+// Firestoreからフォローを外したレーベルを削除
 export const deleteFollowedLabelFromFirestore = async (uid: string, data: string) => {
     try {
         await db.collection("users").doc(uid).update({
