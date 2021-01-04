@@ -13,50 +13,53 @@ interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
 }
 
 const Callback: FC = () => {
-    const [errorOccur, setErrorOccur] = useState(false);
-    const [authed, setAuthed] = useState<boolean>();
-    const location = useLocation();
     const dispatch = useDispatch();
-
-    // CloudFunctions経由で、Spotifyのアクセストークン認証
-    // その後、Firestoreにアカウントを作成、カスタムトークンを受領
-    const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<void> => {
-        try {
-            const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
-            const res: SpotifySignInResponse = await spotifySignIn(params);
-            const customToken: string = res.data[0];
-            if (!customToken.length) throw new Error('カスタムトークンを取得できませんでした');
-
-            dispatch(setSpotifyTokens(res.data[1]));
-            const credential: firebase.auth.UserCredential =
-                await auth.signInWithCustomToken(customToken).catch(err => { throw err });
-            setAuthed(credential.user !== null);
-        } catch (err) {
-            console.log(`ログインエラー：${err.message}`);
-            setErrorOccur(true);
-        }
-    };
-
-    // クエリ文字列からパラメータを取得
-    const getParameters = (queryStr: string): StrKeyObj => {
-        const result: StrKeyObj = {};
-        const temp = queryStr.substring(1);
-        const rawParams: string[] = temp.split('&');
-        for (let i = 0; i < rawParams.length; i++) {
-            const elem: string[] = rawParams[i].split('=');
-            const key: string = decodeURIComponent(elem[0]);
-            const value: string = decodeURIComponent(elem[1]);
-            result[key] = value;
-        }
-        return result;
-    };
+    const location = useLocation();
+    const [path, setPath] = useState<string>();
 
     useEffect(() => {
-        const queryStr: string = location.search;
-        const results: StrKeyObj = getParameters(queryStr);
-        // TODO spotifyでの承認がされてるかチェック。trueなら、requestFirestoreCustomToken()
-        requestFirestoreCustomToken(results).catch(err => console.log(err));
-    }, []);
+        // クエリ文字列からパラメータを取得
+        const getParams = (queryStr: string): StrKeyObj => {
+            const obj: StrKeyObj = {};
+            const temp = queryStr.substring(1);
+            const rawParams: string[] = temp.split('&');
+            for (const rawParam of rawParams) {
+                const elem: string[] = rawParam.split('=');
+                const key: string = decodeURIComponent(elem[0]);
+                const value: string = decodeURIComponent(elem[1]);
+                obj[key] = value;
+            }
+            return obj;
+        };
+
+        // Spotify認証のあと、Firebase認証
+        const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<firebase.User | null> => {
+            // CloudFunctions経由で、AuthorizationCodeFlow
+            const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
+            const res: SpotifySignInResponse = await spotifySignIn(params);
+            
+            const [customToken, spotifyTokens] = res.data;
+            if (!customToken.length) throw new Error('カスタムトークンを取得できませんでした');
+            dispatch(setSpotifyTokens(spotifyTokens));
+
+            // Firestoreにアカウントを作成、カスタムトークンを使って認証
+            const credential: firebase.auth.UserCredential = await auth.signInWithCustomToken(customToken);
+            return credential.user;
+        };
+
+        const results: StrKeyObj = getParams(location.search);
+        if (results['error'] && results['error'] === 'access_denied') {
+            setPath(home);
+            return;
+        }
+        
+        requestFirestoreCustomToken(results)
+            .then(user => setPath(user ? home : userNotFound))
+            .catch(err => {
+                console.log(`ログインエラー：${err}`);
+                setPath(errorOccurred);
+            });
+    }, [location.search, dispatch]);
 
     // TODO? https://qiita.com/zaburo/items/92920fa955bdb890c52e
     // const a = (refreshToken: string) => {
@@ -74,13 +77,7 @@ const Callback: FC = () => {
     //         })
     // };
 
-    return (
-        errorOccur ? <Redirect to={errorOccurred} />
-        :
-        authed === undefined ? <Typography>ログイン中・・・</Typography>
-        :
-        <Redirect to={authed ? home : userNotFound} />
-    )
+    return path ? <Redirect to={path} /> : <Typography>ログイン中・・・</Typography>;
 };
 
 export default withRouter(Callback);
