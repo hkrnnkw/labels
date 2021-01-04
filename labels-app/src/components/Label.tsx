@@ -60,12 +60,13 @@ const Label: FC = () => {
     const { state } = useLocation<{ label: string }>();
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { followingLabels: labels } = useSelector((rootState: RootState) => rootState.albums);
-    const [following, setFollowing] = useState(false);
+    const already: boolean = labels.includes(state.label);
+    const [following, setFollowing] = useState<boolean>(already);
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
 
     // レーベルの情報を取得
-    const fetchLabel = async () => {
-        try {
+    useEffect(() => {
+        const fetchLabel = async (): Promise<Album[][]> => {
             const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
             if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
             const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
@@ -74,17 +75,12 @@ const Label: FC = () => {
             const thisYear = today.getFullYear();
             const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
             const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year }, token));
-            const results: Album[][] = await Promise.all(tasks);
-            setAlbumsOfYears(results.filter(album => album.length));
-        } catch (err) {
-            console.log(`Spotifyフェッチエラー：${err}`);
-        }
-    };
-    useEffect(() => {
-        const alreadyFollowing: boolean = labels.includes(state.label);
-        setFollowing(alreadyFollowing);
-        fetchLabel().catch(err => console.log(err));
-    }, []);
+            return await Promise.all(tasks);
+        };
+        fetchLabel()
+            .then(albums => setAlbumsOfYears(albums.filter(album => album.length)))
+            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+    }, [state.label, spotify, uid, dispatch]);
 
     // フォロー操作
     const handleFollowing = async () => {
