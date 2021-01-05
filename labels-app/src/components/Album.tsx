@@ -1,17 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, Avatar, List, ListItem, Link,
 } from '@material-ui/core';
-import { Album as AlbumObj, Artist } from '../utils/interfaces';
-import { Spotify } from '../utils/types';
+import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { checkTokenExpired, getArtists } from '../handlers/spotifyHandler';
-import { setSpotifyTokens } from '../stores/user';
+import { getArtists } from '../handlers/spotifyHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -49,28 +45,23 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Album: FC = () => {
-    const dispatch = useDispatch();
+const Album: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: AlbumObj }>();
     const { artists: simpleArtists, images, name: title, label, tracks, release_date } = state.album;
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
-    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
 
     // アーティストの情報を取得
     useEffect(() => {
         const fetchArtists = async (): Promise<Artist[]> => {
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-            
+            const token: string = await tokenChecker();
             const artistIds: string[] = simpleArtists.map(artist => artist.id);
             return await getArtists(artistIds, token);
         };
         fetchArtists()
             .then(artists => setFullArtists(artists))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [simpleArtists, spotify, uid, dispatch]);
+    }, [simpleArtists, tokenChecker]);
 
     // アーティスト名を並べる
     const createArtistNames = (artists: Artist[]): JSX.Element[] => {

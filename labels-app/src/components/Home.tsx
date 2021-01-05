@@ -9,11 +9,9 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome, setFollowingLabels } from '../stores/albums';
-import { setSpotifyTokens } from '../stores/user';
-import { Spotify } from '../utils/types';
-import { Album } from '../utils/interfaces';
+import { Props, Album } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
-import { checkTokenExpired, searchAlbums, signIn } from '../handlers/spotifyHandler';
+import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFollowingLabelsFromFirestore, addFollowingLabelToFirestore } from '../handlers/dbHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -55,10 +53,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Home: FC = () => {
+const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { signedIn, spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, followingLabels } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
 
@@ -67,11 +65,6 @@ const Home: FC = () => {
 
         // レーベルの情報を取得
         const fetchLabels = async () => {
-            // Spotifyトークンの有効期限チェック
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-
             // Firestoreからフォロー中のレーベル群を取得
             const favLabels: string[] = await getListOfFollowingLabelsFromFirestore(uid);
             dispatch(setFollowingLabels(favLabels));
@@ -85,6 +78,7 @@ const Home: FC = () => {
             const set = new Set(favLabels.concat(defaults));
             
             // フォロー中のレーベルそれぞれのアルバムを取得
+            const token: string = await tokenChecker();
             const labels: string[] = favLabels.length > 3 ? favLabels : Array.from(set);
             const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
             const results: Album[][] = await Promise.all(tasks);
@@ -92,7 +86,7 @@ const Home: FC = () => {
         };
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [signedIn, home.length, spotify, uid, dispatch]);
+    }, [signedIn, home.length, uid, tokenChecker, dispatch]);
 
     // フォロー操作
     const handleFollowing = async (labelName: string) => {

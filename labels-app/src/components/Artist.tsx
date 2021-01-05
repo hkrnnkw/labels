@@ -1,17 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, GridList, GridListTile, GridListTileBar, Link, List, ListItem, ListItemText,
 } from '@material-ui/core';
-import { Album, Artist as ArtistObj } from '../utils/interfaces';
-import { Spotify } from '../utils/types';
+import { Props, Album, Artist as ArtistObj } from '../utils/interfaces';
 import { album as albumPath } from '../utils/paths';
-import { checkTokenExpired, getArtistAlbums } from '../handlers/spotifyHandler';
-import { setSpotifyTokens } from '../stores/user';
+import { getArtistAlbums } from '../handlers/spotifyHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -44,26 +40,21 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Artist: FC = () => {
-    const dispatch = useDispatch();
+const Artist: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ artist: ArtistObj }>();
     const { id: artistId, name: artistName, genres, images } = state.artist;
     const [albums, setAlbums] = useState<Album[]>([]);
-    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
 
     useEffect(() => {
         const fetchAlbums = async (): Promise<Album[]> => {
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-
+            const token: string = await tokenChecker();
             return await getArtistAlbums(artistId, token);
         }
         fetchAlbums()
             .then(data => setAlbums(data))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [artistId, spotify, uid, dispatch]);
+    }, [artistId, tokenChecker]);
 
     return (
         <div className={classes.root}>

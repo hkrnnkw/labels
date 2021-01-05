@@ -1,4 +1,9 @@
+import { RouteComponentProps } from 'react-router-dom';
 import { Image } from './types';
+
+export interface Props extends RouteComponentProps {
+    tokenChecker: () => Promise<string>;
+}
 
 interface SimpleArtist {
     external_urls: {

@@ -8,12 +8,11 @@ import {
     List, ListItem, ListItemText, IconButton, TextField, Typography, Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { Album } from '../utils/interfaces';
-import { SearchResult, Spotify } from '../utils/types';
+import { Props, Album } from '../utils/interfaces';
+import { SearchResult } from '../utils/types';
 import { album as albumPath } from '../utils/paths';
-import { checkTokenExpired, getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
+import { getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
 import { setSaved } from '../stores/albums';
-import { setSpotifyTokens } from '../stores/user';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -46,10 +45,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Search: FC = () => {
+const Search: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
     const { saved } = useSelector((rootState: RootState) => rootState.albums);
     const [typing, setTyping] = useState<string>('');
     // TODO searchedをReduxに移管する？ ページを戻った時に残ってないので
@@ -61,16 +59,13 @@ const Search: FC = () => {
         if (saved.length) return;
 
         const fetchSavedAlbums = async () => {
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-
+            const token: string = await tokenChecker();
             const results: Album[] = await getSavedAlbums(token);
             dispatch(setSaved(results));
         };
         fetchSavedAlbums()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [saved.length, spotify, uid, dispatch]);
+    }, [saved.length, tokenChecker, dispatch]);
 
     // TODO 仕様 要検討
     // typingが空になったら、searchedを初期化
@@ -82,10 +77,7 @@ const Search: FC = () => {
     // 検索実行
     const doSearching = async (keywords: string) => {
         try {
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-
+            const token: string = await tokenChecker();
             const results: Album[] = await searchAlbums({ keywords: keywords }, token);
             setSearched({ keywords: keywords, results: results });
         } catch (err) {

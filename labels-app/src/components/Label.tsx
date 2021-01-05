@@ -8,12 +8,10 @@ import {
     Typography, Link, Button, Container, GridList, GridListTile, GridListTileBar, Avatar,
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
-import { Spotify } from '../utils/types';
-import { Album, Artist } from '../utils/interfaces';
+import { Props, Album, Artist } from '../utils/interfaces';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setFollowingLabels } from '../stores/albums';
-import { setSpotifyTokens } from '../stores/user';
-import { checkTokenExpired, getArtists, searchAlbums } from '../handlers/spotifyHandler';
+import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
 import { addFollowingLabelToFirestore, deleteFollowedLabelFromFirestore } from '../handlers/dbHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -55,11 +53,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-const Label: FC = () => {
+const Label: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { state } = useLocation<{ label: string }>();
-    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { followingLabels: labels } = useSelector((rootState: RootState) => rootState.albums);
     const already: boolean = labels.includes(state.label);
     const [following, setFollowing] = useState<boolean>(already);
@@ -69,10 +67,7 @@ const Label: FC = () => {
     // レーベルの各年のアルバムを取得
     useEffect(() => {
         const fetchLabel = async (): Promise<Album[][]> => {
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-
+            const token: string = await tokenChecker();
             const today = new Date();
             const thisYear = today.getFullYear();
             const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
@@ -82,7 +77,7 @@ const Label: FC = () => {
         fetchLabel()
             .then(albums => setAlbumsOfYears(albums.filter(album => album.length)))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [state.label, spotify, uid, dispatch]);
+    }, [state.label, tokenChecker]);
 
     // レーベルのアーティストを取得
     useEffect(() => {
@@ -96,16 +91,13 @@ const Label: FC = () => {
         });
 
         const fetchArtists = async (): Promise<Artist[]> => {
-            const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-            if (typeof checkedToken !== 'string') dispatch(setSpotifyTokens(checkedToken));
-            const token: string = typeof checkedToken !== 'string' ? checkedToken.spotify.token : checkedToken;
-
+            const token: string = await tokenChecker();
             return await getArtists(Array.from(idSet), token);
         };
         fetchArtists()
             .then(artists => setArtistsOfLabel(artists))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [albumsOfYears, spotify, uid, dispatch]);
+    }, [albumsOfYears, tokenChecker]);
 
     // フォロー操作
     const handleFollowing = async () => {
