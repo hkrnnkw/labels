@@ -79,42 +79,42 @@ const App: FC = () => {
         setDrawerOpen(open);
     };
 
-    // メニュー内部の作成
-    const list = () => (
-        <div
-            role="presentation"
-            onClick={toggleDrawer(false)}
-            onKeyDown={toggleDrawer(false)}
+    // メニューの作成
+    const menu = () => (
+        <SwipeableDrawer
+            anchor={'bottom'}
+            open={drawerOpen}
+            onClose={toggleDrawer(false)}
+            onOpen={toggleDrawer(true)}
         >
-            <List>
-                <Link component={RouterLink} to={account}>
-                    <ListItem button key={'account'}>
-                        <ListItemIcon><PersonIcon /></ListItemIcon><ListItemText primary={'マイページ'} />
+            <div
+                role="presentation"
+                onClick={toggleDrawer(false)}
+                onKeyDown={toggleDrawer(false)}
+            >
+                <List>
+                    <Link component={RouterLink} to={account}>
+                        <ListItem button key={'account'}>
+                            <ListItemIcon><PersonIcon /></ListItemIcon><ListItemText primary={'マイページ'} />
+                        </ListItem>
+                    </Link>
+                </List>
+                <Divider />
+                <List>
+                    <ListItem button key={'signInOut'} onClick={signInOut}>
+                        <ListItemIcon><ExitToAppSharpIcon /></ListItemIcon>
+                        <ListItemText primary={user ? 'ログアウト' : 'Spotifyでログイン'} />
                     </ListItem>
-                </Link>
-            </List>
-            <Divider />
-            <List>
-                <ListItem button key={'signInOut'} onClick={signInOut}>
-                    <ListItemIcon><ExitToAppSharpIcon /></ListItemIcon>
-                    <ListItemText primary={user ? 'ログアウト' : 'Spotifyでログイン'} />
-                </ListItem>
-            </List>
-        </div>
+                </List>
+            </div>
+        </SwipeableDrawer>
     );
-    
+
     return (
         <BrowserRouter>
             <Link component={RouterLink} to={home}>Labels</Link>
             <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
-            <SwipeableDrawer
-                anchor={'bottom'}
-                open={drawerOpen}
-                onClose={toggleDrawer(false)}
-                onOpen={toggleDrawer(true)}
-            >
-                {list()}
-            </SwipeableDrawer>
+            {menu()}
             <Switch>
                 <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
                 <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />
