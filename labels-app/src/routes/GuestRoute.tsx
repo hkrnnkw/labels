@@ -5,13 +5,13 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../stores/index';
 import { home } from '../utils/paths';
 
-interface Props {
+interface RouteProps {
     path: string;
     exact?: boolean;
     component: WithRouterStatics<FC<{}>>;
 }
 
-const GuestRoute: FC<Props> = ({ path, exact, component }) => {
+const GuestRoute: FC<RouteProps> = ({ path, exact, component }) => {
     const { signedIn } = useSelector((rootState: RootState) => rootState.user);
     console.log(`ゲストルート：${signedIn ? `認証済みなので${home}へリダイレクトします` : 'ログインしていません'}`);
 
