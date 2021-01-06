@@ -1,17 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Album } from '../utils/interfaces';
-import { FavLabel } from "../utils/types";
+import { FavLabel, SortOrder } from "../utils/types";
 
 type AlbumsState = {
     favLabels: FavLabel[];
     home: Album[][];
     saved: Album[];
+    sortOrder: SortOrder;
 }
 
 const initialState: AlbumsState = {
     favLabels: [],
     home: [],
     saved: [],
+    sortOrder: 'DateAsc',
 };
 
 const slice = createSlice({

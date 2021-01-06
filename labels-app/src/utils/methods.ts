@@ -1,4 +1,4 @@
-import { FavLabel } from "./types";
+import { FavLabel, SortOrder } from "./types";
 
 // （大文字・小文字を区別せず）レーベル名でソート
 export const sortLabelName = (array: FavLabel[], desc: boolean = false): FavLabel[] => {

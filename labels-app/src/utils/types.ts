@@ -39,3 +39,5 @@ export type FavLabel = {
     labelName: string;
     date: Date;
 }
+
+export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
