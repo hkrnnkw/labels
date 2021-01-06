@@ -14,27 +14,15 @@ const initialState: AlbumsState = {
     saved: [],
 };
 
-// （大文字・小文字を区別せず）レーベル名でソート
-const sortLabelName = (array: FavLabel[], desc: boolean = false): FavLabel[] => {
-    return array.sort((a: FavLabel, b: FavLabel) => {
-        const aa = a.labelName.toLowerCase(), bb = b.labelName.toLowerCase();
-        return desc ?
-            (aa > bb ? -1 : aa < bb ? 1 : 0)    // 降順
-            :
-            (aa < bb ? -1 : aa > bb ? 1 : 0);   // 昇順
-    })
-};
-
 const slice = createSlice({
     name: "albums",
     initialState,
     reducers: {
         setLabelList: (state: AlbumsState, action: PayloadAction<FavLabel[]>) => {
-            state.favLabels = sortLabelName(action.payload);
+            state.favLabels = action.payload;
         },
         setAddLabel: (state: AlbumsState, action: PayloadAction<FavLabel>) => {
             state.favLabels.push(action.payload);
-            state.favLabels = sortLabelName(state.favLabels);
         },
         setDeleteLabel: (state: AlbumsState, action: PayloadAction<string>) => {
             const newArray = state.favLabels.filter(label => label.labelName !== action.payload);
