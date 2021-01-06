@@ -1,4 +1,4 @@
-import { FavLabel, SortOrder } from "./types";
+import { FavLabel, SortOrder } from "../utils/types";
 
 export const sortHandler = (array: FavLabel[], order: SortOrder): FavLabel[] => {
     switch (order) {
