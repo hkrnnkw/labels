@@ -11,7 +11,7 @@ import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { FavLabel } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
-import { setFollowingLabels } from '../stores/albums';
+import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
 import { addFavLabelToFirestore, deleteUnfavLabelFromFirestore } from '../handlers/dbHandler';
 
@@ -101,13 +101,15 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     }, [albumsOfYears, tokenChecker]);
 
     // フォロー操作
-        dispatch(setFollowingLabels(state.label));
-        setFollowing(!following);
     const handleFav = async () => {
         if (fav) {
             await deleteUnfavLabelFromFirestore(uid, fav);
+            dispatch(setDeleteLabel(state.label));
+            setFav(undefined);
         } else {
             const newFavLabel: FavLabel = await addFavLabelToFirestore(uid, state.label);
+            dispatch(setAddLabel(newFavLabel));
+            setFav(newFavLabel);
         }
     };
 

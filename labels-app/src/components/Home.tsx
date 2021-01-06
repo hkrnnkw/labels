@@ -8,7 +8,7 @@ import {
     GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setHome, setFollowingLabels } from '../stores/albums';
+import { setHome, setAddLabel, setLabelList } from '../stores/albums';
 import { Props, Album } from '../utils/interfaces';
 import { FavLabel } from '../utils/types';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
@@ -91,9 +91,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, [signedIn, home.length, uid, tokenChecker, dispatch]);
 
     // フォロー操作
-        dispatch(setFollowingLabels(labelName));
     const handleFav = async (labelName: string) => {
         const newFav: FavLabel = await addFavLabelToFirestore(uid, labelName);
+        dispatch(setAddLabel(newFav));
     };
 
     const generateAlbums = (label: Album[], labelNameList: string[]): JSX.Element => {
