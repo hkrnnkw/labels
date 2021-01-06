@@ -10,6 +10,7 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome, setFollowingLabels } from '../stores/albums';
 import { Props, Album } from '../utils/interfaces';
+import { FavLabel } from '../utils/types';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFollowingLabelsFromFirestore, addFollowingLabelToFirestore } from '../handlers/dbHandler';
@@ -57,7 +58,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
-    const { home, followingLabels } = useSelector((rootState: RootState) => rootState.albums);
+    const { home, favLabels } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
@@ -169,7 +170,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         )
     };
 
-    return signedIn ? privateHome(home, followingLabels) : guestHome(clicked);
+    return signedIn ? privateHome(home, favLabels) : guestHome(clicked);
 };
 
 export default withRouter(Home);

@@ -34,3 +34,8 @@ export type SearchResult = {
     keywords: string;
     results: Album[];
 }
+
+export type FavLabel = {
+    labelName: string;
+    date: Date;
+}

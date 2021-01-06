@@ -1,14 +1,15 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Album } from '../utils/interfaces';
+import { FavLabel } from "../utils/types";
 
 type AlbumsState = {
-    followingLabels: string[];
+    favLabels: FavLabel[];
     home: Album[][];
     saved: Album[];
 }
 
 const initialState: AlbumsState = {
-    followingLabels: [],
+    favLabels: [],
     home: [],
     saved: [],
 };

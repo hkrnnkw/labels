@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
+import { FavLabel } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setFollowingLabels } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
@@ -58,9 +59,9 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ label: string }>();
     const { uid } = useSelector((rootState: RootState) => rootState.user);
-    const { followingLabels: labels } = useSelector((rootState: RootState) => rootState.albums);
-    const already: boolean = labels.includes(state.label);
-    const [following, setFollowing] = useState<boolean>(already);
+    const { favLabels } = useSelector((rootState: RootState) => rootState.albums);
+    const init = favLabels.find(favLabel => favLabel.labelName === state.label);
+    const [fav, setFav] = useState<FavLabel | undefined>(init);
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -166,7 +167,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     return (
         <div className={classes.root}>
             <Typography>{state.label}</Typography>
-            <Button onClick={handleFollowing}>{following ? 'フォロー中' : 'フォロー'}</Button>
+            <Button onClick={handleFav}>{fav ? 'フォロー中' : 'フォロー'}</Button>
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
             {albumsOfYears.map(year => generateAlbums(year))}
         </div>
