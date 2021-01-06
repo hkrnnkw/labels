@@ -67,8 +67,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         // レーベルの情報を取得
         const fetchLabels = async () => {
             // Firestoreからフォロー中のレーベル群を取得
-            const favLabels: string[] = await getListOfFollowingLabelsFromFirestore(uid);
-            dispatch(setFollowingLabels(favLabels));
+            const favLabelList: FavLabel[] = await getListOfFavLabelsFromFirestore(uid);
+            dispatch(setLabelList(favLabelList));
+            const labelNameList: string[] = favLabelList.map(fav => fav.labelName);
 
             const defaults = [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
@@ -76,11 +77,11 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                 'Republic Records', 'Smalltown Supersound', 'aritech',
             ];
-            const set = new Set(favLabels.concat(defaults));
+            const set = new Set(labelNameList.concat(defaults));
             
             // フォロー中のレーベルそれぞれのアルバムを取得
             const token: string = await tokenChecker();
-            const labels: string[] = favLabels.length > 3 ? favLabels : Array.from(set);
+            const labels: string[] = favLabelList.length > 3 ? labelNameList : Array.from(set);
             const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
             const results: Album[][] = await Promise.all(tasks);
             dispatch(setHome(results.filter(album => album.length)));
@@ -90,12 +91,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, [signedIn, home.length, uid, tokenChecker, dispatch]);
 
     // フォロー操作
-    const handleFollowing = async (labelName: string) => {
         await addFollowingLabelToFirestore(uid, labelName);
         dispatch(setFollowingLabels(labelName));
+    const handleFav = async (labelName: string) => {
     };
 
-    const generateAlbums = (label: Album[], list: string[]): JSX.Element => {
+    const generateAlbums = (label: Album[], labelNameList: string[]): JSX.Element => {
         const labelName: string = label[0].label;
         const albumGridListTiles: JSX.Element[] = label.map(album => {
             return (
@@ -131,8 +132,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 >
                     {labelName}
                 </Link>
-                {!list.includes(labelName) &&
-                    <Button onClick={() => handleFollowing(labelName)}>フォロー</Button>
+                {!labelNameList.includes(labelName) &&
+                    <Button onClick={() => handleFav(labelName)}>フォロー</Button>
                 }
                 <GridList
                     className={classes.gridList}
@@ -151,11 +152,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         await signIn();
     };
 
-    const privateHome = (labels: Album[][], list: string[]): JSX.Element => {
+    const privateHome = (labels: Album[][], favLabelList: FavLabel[]): JSX.Element => {
+        const labelNameList: string[] = favLabelList.map(label => label.labelName);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>
-                {labels.map(label => generateAlbums(label, list))}
+                {labels.map(albums => generateAlbums(albums, labelNameList))}
             </div>
         )
     };
