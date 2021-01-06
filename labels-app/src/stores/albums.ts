@@ -46,12 +46,9 @@ const slice = createSlice({
         setSaved: (state: AlbumsState, action: PayloadAction<Album[]>) => {
             state.saved = action.payload;
         },
-        setClearAlbums: () => {
-            return initialState;
-        },
     },
 });
 
 export default slice;
 
-export const { setLabelList, setAddLabel, setDeleteLabel, setHome, setSaved, setClearAlbums } = slice.actions;
+export const { setLabelList, setAddLabel, setDeleteLabel, setHome, setSaved } = slice.actions;
