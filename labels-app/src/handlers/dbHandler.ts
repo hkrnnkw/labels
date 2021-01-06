@@ -1,4 +1,5 @@
 import firebase, { db } from '../firebase';
+import { FavLabel } from '../utils/types';
 
 // FirestoreからspotifyRefreshTokenを取得
 export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<string | null> => {
@@ -15,12 +16,12 @@ export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<
 };
 
 // Firestoreからフォロー中のレーベル群を取得
-export const getListOfFollowingLabelsFromFirestore = async (uid: string): Promise<string[]> => {
+export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<FavLabel[]> => {
     try {
         const doc = await db.collection("users").doc(uid).get();
         const data = doc.data();
         if (!data) throw new Error(`${uid}のドキュメントにアクセスできません`);
-        const labels: string[] = data.followingLabels || [];
+        const labels: FavLabel[] = data.favLabels || [];
         return labels;
     } catch (err) {
         console.log(err);
@@ -29,21 +30,27 @@ export const getListOfFollowingLabelsFromFirestore = async (uid: string): Promis
 };
 
 // Firestoreにフォローしたレーベルを格納
-export const addFollowingLabelToFirestore = async (uid: string, data: string) => {
+export const addFavLabelToFirestore = async (uid: string, labelName: string): Promise<FavLabel> => {
     try {
+        const favLabel: FavLabel = {
+            labelName: labelName,
+            date: new Date(),
+        };
         await db.collection("users").doc(uid).update({
-            followingLabels: firebase.firestore.FieldValue.arrayUnion(data),
+            favLabels: firebase.firestore.FieldValue.arrayUnion(favLabel),
         });
+        return favLabel;
     } catch (err) {
         console.log(err);
+        throw err;
     }
 };
 
 // Firestoreからフォローを外したレーベルを削除
-export const deleteFollowedLabelFromFirestore = async (uid: string, data: string) => {
+export const deleteUnfavLabelFromFirestore = async (uid: string, favLabel: FavLabel) => {
     try {
         await db.collection("users").doc(uid).update({
-            followingLabels: firebase.firestore.FieldValue.arrayRemove(data),
+            favLabels: firebase.firestore.FieldValue.arrayRemove(favLabel),
         });
     } catch (err) {
         console.log(err);

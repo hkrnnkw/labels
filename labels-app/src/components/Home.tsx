@@ -13,7 +13,7 @@ import { Props, Album } from '../utils/interfaces';
 import { FavLabel } from '../utils/types';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
-import { getListOfFollowingLabelsFromFirestore, addFollowingLabelToFirestore } from '../handlers/dbHandler';
+import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -91,9 +91,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, [signedIn, home.length, uid, tokenChecker, dispatch]);
 
     // フォロー操作
-        await addFollowingLabelToFirestore(uid, labelName);
         dispatch(setFollowingLabels(labelName));
     const handleFav = async (labelName: string) => {
+        const newFav: FavLabel = await addFavLabelToFirestore(uid, labelName);
     };
 
     const generateAlbums = (label: Album[], labelNameList: string[]): JSX.Element => {

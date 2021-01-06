@@ -1,5 +1,10 @@
 import * as admin from 'firebase-admin';
 
+type FavLabel = {
+    labelName: string;
+    date: Date;
+}
+
 // ユーザ管理
 export const manageUser = async (spotifyRefreshToken: string, spotifyID: string, displayName: string,
     photoURL: string | null, email: string): Promise<string> => {
@@ -19,9 +24,9 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     }).catch(error => {
         // ユーザが存在しない場合
         if (error.code === 'auth/user-not-found') {
-            const followingLabels: string[] = [];
+            const favLabels: FavLabel[] = [];
             admin.firestore().collection('users').doc(spotifyID).set({
-                followingLabels: followingLabels,
+                favLabels: favLabels,
             }, { merge: true }).catch(err => { throw err });
 
             // アカウント作成
