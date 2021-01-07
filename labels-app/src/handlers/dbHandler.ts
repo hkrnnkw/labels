@@ -1,5 +1,5 @@
 import firebase, { db } from '../firebase';
-import { FavLabel } from '../utils/types';
+import { Label } from '../utils/types';
 
 // FirestoreからspotifyRefreshTokenを取得
 export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<string | null> => {
@@ -16,12 +16,12 @@ export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<
 };
 
 // Firestoreからフォロー中のレーベル群を取得
-export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<FavLabel[]> => {
+export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<Label[]> => {
     try {
         const doc = await db.collection("users").doc(uid).get();
         const data = doc.data();
         if (!data) throw new Error(`${uid}のドキュメントにアクセスできません`);
-        const labels: FavLabel[] = data.favLabels || [];
+        const labels: Label[] = data.favLabels || [];
         return labels;
     } catch (err) {
         console.log(err);
@@ -30,11 +30,12 @@ export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<FavL
 };
 
 // Firestoreにフォローしたレーベルを格納
-export const addFavLabelToFirestore = async (uid: string, labelName: string): Promise<FavLabel> => {
+export const addFavLabelToFirestore = async (uid: string, labelName: string): Promise<Label> => {
     try {
-        const favLabel: FavLabel = {
-            labelName: labelName,
-            date: new Date(),
+        const now = new Date();
+        const favLabel: Label = {
+            name: labelName,
+            dateOfFollow: now.getTime(),
         };
         await db.collection("users").doc(uid).update({
             favLabels: firebase.firestore.FieldValue.arrayUnion(favLabel),
@@ -47,7 +48,7 @@ export const addFavLabelToFirestore = async (uid: string, labelName: string): Pr
 };
 
 // Firestoreからフォローを外したレーベルを削除
-export const deleteUnfavLabelFromFirestore = async (uid: string, favLabel: FavLabel) => {
+export const deleteUnfavLabelFromFirestore = async (uid: string, favLabel: Label) => {
     try {
         await db.collection("users").doc(uid).update({
             favLabels: firebase.firestore.FieldValue.arrayRemove(favLabel),

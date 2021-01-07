@@ -10,7 +10,7 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome, setAddLabel, setLabelList } from '../stores/albums';
 import { Props, Album } from '../utils/interfaces';
-import { FavLabel } from '../utils/types';
+import { Label } from '../utils/types';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
@@ -67,9 +67,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         // レーベルの情報を取得
         const fetchLabels = async () => {
             // Firestoreからフォロー中のレーベル群を取得
-            const favLabelList: FavLabel[] = await getListOfFavLabelsFromFirestore(uid);
+            const favLabelList: Label[] = await getListOfFavLabelsFromFirestore(uid);
             dispatch(setLabelList(favLabelList));
-            const labelNameList: string[] = favLabelList.map(fav => fav.labelName);
+            const labelNameList: string[] = favLabelList.map(fav => fav.name);
 
             const defaults = [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
@@ -92,7 +92,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     // フォロー操作
     const handleFav = async (labelName: string) => {
-        const newFav: FavLabel = await addFavLabelToFirestore(uid, labelName);
+        const newFav: Label = await addFavLabelToFirestore(uid, labelName);
         dispatch(setAddLabel(newFav));
     };
 

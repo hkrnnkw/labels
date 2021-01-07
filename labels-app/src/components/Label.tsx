@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { FavLabel } from '../utils/types';
+import { Label as LabelType } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
@@ -60,8 +60,8 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const { state } = useLocation<{ label: string }>();
     const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { favLabels } = useSelector((rootState: RootState) => rootState.albums);
-    const init = favLabels.find(favLabel => favLabel.labelName === state.label);
-    const [fav, setFav] = useState<FavLabel | undefined>(init);
+    const init = favLabels.find(favLabel => favLabel.name === state.label);
+    const [fav, setFav] = useState<LabelType | undefined>(init);
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -107,7 +107,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             dispatch(setDeleteLabel(state.label));
             setFav(undefined);
         } else {
-            const newFavLabel: FavLabel = await addFavLabelToFirestore(uid, state.label);
+            const newFavLabel: LabelType = await addFavLabelToFirestore(uid, state.label);
             dispatch(setAddLabel(newFavLabel));
             setFav(newFavLabel);
         }

@@ -35,9 +35,9 @@ export type SearchResult = {
     results: Album[];
 }
 
-export type FavLabel = {
-    labelName: string;
-    date: Date;
+export type Label = {
+    name: string;
+    dateOfFollow?: number;
 }
 
 export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
