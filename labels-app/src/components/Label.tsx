@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { Label as LabelType } from '../utils/types';
+import { Label as LabelType, SearchResult } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
@@ -73,7 +73,8 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             const thisYear = today.getFullYear();
             const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
             const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year }, token));
-            return await Promise.all(tasks);
+            const results: SearchResult[] = await Promise.all(tasks);
+            return results.map(elem => elem.results);
         };
         fetchLabel()
             .then(albums => setAlbumsOfYears(albums.filter(album => album.length)))

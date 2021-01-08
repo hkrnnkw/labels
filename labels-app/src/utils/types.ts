@@ -31,13 +31,17 @@ export type SearchQuery = {
 }
 
 export type SearchResult = {
-    keywords: string;
+    query: SearchQuery;
     results: Album[];
 }
 
 export type Label = {
     name: string;
     dateOfFollow?: number;
+}
+
+export type Home = Label & {
+    newReleases: Album[];
 }
 
 export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';

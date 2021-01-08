@@ -9,8 +9,8 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome, setAddLabel, setLabelList } from '../stores/albums';
-import { Props, Album } from '../utils/interfaces';
-import { Label } from '../utils/types';
+import { Home as HomeType, Label, SearchResult } from '../utils/types';
+import { Props } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
@@ -81,10 +81,19 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             
             // フォロー中のレーベルそれぞれのアルバムを取得
             const token: string = await tokenChecker();
-            const labels: string[] = favLabelList.length > 3 ? labelNameList : Array.from(set);
+            const labels: string[] = favLabelList.length ? labelNameList : Array.from(set);
             const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
-            const results: Album[][] = await Promise.all(tasks);
-            dispatch(setHome(results.filter(album => album.length)));
+            const results: SearchResult[] = await Promise.all(tasks);
+            const filtered = results.filter(elem => elem.results.length);
+            const homeList: HomeType[] = filtered.map(elem => {
+                const favLabel: Label | undefined = favLabelList.find(label => label.name === elem.query.label);
+                return {
+                    name: elem.query.label || '',
+                    dateOfFollow: favLabel?.dateOfFollow,
+                    newReleases: elem.results,
+                }
+            });
+            dispatch(setHome(homeList));
         };
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));

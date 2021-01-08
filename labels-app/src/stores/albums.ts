@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Album } from '../utils/interfaces';
-import { Label, SortOrder } from "../utils/types";
+import { Label, Home, SortOrder } from "../utils/types";
 
 type AlbumsState = {
-    home: Album[][];
     favLabels: Label[];
+    home: Home[];
     saved: Album[];
     sortOrder: SortOrder;
 }
@@ -30,7 +30,7 @@ const slice = createSlice({
             const newArray = state.favLabels.filter(label => label.name !== action.payload);
             state.favLabels = newArray;
         },
-        setHome: (state: AlbumsState, action: PayloadAction<Album[][]>) => {
+        setHome: (state: AlbumsState, action: PayloadAction<Home[]>) => {
             state.home = action.payload;
         },
         setSaved: (state: AlbumsState, action: PayloadAction<Album[]>) => {

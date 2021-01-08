@@ -1,6 +1,6 @@
 import firebase, { f } from '../firebase';
 import { Album, Artist, SimpleAlbum } from '../utils/interfaces';
-import { Spotify, StrKeyObj, SearchQuery } from '../utils/types';
+import { Spotify, StrKeyObj, SearchQuery, SearchResult } from '../utils/types';
 import axios, { AxiosResponse } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { getSpotifyRefreshTokenFromFirestore } from './dbHandler';
@@ -55,9 +55,9 @@ const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise
 };
 
 // アルバム検索
-export const searchAlbums = async (query: SearchQuery, accessToken: string): Promise<Album[]> => {
+export const searchAlbums = async (query: SearchQuery, accessToken: string): Promise<SearchResult> => {
     const { getNew, year, genre, label, keywords } = query;
-    
+
     const options: string[] = [];
     if (getNew === true) options.push(`tag%3Anew`);
     if (year) options.push(`year%3A${year}`);
@@ -67,16 +67,20 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
     options.length = 0;
     if (queryStr.length) options.push(queryStr);
     if (keywords) options.push(keywords.replace(' ', '%20'));
-    if (!options.length) return [];
+    if (!options.length) return { query: query, results: [] };
 
     const url = `https://api.spotify.com/v1/search?q=${options.join('%20')}&type=album&limit=20`;
     const res = await getReqProcessor(url, accessToken);
     const simpleAlbums: SimpleAlbum[] = res.data.albums.items;
-    if (!simpleAlbums.length) return [];
+    if (!simpleAlbums.length) return { query: query, results: [] };
     const albumIds: string[] = simpleAlbums.map(album => album.id);
 
     const albums: Album[] = await getFullAlbumObj(albumIds, accessToken);
-    return label ? albums.filter(album => label === album.label) : albums;
+    const result: SearchResult = {
+        query: query,
+        results: label ? albums.filter(album => label === album.label) : albums,
+    };
+    return result;
 };
 
 // ユーザライブラリに保存したアルバムを取得

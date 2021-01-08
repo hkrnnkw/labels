@@ -52,7 +52,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     const [typing, setTyping] = useState<string>('');
     // TODO searchedをReduxに移管する？ ページを戻った時に残ってないので
     // 補足：仮に移管した場合、Homeの検索ボタンを押下で、Reduxのsearchedを初期化する？
-    const [searched, setSearched] = useState<SearchResult>({ keywords: '', results: [] });
+    const [searched, setSearched] = useState<SearchResult>({ query: {}, results: [] });
 
     // ライブラリに保存したアルバムを取得
     useEffect(() => {
@@ -71,15 +71,15 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     // typingが空になったら、searchedを初期化
     useEffect(() => {
         if (typing.length) return;
-        setSearched({ keywords: '', results: [] });
+        setSearched({ query: {}, results: [] });
     }, [typing]);
 
     // 検索実行
     const doSearching = async (keywords: string) => {
         try {
             const token: string = await tokenChecker();
-            const results: Album[] = await searchAlbums({ keywords: keywords }, token);
-            setSearched({ keywords: keywords, results: results });
+            const result: SearchResult = await searchAlbums({ keywords: keywords }, token);
+            setSearched({ query: { keywords: keywords }, results: result.results });
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
@@ -87,7 +87,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
 
     // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
-        if (!albums.length && searched.keywords.length) return <Typography>見つかりませんでした</Typography>;
+        if (!albums.length && searched.query.keywords && searched.query.keywords.length) return <Typography>見つかりませんでした</Typography>;
 
         const albumListItems: JSX.Element[] = albums.map(album => {
             return (
@@ -126,11 +126,11 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             />
             <IconButton
                 onClick={() => doSearching(typing)}
-                disabled={!typing.length || searched.keywords === typing}
+                disabled={!typing.length || searched.query.keywords === typing}
             >
                 <SearchIcon />
             </IconButton>
-            {generateAlbums(searched.keywords.length && typing.length ? searched.results : saved)}
+            {generateAlbums(searched.query.keywords && searched.query.keywords.length && typing.length ? searched.results : saved)}
         </div>
     )
 };
