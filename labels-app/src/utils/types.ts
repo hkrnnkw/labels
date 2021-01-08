@@ -37,7 +37,7 @@ export type SearchResult = {
 
 export type Label = {
     name: string;
-    dateOfFollow?: number;
+    dateOfFollow: number;
 }
 
 export type Home = Label & {

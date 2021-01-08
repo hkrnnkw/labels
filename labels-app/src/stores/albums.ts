@@ -13,7 +13,7 @@ const initialState: AlbumsState = {
     favLabels: [],
     home: [],
     saved: [],
-    sortOrder: 'DateAsc',
+    sortOrder: 'DateDesc',
 };
 
 const slice = createSlice({

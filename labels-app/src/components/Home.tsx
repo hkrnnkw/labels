@@ -9,11 +9,12 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setHome, setAddLabel, setLabelList } from '../stores/albums';
-import { Home as HomeType, Label, SearchResult } from '../utils/types';
+import { Home as HomeType, Label, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
+import { sortHandler } from '../handlers/sortHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -58,7 +59,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
-    const { home, favLabels } = useSelector((rootState: RootState) => rootState.albums);
+    const { home, favLabels, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
@@ -89,7 +90,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 const favLabel: Label | undefined = favLabelList.find(label => label.name === elem.query.label);
                 return {
                     name: elem.query.label || '',
-                    dateOfFollow: favLabel?.dateOfFollow,
+                    dateOfFollow: favLabel?.dateOfFollow　|| -1,
                     newReleases: elem.results,
                 }
             });
@@ -105,9 +106,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         dispatch(setAddLabel(newFav));
     };
 
-    const generateAlbums = (label: Album[], labelNameList: string[]): JSX.Element => {
-        const labelName: string = label[0].label;
-        const albumGridListTiles: JSX.Element[] = label.map(album => {
+    const generateAlbums = (label: HomeType): JSX.Element => {
+        const { name, newReleases, dateOfFollow } = label;
+        const albumGridListTiles: JSX.Element[] = newReleases.map(album => {
             return (
                 <GridListTile
                     key={`${album.artists[0].name} - ${album.name}`}
@@ -133,16 +134,16 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             );
         });
         return (
-            <Container className={classes.container} id={labelName}>
+            <Container className={classes.container} id={name}>
                 <Link
                     component={RouterLink}
-                    to={{ pathname: `${labelPath}/${labelName}`, state: { label: labelName } }}
+                    to={{ pathname: `${labelPath}/${name}`, state: { label: name } }}
                     className={classes.labelName}
                 >
-                    {labelName}
+                    {name}
                 </Link>
-                {!labelNameList.includes(labelName) &&
-                    <Button onClick={() => handleFav(labelName)}>フォロー</Button>
+                {dateOfFollow < 0 &&
+                    <Button onClick={() => handleFav(name)}>フォロー</Button>
                 }
                 <GridList
                     className={classes.gridList}
@@ -161,12 +162,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         await signIn();
     };
 
-    const privateHome = (labels: Album[][], favLabelList: FavLabel[]): JSX.Element => {
-        const labelNameList: string[] = favLabelList.map(label => label.labelName);
+    const privateHome = (LabelList: HomeType[], order: SortOrder): JSX.Element => {
+        const sortedList = sortHandler(LabelList, favLabels.length ? order : 'NameAsc');
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>
-                {labels.map(albums => generateAlbums(albums, labelNameList))}
+                {sortedList.map((label: HomeType) => generateAlbums(label))}
             </div>
         )
     };
@@ -181,7 +182,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         )
     };
 
-    return signedIn ? privateHome(home, favLabels) : guestHome(clicked);
+    return signedIn ? privateHome(home, sortOrder) : guestHome(clicked);
 };
 
 export default withRouter(Home);
