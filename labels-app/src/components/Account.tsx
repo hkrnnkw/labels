@@ -9,14 +9,14 @@ import {
 import { label as labelPath } from '../utils/paths';
 
 const Account: FC = () => {
-    const { favLabels } = useSelector((rootState: RootState) => rootState.albums);
+    const { home } = useSelector((rootState: RootState) => rootState.albums);
 
     return (
         <div>
             <Typography>マイページ</Typography>
-            {favLabels.length > 0 ?
+            {home.length > 0 ?
                 <List>
-                    {favLabels.map(label => {
+                    {home.map(label => {
                         return (
                             <Link component={RouterLink} to={{ pathname: `${labelPath}/${label}`, state: { label: label } }}>
                                 <ListItem>{label}</ListItem>

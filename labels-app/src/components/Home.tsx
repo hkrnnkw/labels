@@ -5,10 +5,10 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link,
+    GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link, Typography,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setHome, setAddLabel, setLabelList } from '../stores/albums';
+import { setHome, setAddLabel } from '../stores/albums';
 import { Home as HomeType, Label, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search, label as labelPath } from '../utils/paths';
@@ -59,35 +59,36 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
-    const { home, favLabels, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
+    const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
         if (!signedIn || home.length) return;
 
-        // レーベルの情報を取得
-        const fetchLabels = async () => {
-            // Firestoreからフォロー中のレーベル群を取得
-            const favLabelList: Label[] = await getListOfFavLabelsFromFirestore(uid);
-            dispatch(setLabelList(favLabelList));
-            const labelNameList: string[] = favLabelList.map(fav => fav.name);
-
+        const getDefaultLabels = (): Label[] => {
             const defaults = [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
                 'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                 'Republic Records', 'Smalltown Supersound', 'aritech',
             ];
-            const set = new Set(labelNameList.concat(defaults));
-            
-            // フォロー中のレーベルそれぞれのアルバムを取得
+            return defaults.map(label => {
+                return { name: label, dateOfFollow: -1 }
+            });
+        };
+
+        // レーベルの情報を取得
+        const fetchLabels = async () => {
+            // Firestoreからフォロー中のレーベル群を取得
+            const favLabels: Label[] = await getListOfFavLabelsFromFirestore(uid);
+            const labels = favLabels.length ? favLabels : getDefaultLabels();
+
             const token: string = await tokenChecker();
-            const labels: string[] = favLabelList.length ? labelNameList : Array.from(set);
-            const tasks = labels.map(label => searchAlbums({ label: label, getNew: true }, token));
+            const tasks = labels.map(label => searchAlbums({ label: label.name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
             const filtered = results.filter(elem => elem.results.length);
             const homeList: HomeType[] = filtered.map(elem => {
-                const favLabel: Label | undefined = favLabelList.find(label => label.name === elem.query.label);
+                const favLabel: Label | undefined = labels.find(label => label.name === elem.query.label);
                 return {
                     name: elem.query.label || '',
                     dateOfFollow: favLabel?.dateOfFollow　|| -1,
@@ -96,6 +97,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             });
             dispatch(setHome(homeList));
         };
+
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [signedIn, home.length, uid, tokenChecker, dispatch]);
@@ -103,7 +105,16 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     // フォロー操作
     const handleFav = async (labelName: string) => {
         const newFav: Label = await addFavLabelToFirestore(uid, labelName);
-        dispatch(setAddLabel(newFav));
+        const token: string = await tokenChecker();
+        const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
+        const newHome: HomeType = {
+            name: newFav.name,
+            dateOfFollow: newFav.dateOfFollow,
+            newReleases: result.results,
+        };
+        // TODO 何もフォローしていない状態の時にフォロー操作を行うと、同じものが2つ表示される
+        // defaultsとフォローしたもの
+        dispatch(setAddLabel(newHome));
     };
 
     const generateAlbums = (label: HomeType): JSX.Element => {
@@ -162,8 +173,14 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         await signIn();
     };
 
-    const privateHome = (LabelList: HomeType[], order: SortOrder): JSX.Element => {
-        const sortedList = sortHandler(LabelList, favLabels.length ? order : 'NameAsc');
+    const privateHome = (labelList: HomeType[], order: SortOrder): JSX.Element => {
+        if (!labelList.length) return (
+            <div className={classes.root}>
+                <Typography>ニューリリースがありません</Typography>
+            </div>
+        )
+
+        const sortedList = sortHandler(labelList, order);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>

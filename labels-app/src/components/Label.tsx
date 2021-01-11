@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { Label as LabelType, SearchResult } from '../utils/types';
+import { Home as HomeType, Label as LabelType, SearchResult } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
@@ -59,9 +59,9 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ label: string }>();
     const { uid } = useSelector((rootState: RootState) => rootState.user);
-    const { favLabels } = useSelector((rootState: RootState) => rootState.albums);
-    const init = favLabels.find(favLabel => favLabel.name === state.label);
-    const [fav, setFav] = useState<LabelType | undefined>(init);
+    const { home } = useSelector((rootState: RootState) => rootState.albums);
+    const init = home.find(label => label.name === state.label);
+    const [fav, setFav] = useState<HomeType | undefined>(init);
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -104,13 +104,20 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     // フォロー操作
     const handleFav = async () => {
         if (fav) {
-            await deleteUnfavLabelFromFirestore(uid, fav);
+            await deleteUnfavLabelFromFirestore(uid, { name: fav.name, dateOfFollow: fav.dateOfFollow });
             dispatch(setDeleteLabel(state.label));
             setFav(undefined);
         } else {
             const newFavLabel: LabelType = await addFavLabelToFirestore(uid, state.label);
-            dispatch(setAddLabel(newFavLabel));
-            setFav(newFavLabel);
+            const token: string = await tokenChecker();
+            const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
+            const newHome: HomeType = {
+                name: newFavLabel.name,
+                dateOfFollow: newFavLabel.dateOfFollow,
+                newReleases: result.results,
+            };
+            dispatch(setAddLabel(newHome));
+            setFav(newHome);
         }
     };
 
