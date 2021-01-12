@@ -19,7 +19,7 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     }).catch(error => {
         // ユーザが存在しない場合
         if (error.code === 'auth/user-not-found') {
-            const favLabels: { name: string; date: number; }[] = [];
+            const favLabels: { [name: string]: number; } = {};
             admin.firestore().collection('users').doc(spotifyID).set({
                 favLabels: favLabels,
             }, { merge: true }).catch(err => { throw err });

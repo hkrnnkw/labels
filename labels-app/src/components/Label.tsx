@@ -104,7 +104,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const handleFav = async () => {
         try {
             if (dateOfFollow > 0) {
-                await deleteUnfavLabelFromFirestore(uid, state.label, dateOfFollow);
+                await deleteUnfavLabelFromFirestore(uid, state.label);
                 dispatch(setDeleteLabel(state.label));
                 return;
             }
