@@ -102,15 +102,19 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
     // フォロー操作
     const handleFav = async () => {
-        if (dateOfFollow > 0) {
-            await deleteUnfavLabelFromFirestore(uid, state.label, dateOfFollow);
-            dispatch(setDeleteLabel(state.label));
-        } else {
+        try {
+            if (dateOfFollow > 0) {
+                await deleteUnfavLabelFromFirestore(uid, state.label, dateOfFollow);
+                dispatch(setDeleteLabel(state.label));
+                return;
+            }
             const newDate: number = await addFavLabelToFirestore(uid, state.label);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
             const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.results }};
             dispatch(setAddLabel(newHome));
+        } catch (err) {
+            console.log(err);
         }
     };
 

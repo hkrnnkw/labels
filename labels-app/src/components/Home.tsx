@@ -101,11 +101,15 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     // フォロー操作
     const handleFav = async (labelName: string) => {
-        const newDate: number = await addFavLabelToFirestore(uid, labelName);
-        const token: string = await tokenChecker();
-        const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
-        const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results }};
-        dispatch(setAddLabel(newHome));
+        try {
+            const newDate: number = await addFavLabelToFirestore(uid, labelName);
+            const token: string = await tokenChecker();
+            const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
+            const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results }};
+            dispatch(setAddLabel(newHome));
+        } catch (err) {
+            console.log(err);
+        }
     };
 
     const generateAlbums = (name: string, fav: Favorite): JSX.Element => {
