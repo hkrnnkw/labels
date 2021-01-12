@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setAddLabel } from '../stores/albums';
-import { Favorite, Label, SearchResult, SortOrder } from '../utils/types';
+import { Favorite, Label, LabelEntry, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
@@ -168,13 +168,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     };
 
     const privateHome = (labelObj: Label, order: SortOrder): JSX.Element => {
-        const entries: [string, Favorite][] = Object.entries(labelObj);
-        const sortedObj: Label = sortHandler(entries, order);
+        const sorted: LabelEntry[] = sortHandler(labelObj, order);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                {entries.length ?
-                    Object.entries(sortedObj).map(([name, fav]) => generateAlbums(name, fav))
+                {sorted.length > 0 ?
+                    sorted.map(([name, fav]) => generateAlbums(name, fav))
                 :
                     <Typography>ニューリリースがありません</Typography>
                 }

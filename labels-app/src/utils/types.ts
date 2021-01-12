@@ -42,4 +42,6 @@ export type Favorite = {
 
 export type Label = { [name: string]: Favorite };
 
+export type LabelEntry = [string, Favorite];
+
 export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
