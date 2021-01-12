@@ -13,13 +13,14 @@ import { sortHandler } from '../handlers/sortHandler';
 const Account: FC = () => {
     const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
     const sorted: LabelEntry[] = sortHandler(home, sortOrder);
+    const filtered = sorted.filter(([name, fav]) => fav.date > 0);
 
     return (
         <div>
             <Typography>マイページ</Typography>
-            {sorted.length > 0 ?
+            {filtered.length > 0 ?
                 <List>
-                    {sorted.map(([name, fav]) => {
+                    {filtered.map(([name, fav]) => {
                         return (
                             <Link component={RouterLink} to={{ pathname: `${labelPath}/${name}`, state: { label: name } }}>
                                 <ListItem>{name}</ListItem>

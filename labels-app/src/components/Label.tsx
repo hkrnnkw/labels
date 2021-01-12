@@ -60,8 +60,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const { state } = useLocation<{ label: string }>();
     const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { home } = useSelector((rootState: RootState) => rootState.albums);
-    const initFav: Favorite | undefined = home[state.label];
-    const [dateOfFollow, setDateOfFollow] = useState<number>(initFav?.date || -1);
+    const dateOfFollow: number = home[state.label]?.date || -1;
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -105,11 +104,9 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const handleFav = async () => {
         if (dateOfFollow > 0) {
             await deleteUnfavLabelFromFirestore(uid, state.label, dateOfFollow);
-            setDateOfFollow(-1);
             dispatch(setDeleteLabel(state.label));
         } else {
             const newDate: number = await addFavLabelToFirestore(uid, state.label);
-            setDateOfFollow(newDate);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
             const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.results }};
