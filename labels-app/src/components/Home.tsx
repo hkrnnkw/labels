@@ -106,8 +106,6 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const token: string = await tokenChecker();
         const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
         const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results }};
-        // TODO 何もフォローしていない状態の時にフォロー操作を行うと、同じものが2つ表示される
-        // defaultsとフォローしたもの
         dispatch(setAddLabel(newHome));
     };
 
