@@ -8,10 +8,10 @@ import {
     GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link, Typography,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setHome, setAddLabel } from '../stores/albums';
-import { Home as HomeType, Label, SearchResult, SortOrder } from '../utils/types';
+import { setAddLabel } from '../stores/albums';
+import { Favorite, Label, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
-import { album as albumPath, search, label as labelPath } from '../utils/paths';
+import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
 import { sortHandler } from '../handlers/sortHandler';
@@ -63,62 +63,56 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
-        if (!signedIn || home.length) return;
+        if (!signedIn) return;
 
-        const getDefaultLabels = (): Label[] => {
+        const getDefaultLabels = (): Label => {
             const defaults = [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
                 'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                 'Republic Records', 'Smalltown Supersound', 'aritech',
             ];
-            return defaults.map(label => {
-                return { name: label, dateOfFollow: -1 }
-            });
+            const labelObj: Label = {};
+            for (const labelName of defaults) labelObj[labelName] = { date: -1, newReleases: [] };
+            return labelObj;
         };
 
         // レーベルの情報を取得
         const fetchLabels = async () => {
             // Firestoreからフォロー中のレーベル群を取得
-            const favLabels: Label[] = await getListOfFavLabelsFromFirestore(uid);
-            const labels = favLabels.length ? favLabels : getDefaultLabels();
+            const favLabels: Label = await getListOfFavLabelsFromFirestore(uid);
+            const labelObj = Object.keys(favLabels).length ? favLabels : getDefaultLabels();
 
+            const entries = Object.entries(labelObj);
             const token: string = await tokenChecker();
-            const tasks = labels.map(label => searchAlbums({ label: label.name, getNew: true }, token));
+            const tasks = entries.map(([name, fav]) => searchAlbums({ label: name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
-            const filtered = results.filter(elem => elem.results.length);
-            const homeList: HomeType[] = filtered.map(elem => {
-                const favLabel: Label | undefined = labels.find(label => label.name === elem.query.label);
-                return {
-                    name: elem.query.label || '',
-                    dateOfFollow: favLabel?.dateOfFollow　|| -1,
-                    newReleases: elem.results,
-                }
-            });
-            dispatch(setHome(homeList));
+
+            for (const [name, fav] of entries) {
+                const searchResult = results.find(search => search.results.length && search.query.label === name);
+                if (searchResult) labelObj[name] = { ...fav, newReleases: searchResult.results };
+                else delete labelObj[name];
+            }
+            dispatch(setAddLabel(labelObj));
         };
 
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [signedIn, home.length, uid, tokenChecker, dispatch]);
+    }, [signedIn, uid, tokenChecker, dispatch]);
 
     // フォロー操作
     const handleFav = async (labelName: string) => {
-        const newFav: Label = await addFavLabelToFirestore(uid, labelName);
+        const newDate: number = await addFavLabelToFirestore(uid, labelName);
         const token: string = await tokenChecker();
         const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
-        const newHome: HomeType = {
-            name: newFav.name,
-            dateOfFollow: newFav.dateOfFollow,
-            newReleases: result.results,
-        };
+        const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results }};
         // TODO 何もフォローしていない状態の時にフォロー操作を行うと、同じものが2つ表示される
         // defaultsとフォローしたもの
         dispatch(setAddLabel(newHome));
     };
 
-    const generateAlbums = (label: HomeType): JSX.Element => {
-        const { name, newReleases, dateOfFollow } = label;
+    const generateAlbums = (name: string, fav: Favorite): JSX.Element => {
+        const { date, newReleases } = fav;
         const albumGridListTiles: JSX.Element[] = newReleases.map(album => {
             return (
                 <GridListTile
@@ -153,7 +147,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 >
                     {name}
                 </Link>
-                {dateOfFollow < 0 &&
+                {date < 0 &&
                     <Button onClick={() => handleFav(name)}>フォロー</Button>
                 }
                 <GridList
@@ -173,18 +167,17 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         await signIn();
     };
 
-    const privateHome = (labelList: HomeType[], order: SortOrder): JSX.Element => {
-        if (!labelList.length) return (
-            <div className={classes.root}>
-                <Typography>ニューリリースがありません</Typography>
-            </div>
-        )
-
-        const sortedList = sortHandler(labelList, order);
+    const privateHome = (labelObj: Label, order: SortOrder): JSX.Element => {
+        const entries: [string, Favorite][] = Object.entries(labelObj);
+        const sortedObj: Label = sortHandler(entries, order);
         return (
             <div className={classes.root}>
-                <Link component={RouterLink} to={search}><IconButton><SearchIcon /></IconButton></Link>
-                {sortedList.map((label: HomeType) => generateAlbums(label))}
+                <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
+                {entries.length ?
+                    Object.entries(sortedObj).map(([name, fav]) => generateAlbums(name, fav))
+                :
+                    <Typography>ニューリリースがありません</Typography>
+                }
             </div>
         )
     };

@@ -7,19 +7,23 @@ import {
     Typography, Link, List, ListItem,
 } from '@material-ui/core';
 import { label as labelPath } from '../utils/paths';
+import { Favorite, Label } from '../utils/types';
+import { sortHandler } from '../handlers/sortHandler';
 
 const Account: FC = () => {
-    const { home } = useSelector((rootState: RootState) => rootState.albums);
+    const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
+    const entries: [string, Favorite][] = Object.entries(home);
+    const sortedObj: Label = sortHandler(entries, sortOrder);
 
     return (
         <div>
             <Typography>マイページ</Typography>
-            {home.length > 0 ?
+            {entries.length > 0 ?
                 <List>
-                    {home.map(label => {
+                    {Object.keys(sortedObj).map(name => {
                         return (
-                            <Link component={RouterLink} to={{ pathname: `${labelPath}/${label}`, state: { label: label } }}>
-                                <ListItem>{label}</ListItem>
+                            <Link component={RouterLink} to={{ pathname: `${labelPath}/${name}`, state: { label: name } }}>
+                                <ListItem>{name}</ListItem>
                             </Link>
                         )
                     })}

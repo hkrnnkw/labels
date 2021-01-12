@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { Home as HomeType, Label as LabelType, SearchResult } from '../utils/types';
+import { Favorite, Label as LabelType, SearchResult } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
@@ -60,8 +60,8 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const { state } = useLocation<{ label: string }>();
     const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { home } = useSelector((rootState: RootState) => rootState.albums);
-    const init = home.find(label => label.name === state.label);
-    const [fav, setFav] = useState<HomeType | undefined>(init);
+    const initFav: Favorite | undefined = home[state.label];
+    const [dateOfFollow, setDateOfFollow] = useState<number>(initFav?.date || -1);
     const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -103,21 +103,17 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
     // フォロー操作
     const handleFav = async () => {
-        if (fav) {
-            await deleteUnfavLabelFromFirestore(uid, { name: fav.name, dateOfFollow: fav.dateOfFollow });
+        if (dateOfFollow > 0) {
+            await deleteUnfavLabelFromFirestore(uid, state.label, dateOfFollow);
             dispatch(setDeleteLabel(state.label));
-            setFav(undefined);
+            setDateOfFollow(-1);
         } else {
-            const newFavLabel: LabelType = await addFavLabelToFirestore(uid, state.label);
+            const newDate: number = await addFavLabelToFirestore(uid, state.label);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
-            const newHome: HomeType = {
-                name: newFavLabel.name,
-                dateOfFollow: newFavLabel.dateOfFollow,
-                newReleases: result.results,
-            };
+            const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.results }};
             dispatch(setAddLabel(newHome));
-            setFav(newHome);
+            setDateOfFollow(newDate);
         }
     };
 
@@ -180,7 +176,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     return (
         <div className={classes.root}>
             <Typography>{state.label}</Typography>
-            <Button onClick={handleFav}>{fav ? 'フォロー中' : 'フォロー'}</Button>
+            <Button onClick={handleFav}>{dateOfFollow > 0 ? 'フォロー中' : 'フォロー'}</Button>
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
             {albumsOfYears.map(year => generateAlbums(year))}
         </div>

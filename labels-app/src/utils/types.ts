@@ -35,13 +35,11 @@ export type SearchResult = {
     results: Album[];
 }
 
-export type Label = {
-    name: string;
-    dateOfFollow: number;
-}
-
-export type Home = Label & {
+export type Favorite = {
+    date: number;
     newReleases: Album[];
 }
+
+export type Label = { [name: string]: Favorite };
 
 export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
