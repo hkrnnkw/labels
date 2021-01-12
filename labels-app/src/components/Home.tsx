@@ -105,7 +105,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const newDate: number = await addFavLabelToFirestore(uid, labelName);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
-            const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results }};
+            const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results } };
             dispatch(setAddLabel(newHome));
         } catch (err) {
             console.log(err);
@@ -176,7 +176,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
                 {filtered.length > 0 ?
                     filtered.map(([name, fav]) => generateAlbums(name, fav))
-                :
+                    :
                     <Typography>ニューリリースがありません</Typography>
                 }
             </div>

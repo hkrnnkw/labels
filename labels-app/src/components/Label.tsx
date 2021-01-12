@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { Favorite, Label as LabelType, SearchResult } from '../utils/types';
+import { Label as LabelType, SearchResult } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
