@@ -91,7 +91,6 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             for (const [name, fav] of entries) {
                 const searchResult = results.find(search => search.results.length && search.query.label === name);
                 if (searchResult) labelObj[name] = { ...fav, newReleases: searchResult.results };
-                else delete labelObj[name];
             }
             dispatch(setAddLabel(labelObj));
         };
@@ -167,11 +166,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     const privateHome = (labelObj: Label, order: SortOrder): JSX.Element => {
         const sorted: LabelEntry[] = sortHandler(labelObj, order);
+        const filtered = sorted.filter(([name, fav]) => fav.newReleases.length);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                {sorted.length > 0 ?
-                    sorted.map(([name, fav]) => generateAlbums(name, fav))
+                {filtered.length > 0 ?
+                    filtered.map(([name, fav]) => generateAlbums(name, fav))
                 :
                     <Typography>ニューリリースがありません</Typography>
                 }
