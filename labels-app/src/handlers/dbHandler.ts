@@ -1,5 +1,4 @@
 import firebase, { db } from '../firebase';
-import { Label } from '../utils/types';
 
 // FirestoreからspotifyRefreshTokenを取得
 export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<string> => {
@@ -11,14 +10,12 @@ export const getSpotifyRefreshTokenFromFirestore = async (uid: string): Promise<
 };
 
 // Firestoreからフォロー中のレーベル群を取得
-export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<Label> => {
+export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<{ [name: string]: number; }> => {
     const doc = await db.collection("users").doc(uid).get();
     const data = doc.data();
     if (!data) throw new Error(`${uid}のドキュメントにアクセスできません`);
     const favLabels: { [name: string]: number; } = data.favLabels;
-    const labelObj: Label = {};
-    for (const [name, date] of Object.entries(favLabels)) labelObj[name] = { date: date, newReleases: [] };
-    return labelObj;
+    return favLabels;
 };
 
 // Firestoreにフォローしたレーベルを格納

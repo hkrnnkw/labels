@@ -65,33 +65,29 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     useEffect(() => {
         if (!signedIn) return;
 
-        const getDefaultLabels = (): Label => {
-            const defaults = [
+        const getDefaultLabels = (): string[] => {
+            return [
                 'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
                 'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
                 'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
                 'Republic Records', 'Smalltown Supersound', 'aritech',
             ];
-            const labelObj: Label = {};
-            for (const labelName of defaults) labelObj[labelName] = { date: -1, newReleases: [] };
-            return labelObj;
         };
 
         // レーベルの情報を取得
         const fetchLabels = async () => {
-            // Firestoreからフォロー中のレーベル群を取得
-            const favLabels: Label = await getListOfFavLabelsFromFirestore(uid);
-            const labelObj = Object.keys(favLabels).length ? favLabels : getDefaultLabels();
-
-            const entries = Object.entries(labelObj);
+            const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
+            const keys = Object.keys(favLabels);
+            const labelNames: string[] = keys.length ? keys : getDefaultLabels();
             const token: string = await tokenChecker();
-            const tasks = entries.map(([name, fav]) => searchAlbums({ label: name, getNew: true }, token));
+            const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
 
-            for (const [name, fav] of entries) {
-                const searchResult = results.find(search => search.results.length && search.query.label === name);
-                if (searchResult) labelObj[name] = { ...fav, newReleases: searchResult.results };
-            }
+            const labelObj: Label = {};
+            for (const result of results) {
+                const name = result.query.label || '';
+                labelObj[name] = { date: favLabels[name] || -1, newReleases: result.results };
+            };
             dispatch(setAddLabel(labelObj));
         };
 
