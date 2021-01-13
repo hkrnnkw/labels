@@ -63,7 +63,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
-        if (!signedIn) return;
+        if (!uid.length) return;
 
         const getDefaultLabels = (): string[] => {
             return [
@@ -93,7 +93,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [signedIn, uid, tokenChecker, dispatch]);
+    }, [uid, tokenChecker, dispatch]);
 
     // フォロー操作
     const handleFav = async (labelName: string) => {
