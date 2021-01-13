@@ -181,12 +181,18 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         );
     };
 
+    const generateYears = (years: Year): JSX.Element[] => {
+        const entries: [string, Album[]][] = Object.entries(years);
+        const sorted = entries.sort((a, b) => a[0] > b[0] ? -1 : a[0] < b[0] ? 1 : 0);
+        return sorted.map(([year, albums]) => generateAlbums(year, albums));
+    };
+
     return (
         <div className={classes.root}>
             <Typography>{state.label}</Typography>
             <Button onClick={handleFav}>{dateOfFollow > 0 ? 'フォロー中' : 'フォロー'}</Button>
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
-            {Object.entries(albumsOfYears).map(([year, albums]) => generateAlbums(year, albums))}
+            {generateYears(albumsOfYears)}
         </div>
     )
 };
