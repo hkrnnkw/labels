@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { Label as LabelType, SearchResult } from '../utils/types';
+import { Label as LabelType, SearchResult, Year } from '../utils/types';
 import { album as albumPath, artist as artistPath } from '../utils/paths';
 import { setAddLabel, setDeleteLabel } from '../stores/albums';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
@@ -61,35 +61,43 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { home } = useSelector((rootState: RootState) => rootState.albums);
     const dateOfFollow: number = home[state.label]?.date || -1;
-    const [albumsOfYears, setAlbumsOfYears] = useState<Album[][]>([]);
+    const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
     // レーベルの各年のアルバムを取得
     useEffect(() => {
-        const fetchLabel = async (): Promise<Album[][]> => {
-            const token: string = await tokenChecker();
+        const getLast5Years = (): number[] => {
             const today = new Date();
             const thisYear = today.getFullYear();
-            const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
-            const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year }, token));
+            return new Array(5).fill(thisYear).map((y: number, i: number) => y - i);
+        };
+
+        const fetchLabel = async (): Promise<Year> => {
+            const token: string = await tokenChecker();
+            const last5years: number[] = getLast5Years();
+            const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year.toString() }, token));
             const results: SearchResult[] = await Promise.all(tasks);
-            return results.map(result => result.albums);
+
+            const yearObj: Year = {};
+            for (const result of results) yearObj[result.query.year || ''] = result.albums;
+            return yearObj;
         };
         fetchLabel()
-            .then(albums => setAlbumsOfYears(albums.filter(album => album.length)))
+            .then(albums => setAlbumsOfYears(albums))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [state.label, tokenChecker]);
 
     // レーベルのアーティストを取得
     useEffect(() => {
-        if (!albumsOfYears.length) return;
+        const years: Album[][] = Object.values(albumsOfYears);
+        if (!years.length) return;
 
         const idSet = new Set<string>();
-        albumsOfYears.forEach(albums => {
-            albums.forEach(album => {
-                album.artists.forEach(artist => idSet.add(artist.id));
-            });
-        });
+        for (const albums of years) {
+            for (const album of albums) {
+                for (const artist of album.artists) idSet.add(artist.id);
+            }
+        }
 
         const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();
@@ -132,10 +140,15 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         )
     };
 
-    const generateAlbums = (year: Album[]): JSX.Element => {
-        const releaseDate: string = year[0].release_date;
-        const releaseYear: string = releaseDate.substr(0, 4);
-        const albumGridListTiles: JSX.Element[] = year.map(album => {
+    const generateAlbums = (year: string, albums: Album[]): JSX.Element => {
+        if (!albums.length) return (
+            <Container className={classes.container} id={year}>
+                <Typography className={classes.year}>{year}</Typography>
+                <Typography>作品がありません</Typography>
+            </Container>
+        );
+
+        const albumGridListTiles: JSX.Element[] = albums.map(album => {
             return (
                 <GridListTile
                     key={`${album.artists[0].name} - ${album.name}`}
@@ -161,8 +174,8 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             );
         });
         return (
-            <Container className={classes.container} id={releaseYear}>
-                <Typography className={classes.year}>{releaseYear}</Typography>
+            <Container className={classes.container} id={year}>
+                <Typography className={classes.year}>{year}</Typography>
                 <GridList
                     className={classes.gridList}
                     cols={5}
@@ -179,7 +192,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             <Typography>{state.label}</Typography>
             <Button onClick={handleFav}>{dateOfFollow > 0 ? 'フォロー中' : 'フォロー'}</Button>
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
-            {albumsOfYears.map(year => generateAlbums(year))}
+            {Object.entries(albumsOfYears).map(([year, albums]) => generateAlbums(year, albums))}
         </div>
     )
 };

@@ -24,7 +24,7 @@ export type Spotify = {
 
 export type SearchQuery = {
     getNew?: boolean;
-    year?: number;
+    year?: string;
     genre?: string;
     label?: string;
     keywords?: string;
@@ -43,5 +43,7 @@ export type Favorite = {
 export type Label = { [name: string]: Favorite };
 
 export type LabelEntry = [string, Favorite];
+
+export type Year = { [year: string]: Album[] };
 
 export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
