@@ -65,14 +65,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     useEffect(() => {
         if (!uid.length) return;
 
-        const getDefaultLabels = (): string[] => {
-            return [
-                'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
-                'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-                'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
-                'Republic Records', 'Smalltown Supersound', 'aritech',
-            ];
-        };
+        const getDefaultLabels = (): string[] => [
+            'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
+            'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
+            'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
+            'Republic Records', 'Smalltown Supersound', 'aritech',
+        ];
+
 
         // レーベルの情報を取得
         const fetchLabels = async () => {
@@ -108,31 +107,29 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     const generateAlbums = (name: string, fav: Favorite): JSX.Element => {
         const { date, newReleases } = fav;
-        const albumGridListTiles: JSX.Element[] = newReleases.map(album => {
-            return (
-                <GridListTile
-                    key={`${album.artists[0].name} - ${album.name}`}
-                    cols={2}
-                    rows={0.8}
-                >
-                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
-                        <img
-                            src={album.images[0].url}
-                            alt={`${album.artists[0].name} - ${album.name}`}
-                            className={classes.jacket}
-                        />
-                        <GridListTileBar
-                            title={album.name}
-                            subtitle={album.artists[0].name}
-                            classes={{
-                                root: classes.titleBar,
-                                title: classes.title,
-                            }}
-                        />
-                    </Link>
-                </GridListTile>
-            );
-        });
+        const albumGridListTiles: JSX.Element[] = newReleases.map(album => (
+            <GridListTile
+                key={`${album.artists[0].name} - ${album.name}`}
+                cols={2}
+                rows={0.8}
+            >
+                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
+                    <img
+                        src={album.images[0].url}
+                        alt={`${album.artists[0].name} - ${album.name}`}
+                        className={classes.jacket}
+                    />
+                    <GridListTileBar
+                        title={album.name}
+                        subtitle={album.artists[0].name}
+                        classes={{
+                            root: classes.titleBar,
+                            title: classes.title,
+                        }}
+                    />
+                </Link>
+            </GridListTile>
+        ));
         return (
             <Container className={classes.container} id={name}>
                 <Link
@@ -177,15 +174,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         )
     };
 
-    const guestHome = (disabled: boolean): JSX.Element => {
-        return (
-            <div className={classes.root}>
-                <Button onClick={handleSignIn} disabled={disabled}>はじめる</Button>
-                {/* TODO ローディングサークル出す */}
-                {/* {disabled && } */}
-            </div>
-        )
-    };
+    const guestHome = (disabled: boolean): JSX.Element => (
+        <div className={classes.root}>
+            <Button onClick={handleSignIn} disabled={disabled}>はじめる</Button>
+            {/* TODO ローディングサークル出す */}
+            {/* {disabled && } */}
+        </div>
+    );
 
     return signedIn ? privateHome(home, sortOrder) : guestHome(clicked);
 };
