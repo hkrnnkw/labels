@@ -32,7 +32,7 @@ export type SearchQuery = {
 
 export type SearchResult = {
     query: SearchQuery;
-    results: Album[];
+    albums: Album[];
 }
 
 export type Favorite = {

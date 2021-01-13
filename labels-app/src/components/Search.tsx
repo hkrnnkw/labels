@@ -52,7 +52,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     const [typing, setTyping] = useState<string>('');
     // TODO searchedをReduxに移管する？ ページを戻った時に残ってないので
     // 補足：仮に移管した場合、Homeの検索ボタンを押下で、Reduxのsearchedを初期化する？
-    const [searched, setSearched] = useState<SearchResult>({ query: {}, results: [] });
+    const [searched, setSearched] = useState<SearchResult>({ query: {}, albums: [] });
 
     // ライブラリに保存したアルバムを取得
     useEffect(() => {
@@ -71,7 +71,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     // typingが空になったら、searchedを初期化
     useEffect(() => {
         if (typing.length) return;
-        setSearched({ query: {}, results: [] });
+        setSearched({ query: {}, albums: [] });
     }, [typing]);
 
     // 検索実行
@@ -79,7 +79,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         try {
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ keywords: keywords }, token);
-            setSearched({ query: { keywords: keywords }, results: result.results });
+            setSearched({ query: { keywords: keywords }, albums: result.albums });
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
@@ -130,7 +130,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             >
                 <SearchIcon />
             </IconButton>
-            {generateAlbums(searched.query.keywords && searched.query.keywords.length && typing.length ? searched.results : saved)}
+            {generateAlbums(searched.query.keywords && searched.query.keywords.length && typing.length ? searched.albums : saved)}
         </div>
     )
 };

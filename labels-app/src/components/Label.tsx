@@ -73,7 +73,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             const last5years: number[] = new Array(5).fill(thisYear).map((y, i) => y - i);
             const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year }, token));
             const results: SearchResult[] = await Promise.all(tasks);
-            return results.map(elem => elem.results);
+            return results.map(result => result.albums);
         };
         fetchLabel()
             .then(albums => setAlbumsOfYears(albums.filter(album => album.length)))
@@ -111,7 +111,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             const newDate: number = await addFavLabelToFirestore(uid, state.label);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
-            const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.results }};
+            const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.albums }};
             dispatch(setAddLabel(newHome));
         } catch (err) {
             console.log(err);

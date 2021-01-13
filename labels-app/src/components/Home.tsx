@@ -86,7 +86,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const labelObj: Label = {};
             for (const result of results) {
                 const name = result.query.label || '';
-                labelObj[name] = { date: favLabels[name] || -1, newReleases: result.results };
+                labelObj[name] = { date: favLabels[name] || -1, newReleases: result.albums };
             };
             dispatch(setAddLabel(labelObj));
         };
@@ -101,7 +101,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const newDate: number = await addFavLabelToFirestore(uid, labelName);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
-            const newHome: Label = { [labelName]: { date: newDate, newReleases: result.results } };
+            const newHome: Label = { [labelName]: { date: newDate, newReleases: result.albums } };
             dispatch(setAddLabel(newHome));
         } catch (err) {
             console.log(err);
