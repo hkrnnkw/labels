@@ -119,26 +119,22 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             const newDate: number = await addFavLabelToFirestore(uid, state.label);
             const token: string = await tokenChecker();
             const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
-            const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.albums }};
+            const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.albums } };
             dispatch(setAddLabel(newHome));
         } catch (err) {
             console.log(err);
         }
     };
 
-    const generateArtists = (artists: Artist[]): JSX.Element => {
-        return (
-            <AvatarGroup max={6}>
-                {artists.map(artist => {
-                    return (
-                        <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
-                            <Avatar alt={artist.name} src={artist.images[0].url} />
-                        </Link>
-                    )
-                })}
-            </AvatarGroup>
-        )
-    };
+    const generateArtists = (artists: Artist[]): JSX.Element => (
+        <AvatarGroup max={6}>
+            {artists.map(artist => (
+                <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
+                    <Avatar alt={artist.name} src={artist.images[0].url} />
+                </Link>
+            ))}
+        </AvatarGroup>
+    );
 
     const generateAlbums = (year: string, albums: Album[]): JSX.Element => {
         if (!albums.length) return (
@@ -148,31 +144,29 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             </Container>
         );
 
-        const albumGridListTiles: JSX.Element[] = albums.map(album => {
-            return (
-                <GridListTile
-                    key={`${album.artists[0].name} - ${album.name}`}
-                    cols={2}
-                    rows={0.8}
-                >
-                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
-                        <img
-                            src={album.images[0].url}
-                            alt={`${album.artists[0].name} - ${album.name}`}
-                            className={classes.jacket}
-                        />
-                        <GridListTileBar
-                            title={album.name}
-                            subtitle={album.artists[0].name}
-                            classes={{
-                                root: classes.titleBar,
-                                title: classes.title,
-                            }}
-                        />
-                    </Link>
-                </GridListTile>
-            );
-        });
+        const albumGridListTiles: JSX.Element[] = albums.map(album => (
+            <GridListTile
+                key={`${album.artists[0].name} - ${album.name}`}
+                cols={2}
+                rows={0.8}
+            >
+                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
+                    <img
+                        src={album.images[0].url}
+                        alt={`${album.artists[0].name} - ${album.name}`}
+                        className={classes.jacket}
+                    />
+                    <GridListTileBar
+                        title={album.name}
+                        subtitle={album.artists[0].name}
+                        classes={{
+                            root: classes.titleBar,
+                            title: classes.title,
+                        }}
+                    />
+                </Link>
+            </GridListTile>
+        ));
         return (
             <Container className={classes.container} id={year}>
                 <Typography className={classes.year}>{year}</Typography>
