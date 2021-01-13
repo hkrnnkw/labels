@@ -99,10 +99,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const handleFav = async (labelName: string) => {
         try {
             const newDate: number = await addFavLabelToFirestore(uid, labelName);
-            const token: string = await tokenChecker();
-            const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
-            const newHome: Label = { [labelName]: { date: newDate, newReleases: result.albums } };
-            dispatch(setAddLabel(newHome));
+            const favorite: Favorite = home[labelName];
+            dispatch(setAddLabel({ [labelName]: { ...favorite, date: newDate } }));
         } catch (err) {
             console.log(err);
         }
