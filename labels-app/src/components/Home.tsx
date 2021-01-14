@@ -8,7 +8,7 @@ import {
     GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link, Typography,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setAddLabel } from '../stores/albums';
+import { setAddLabel, setSortOrder } from '../stores/albums';
 import { Favorite, Label, LabelEntry, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
@@ -63,7 +63,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const [clicked, setClicked] = useState(false);
 
     useEffect(() => {
-        if (!uid.length) return;
+        if (!uid.length || sortOrder || Object.keys(home).length) return;
 
         const getDefaultLabels = (): string[] => [
             'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
@@ -72,12 +72,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             'Republic Records', 'Smalltown Supersound', 'aritech',
         ];
 
-
         // レーベルの情報を取得
         const fetchLabels = async () => {
             const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
             const keys = Object.keys(favLabels);
             const labelNames: string[] = keys.length ? keys : getDefaultLabels();
+            if (keys.length) dispatch(setSortOrder('DateDesc'));
+            
             const token: string = await tokenChecker();
             const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
@@ -92,7 +93,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [uid, tokenChecker, dispatch]);
+    }, [uid, home, sortOrder, tokenChecker, dispatch]);
 
     // フォロー操作
     const handleFav = async (labelName: string) => {

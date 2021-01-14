@@ -46,4 +46,4 @@ export type LabelEntry = [string, Favorite];
 
 export type Year = { [year: string]: Album[] };
 
-export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
+export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc' | null;

@@ -7,7 +7,7 @@ export const sortHandler = (label: Label, order: SortOrder): LabelEntry[] => {
         case 'DateDesc': return sortDate(entries, true);
         case 'NameAsc': return sortLabelName(entries);
         case 'NameDesc': return sortLabelName(entries, true);
-        default: return [];
+        default: return entries;
     }
 };
 
