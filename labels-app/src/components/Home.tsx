@@ -14,7 +14,8 @@ import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
-import { sortHandler } from '../handlers/sortHandler';
+import { DATE_ASC, DATE_DESC, NAME_ASC, NAME_DESC, sortHandler } from '../handlers/sortHandler';
+import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -159,6 +160,22 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         setClicked(true);
         await signIn();
     };
+    
+    // レーベルの並び替え
+    const sortOrderList = [DATE_DESC, DATE_ASC, NAME_ASC, NAME_DESC];
+    const handleSortOrder = (option: string) => {
+        const getSortOrder = (): SortOrder => {
+            switch (option) {
+                case DATE_ASC: return 'DateAsc';
+                case DATE_DESC: return 'DateDesc';
+                case NAME_ASC: return 'NameAsc';
+                case NAME_DESC: return 'NameDesc';
+                default: return null;
+            }
+        };
+        const newOrder: SortOrder = getSortOrder();
+        dispatch(setSortOrder(newOrder));
+    };
 
     const privateHome = (labelObj: Label, order: SortOrder): JSX.Element => {
         const sorted: LabelEntry[] = sortHandler(labelObj, order);
@@ -166,6 +183,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
+                <CustomSwipeableDrawer texts={sortOrderList} action={handleSortOrder} />
                 {filtered.length > 0 ?
                     filtered.map(([name, fav]) => generateAlbums(name, fav))
                     :

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useState, KeyboardEvent, MouseEvent } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Switch, Route, Link as RouterLink } from 'react-router-dom';
 import firebase, { auth } from './firebase';
@@ -18,17 +18,14 @@ import { Auth, Spotify } from './utils/types';
 import { UserProfile } from './utils/interfaces';
 import { home, album, artist, label, account, callback, search } from './utils/paths';
 import {
-    SwipeableDrawer, IconButton, List, ListItem, ListItemIcon, ListItemText, Divider, Link,
+    IconButton, Link,
 } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
 import PersonIcon from '@material-ui/icons/Person';
-import ExitToAppSharpIcon from '@material-ui/icons/ExitToAppSharp';
-import { checkTokenExpired, signIn } from './handlers/spotifyHandler';
+import { checkTokenExpired } from './handlers/spotifyHandler';
 
 const App: FC = () => {
     const dispatch = useDispatch();
     const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
-    const [drawerOpen, setDrawerOpen] = useState(false);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
@@ -67,54 +64,11 @@ const App: FC = () => {
         return checkedToken.spotify.token;
     }, [spotify, uid, dispatch]);
 
-    // サインイン／アウト
-    const signInOut = async (): Promise<void> => {
-        user ? await auth.signOut() : await signIn();
-    };
-
-    // メニューの開閉
-    const toggleDrawer = (open: boolean) => (event: KeyboardEvent | MouseEvent) => {
-        if (event && event.type === 'keydown' &&
-            ((event as KeyboardEvent).key === 'Tab' || (event as KeyboardEvent).key === 'Shift')) return;
-        setDrawerOpen(open);
-    };
-
-    // メニューの作成
-    const menu = () => (
-        <SwipeableDrawer
-            anchor={'bottom'}
-            open={drawerOpen}
-            onClose={toggleDrawer(false)}
-            onOpen={toggleDrawer(true)}
-        >
-            <div
-                role="presentation"
-                onClick={toggleDrawer(false)}
-                onKeyDown={toggleDrawer(false)}
-            >
-                <List>
-                    <Link component={RouterLink} to={account}>
-                        <ListItem button key={'account'}>
-                            <ListItemIcon><PersonIcon /></ListItemIcon><ListItemText primary={'マイページ'} />
-                        </ListItem>
-                    </Link>
-                </List>
-                <Divider />
-                <List>
-                    <ListItem button key={'signInOut'} onClick={signInOut}>
-                        <ListItemIcon><ExitToAppSharpIcon /></ListItemIcon>
-                        <ListItemText primary={user ? 'ログアウト' : 'Spotifyでログイン'} />
-                    </ListItem>
-                </List>
-            </div>
-        </SwipeableDrawer>
-    );
-
     return (
         <BrowserRouter>
             <Link component={RouterLink} to={home}>Labels</Link>
-            <IconButton onClick={toggleDrawer(true)}><MenuIcon /></IconButton>
-            {menu()}
+            {user &&
+                <Link component={RouterLink} to={account}><IconButton><PersonIcon /></IconButton></Link>}
             <Switch>
                 <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
                 <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />

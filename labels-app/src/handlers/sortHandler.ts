@@ -1,5 +1,10 @@
 import { Label, LabelEntry, SortOrder } from "../utils/types";
 
+export const DATE_ASC = 'フォローが古い順';
+export const DATE_DESC = 'フォローが新しい順';
+export const NAME_ASC = 'ABC順';
+export const NAME_DESC = 'ZYX順';
+
 export const sortHandler = (label: Label, order: SortOrder): LabelEntry[] => {
     const entries: LabelEntry[] = Object.entries(label);
     switch (order) {

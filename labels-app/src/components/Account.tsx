@@ -2,9 +2,10 @@ import React, { FC } from 'react';
 import { withRouter } from 'react-router';
 import { useSelector } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+import { auth } from '../firebase';
 import { RootState } from '../stores/index';
 import {
-    Typography, Link, List, ListItem,
+    Typography, Link, List, ListItem, Button, 
 } from '@material-ui/core';
 import { label as labelPath } from '../utils/paths';
 import { LabelEntry } from '../utils/types';
@@ -14,6 +15,9 @@ const Account: FC = () => {
     const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
     const sorted: LabelEntry[] = sortHandler(home, sortOrder);
     const filtered = sorted.filter(([name, fav]) => fav.date > 0);
+
+    // サインアウト
+    const signOut = async () => await auth.signOut();
 
     return (
         <div>
@@ -31,6 +35,7 @@ const Account: FC = () => {
                 :
                 <Typography>フォローしているレーベルがまだありません</Typography>
             }
+            <Button onClick={signOut}>ログアウト</Button>
         </div>
     )
 };
