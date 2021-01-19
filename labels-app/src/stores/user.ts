@@ -15,7 +15,6 @@ const initialState: UserState = {
     spotify: {
         token: '',
         expiresIn: -1,
-        refreshToken: '',
     },
 };
 

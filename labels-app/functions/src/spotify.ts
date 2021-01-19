@@ -108,7 +108,6 @@ export const signIn = f.https.onCall(async (data, context) => {
             spotify: {
                 token: spotifyToken,
                 expiresIn: expiresIn,
-                refreshToken: refreshToken,
             },
         }];
     } catch (err) {

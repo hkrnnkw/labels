@@ -18,7 +18,6 @@ export type Spotify = {
     spotify: {
         token: string;
         expiresIn: number;
-        refreshToken: string;
     };
 }
 
