@@ -1,17 +1,19 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Album } from '../utils/interfaces';
-import { Label, SortOrder } from "../utils/types";
+import { Label, SearchResult, SortOrder } from "../utils/types";
 
 type AlbumsState = {
     home: Label;
     saved: Album[];
     sortOrder: SortOrder;
+    searched: SearchResult;
 }
 
 const initialState: AlbumsState = {
     home: {},
     saved: [],
     sortOrder: null,
+    searched: { query: {}, albums: [] },
 };
 
 const slice = createSlice({
@@ -37,9 +39,15 @@ const slice = createSlice({
         setSortOrder: (state: AlbumsState, action: PayloadAction<SortOrder>) => {
             state.sortOrder = action.payload;
         },
+        setSearched: (state: AlbumsState, action: PayloadAction<SearchResult>) => {
+            state.searched = action.payload;
+        },
+        clearSearched: (state: AlbumsState) => {
+            state.searched = initialState.searched;
+        },
     },
 });
 
 export default slice;
 
-export const { setAddLabel, setDeleteLabel, setSaved, setSortOrder } = slice.actions;
+export const { setAddLabel, setDeleteLabel, setSaved, setSortOrder, setSearched, clearSearched } = slice.actions;

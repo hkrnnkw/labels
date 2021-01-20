@@ -9,10 +9,10 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Props, Album } from '../utils/interfaces';
-import { SearchResult } from '../utils/types';
+import { SearchQuery, SearchResult } from '../utils/types';
 import { album as albumPath } from '../utils/paths';
 import { getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
-import { setSaved } from '../stores/albums';
+import { setSaved, setSearched, clearSearched } from '../stores/albums';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -48,11 +48,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Search: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { saved } = useSelector((rootState: RootState) => rootState.albums);
-    const [typing, setTyping] = useState<string>('');
-    // TODO searchedをReduxに移管する？ ページを戻った時に残ってないので
-    // 補足：仮に移管した場合、Homeの検索ボタンを押下で、Reduxのsearchedを初期化する？
-    const [searched, setSearched] = useState<SearchResult>({ query: {}, albums: [] });
+    const { saved, searched } = useSelector((rootState: RootState) => rootState.albums);
+    const typed: string = searched.query.keywords || '';
+    const [typing, setTyping] = useState<string>(typed);
 
     // ライブラリに保存したアルバムを取得
     useEffect(() => {
@@ -67,19 +65,19 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [saved.length, tokenChecker, dispatch]);
 
-    // TODO 仕様 要検討
-    // typingが空になったら、searchedを初期化
+    // typingが空になったらsearchedを初期化（typedが空文字の場合はreturn）
     useEffect(() => {
-        if (typing.length) return;
-        setSearched({ query: {}, albums: [] });
-    }, [typing]);
+        if (typing.length || !typed.length) return;
+        dispatch(clearSearched());
+    }, [typed, typing, dispatch]);
 
     // 検索実行
     const doSearching = async (keywords: string) => {
         try {
             const token: string = await tokenChecker();
-            const result: SearchResult = await searchAlbums({ keywords: keywords }, token);
-            setSearched({ query: { keywords: keywords }, albums: result.albums });
+            const searchQuery: SearchQuery = { keywords: keywords };
+            const result: SearchResult = await searchAlbums(searchQuery, token);
+            dispatch(setSearched(result));
         } catch (err) {
             console.log(`Spotifyフェッチエラー：${err}`);
         }
@@ -87,7 +85,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
 
     // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
-        if (!albums.length && searched.query.keywords && searched.query.keywords.length) return <Typography>見つかりませんでした</Typography>;
+        if (!albums.length && typed.length) return <Typography>見つかりませんでした</Typography>;
 
         const albumListItems: JSX.Element[] = albums.map(album => {
             return (
@@ -126,11 +124,11 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             />
             <IconButton
                 onClick={() => doSearching(typing)}
-                disabled={!typing.length || searched.query.keywords === typing}
+                disabled={!typing.length || typed === typing}
             >
                 <SearchIcon />
             </IconButton>
-            {generateAlbums(searched.query.keywords && searched.query.keywords.length && typing.length ? searched.albums : saved)}
+            {generateAlbums(typed.length ? searched.albums : saved)}
         </div>
     )
 };
