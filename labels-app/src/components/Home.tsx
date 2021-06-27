@@ -8,7 +8,7 @@ import {
     GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link, Typography,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { clearSearched, setAddLabel, setSortOrder } from '../stores/albums';
+import { setAddLabel, setSortOrder } from '../stores/albums';
 import { Favorite, Label, LabelEntry, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
@@ -182,9 +182,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const filtered = sorted.filter(([name, fav]) => fav.newReleases.length);
         return (
             <div className={classes.root}>
-                <Link component={RouterLink} to={searchPath}>
-                    <IconButton onClick={() => dispatch(clearSearched())}><SearchIcon /></IconButton>
-                </Link>
+                <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
                 <CustomSwipeableDrawer texts={sortOrderList} action={handleSortOrder} />
                 {filtered.length > 0 ?
                     filtered.map(([name, fav]) => generateAlbums(name, fav))

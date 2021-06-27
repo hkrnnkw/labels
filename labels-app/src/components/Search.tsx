@@ -24,19 +24,42 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         justifyContent: 'space-around',
         overflow: 'hidden',
     },
+    searchbar: {
+        '& div': {
+            width: '90vw',
+            height: '35px',
+            border: 'none',
+            borderRadius: '4px',
+            '&:focus': {
+                outline: 'none',
+            },
+        },
+        '& button': {
+            width: '5vw',
+            height: '35px',
+        },
+    },
     listItem: {
         width: '100%',
         float: 'left',
         padding: 0,
         marginBottom: theme.spacing(1),
-    },
-    jacket: {
-        width: '20%',
-        float: 'left',
-        marginRight: theme.spacing(2),
-    },
-    listItemText: {
-        width: '80%',
+        '& img': {
+            width: '20%',
+            float: 'left',
+            marginRight: theme.spacing(2),
+        },
+        '& div': {
+            whiteSpace: "nowrap",
+            '& span': {
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+            },
+            '& p': {
+                textOverflow: "ellipsis",
+                overflow: "hidden",
+            },
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -79,7 +102,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             const result: SearchResult = await searchAlbums(searchQuery, token);
             dispatch(setSearched(result));
         } catch (err) {
-            console.log(`Spotifyフェッチエラー：${err}`);
+            console.log(`検索エラー：${err}`);
         }
     };
 
@@ -97,14 +120,10 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}
-                            className={classes.jacket}
                         />
                         <ListItemText
                             primary={album.name}
                             secondary={album.artists[0].name}
-                            classes={{
-                                root: classes.listItemText,
-                            }}
                         />
                     </Link>
                 </ListItem>
@@ -115,19 +134,21 @@ const Search: FC<Props> = ({ tokenChecker }) => {
 
     return (
         <div className={classes.root}>
-            <TextField
-                id="search"
-                value={typing}
-                placeholder="アーティストを検索"
-                type="search"
-                onChange={e => setTyping(e.target.value)}
-            />
-            <IconButton
-                onClick={() => doSearching(typing)}
-                disabled={!typing.length || typed === typing}
-            >
-                <SearchIcon />
-            </IconButton>
+            <span className={classes.searchbar}>
+                <TextField
+                    id="search"
+                    value={typing}
+                    placeholder="アーティストを検索"
+                    type="search"
+                    onChange={e => setTyping(e.target.value)}
+                />
+                <IconButton
+                    onClick={() => doSearching(typing)}
+                    disabled={!typing.length || typed === typing}
+                >
+                    <SearchIcon />
+                </IconButton>
+            </span>
             {generateAlbums(typed.length ? searched.albums : saved)}
         </div>
     )
