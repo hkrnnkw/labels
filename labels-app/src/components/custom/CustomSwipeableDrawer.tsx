@@ -5,6 +5,7 @@ import {
     SwipeableDrawer, List, Button, ListItem, ListItemText,
 } from '@material-ui/core';
 import ImportExportIcon from '@material-ui/icons/ImportExport';
+import CheckIcon from '@material-ui/icons/Check';
 import { setSortOrder } from '../../stores/albums';
 import { SortOrder } from '../../utils/types';
 import { RF, ABC, NNR } from '../../handlers/sortHandler';
@@ -21,12 +22,22 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         backgroundColor: theme.palette.background.default,
     },
-    button: {
+    openButton: {
         width: '100vw',
         '& .MuiButton-label': {
             justifyContent: 'flex-start',
             textTransform: 'none',
         },
+    },
+    cancelButton: {
+        width: '100vw',
+        height: '7.5vh',
+        '& .MuiButton-label': {
+            textTransform: 'none',
+        },
+    },
+    selectedItem: {
+        color: 'Purple',
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -48,11 +59,22 @@ export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ currentSortOrd
         setDrawerOpen(open);
     };
 
+    const doSort = (newSortOrder: SortOrder) => {
+        dispatch(setSortOrder(newSortOrder));
+        setDrawerOpen(false);
+    };
+
     const createList = () => (
         <List>
+            <ListItem><ListItemText secondary='Sort by' /></ListItem>
             {sortOrderList.map(elm => (
-                <ListItem button onClick={() => dispatch(setSortOrder(elm))}>
-                    <ListItemText primary={elm} />
+                <ListItem button onClick={() => doSort(elm)}>
+                    {elm === currentSortOrder ?
+                        <ListItemText primary={elm} className={classes.selectedItem} />
+                        :
+                        <ListItemText primary={elm} />
+                    }
+                    {elm === currentSortOrder && <CheckIcon className={classes.selectedItem} />}
                 </ListItem>
             ))}
         </List>
@@ -61,7 +83,7 @@ export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ currentSortOrd
     return (
         <div>
             <Button
-                className={classes.button}
+                className={classes.openButton}
                 onClick={toggleDrawer(true)}
                 disabled={disabled}
                 startIcon={<ImportExportIcon />}
@@ -76,10 +98,14 @@ export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ currentSortOrd
             >
                 <div
                     role="presentation"
-                    onClick={toggleDrawer(false)}
-                    onKeyDown={toggleDrawer(false)}
                 >
                     {createList()}
+                    <Button
+                        className={classes.cancelButton}
+                        onClick={toggleDrawer(false)}
+                    >
+                        Cancel
+                    </Button>
                 </div>
             </SwipeableDrawer>
         </div>
