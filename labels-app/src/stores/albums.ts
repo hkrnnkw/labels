@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { RF } from "../handlers/sortHandler";
 import { Album } from '../utils/interfaces';
 import { Label, SearchResult, SortOrder } from "../utils/types";
 
@@ -12,7 +13,7 @@ type AlbumsState = {
 const initialState: AlbumsState = {
     home: {},
     saved: [],
-    sortOrder: 'DateDesc',
+    sortOrder: RF,
     searched: { query: {}, albums: [] },
 };
 

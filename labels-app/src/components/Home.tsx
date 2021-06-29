@@ -14,7 +14,7 @@ import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
-import { sortHandler } from '../handlers/sortHandler';
+import { ABC, sortHandler } from '../handlers/sortHandler';
 import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -79,7 +79,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
             const keys = Object.keys(favLabels);
             const haveFav = keys.length > 0;
-            if (!haveFav) dispatch(setSortOrder('NameAsc'));
+            if (!haveFav) dispatch(setSortOrder(ABC));
             setHaveFollowed(haveFav);
             const labelNames: string[] = haveFav ? keys : DEFAULT_LABELS;
             

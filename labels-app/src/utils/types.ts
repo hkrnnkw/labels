@@ -1,3 +1,4 @@
+import { ABC, RF } from "../handlers/sortHandler";
 import { Album } from "./interfaces";
 
 export type StrKeyObj = { [key: string]: string };
@@ -45,4 +46,8 @@ export type LabelEntry = [string, Favorite];
 
 export type Year = { [year: string]: Album[] };
 
-export type SortOrder = 'DateAsc' | 'DateDesc' | 'NameAsc' | 'NameDesc';
+const SortOrderCA = {
+    RF: RF,
+    ABC: ABC,
+} as const;
+export type SortOrder = typeof SortOrderCA[keyof typeof SortOrderCA];
