@@ -12,7 +12,7 @@ type AlbumsState = {
 const initialState: AlbumsState = {
     home: {},
     saved: [],
-    sortOrder: null,
+    sortOrder: 'DateDesc',
     searched: { query: {}, albums: [] },
 };
 
@@ -29,9 +29,6 @@ const slice = createSlice({
                 return;
             }
             delete state.home[action.payload];
-            
-            // フォローが無くなったら、sortOrderをnullにする
-            if (!Object.keys(state.home).length) state.sortOrder = null;
         },
         setSaved: (state: AlbumsState, action: PayloadAction<Album[]>) => {
             state.saved = action.payload;

@@ -14,7 +14,7 @@ import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
-import { DATE_ASC, DATE_DESC, NAME_ASC, NAME_DESC, sortHandler } from '../handlers/sortHandler';
+import { sortHandler } from '../handlers/sortHandler';
 import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -62,11 +62,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
+    const [haveFollowed, setHaveFollowed] = useState(false);
 
     useEffect(() => {
-        if (!uid.length || sortOrder || Object.keys(home).length) return;
+        if (!uid.length || Object.keys(home).length) return;
 
-        const getDefaultLabels = (): string[] => [
+        const DEFAULT_LABELS: string[] = [
             'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
             'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
             'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
@@ -77,8 +78,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const fetchLabels = async () => {
             const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
             const keys = Object.keys(favLabels);
-            const labelNames: string[] = keys.length ? keys : getDefaultLabels();
-            if (keys.length) dispatch(setSortOrder('DateDesc'));
+            const haveFav = keys.length > 0;
+            if (!haveFav) dispatch(setSortOrder('NameAsc'));
+            setHaveFollowed(haveFav);
+            const labelNames: string[] = haveFav ? keys : DEFAULT_LABELS;
             
             const token: string = await tokenChecker();
             const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
@@ -94,7 +97,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [uid, home, sortOrder, tokenChecker, dispatch]);
+    }, [uid, home, tokenChecker, dispatch]);
 
     // フォロー操作
     const handleFav = async (labelName: string) => {
@@ -161,29 +164,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         await signIn();
     };
     
-    // レーベルの並び替え
-    const sortOrderList = [DATE_DESC, DATE_ASC, NAME_ASC, NAME_DESC];
-    const handleSortOrder = (option: string) => {
-        const getSortOrder = (): SortOrder => {
-            switch (option) {
-                case DATE_ASC: return 'DateAsc';
-                case DATE_DESC: return 'DateDesc';
-                case NAME_ASC: return 'NameAsc';
-                case NAME_DESC: return 'NameDesc';
-                default: return null;
-            }
-        };
-        const newOrder: SortOrder = getSortOrder();
-        dispatch(setSortOrder(newOrder));
-    };
-
     const privateHome = (labelObj: Label, order: SortOrder): JSX.Element => {
         const sorted: LabelEntry[] = sortHandler(labelObj, order);
         const filtered = sorted.filter(([name, fav]) => fav.newReleases.length);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                <CustomSwipeableDrawer texts={sortOrderList} action={handleSortOrder} />
+                {haveFollowed && <CustomSwipeableDrawer/>}
                 {filtered.length > 0 ?
                     filtered.map(([name, fav]) => generateAlbums(name, fav))
                     :

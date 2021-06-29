@@ -1,14 +1,13 @@
 import React, { FC, useState, KeyboardEvent, MouseEvent } from 'react';
+import { useDispatch } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     SwipeableDrawer, List, IconButton, ListItem, ListItemText,
 } from '@material-ui/core';
 import SortIcon from '@material-ui/icons/Sort';
-
-export interface SwipeableDrawerProps {
-    texts: string[],
-    action: (text: string) => void,
-}
+import { setSortOrder } from '../../stores/albums';
+import { SortOrder } from '../../utils/types';
+import { DATE_ASC, DATE_DESC, NAME_ASC, NAME_DESC } from '../../handlers/sortHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -24,7 +23,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ texts, action }) => {
+export const CustomSwipeableDrawer: FC = () => {
+    const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -35,11 +35,26 @@ export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ texts, action 
         setDrawerOpen(open);
     };
 
+    // レーベルの並び替え
+    const sortOrderList = [DATE_DESC, DATE_ASC, NAME_ASC, NAME_DESC];
+    const handleSortOrder = (option: string) => {
+        const newSortOrder = (): SortOrder => {
+            switch (option) {
+                case DATE_ASC: return 'DateAsc';
+                case DATE_DESC: return 'DateDesc';
+                case NAME_ASC: return 'NameAsc';
+                case NAME_DESC: return 'NameDesc';
+                default: return 'DateDesc';
+            }
+        }
+        dispatch(setSortOrder(newSortOrder()));
+    };
+
     const createList = () => (
         <List>
-            {texts.map(text => (
-                <ListItem button onClick={() => action(text)}>
-                    <ListItemText primary={text} />
+            {sortOrderList.map(sortOrder => (
+                <ListItem button onClick={() => handleSortOrder(sortOrder)}>
+                    <ListItemText primary={sortOrder} />
                 </ListItem>
             ))}
         </List>
