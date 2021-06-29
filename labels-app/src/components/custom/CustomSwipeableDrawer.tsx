@@ -2,12 +2,17 @@ import React, { FC, useState, KeyboardEvent, MouseEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    SwipeableDrawer, List, IconButton, ListItem, ListItemText,
+    SwipeableDrawer, List, Button, ListItem, ListItemText,
 } from '@material-ui/core';
-import SortIcon from '@material-ui/icons/Sort';
+import ImportExportIcon from '@material-ui/icons/ImportExport';
 import { setSortOrder } from '../../stores/albums';
 import { SortOrder } from '../../utils/types';
 import { RF, ABC } from '../../handlers/sortHandler';
+
+export interface SwipeableDrawerProps {
+    currentSortOrder: SortOrder,
+    disabled: boolean,
+}
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -16,6 +21,13 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         backgroundColor: theme.palette.background.default,
     },
+    button: {
+        width: '100vw',
+        '& .MuiButton-label': {
+            justifyContent: 'flex-start',
+            textTransform: 'none',
+        },
+    },
     '@media (min-width: 960px)': {
         contentClass: {
             display: 'flex',
@@ -23,7 +35,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const CustomSwipeableDrawer: FC = () => {
+export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ currentSortOrder, disabled }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -38,9 +50,9 @@ export const CustomSwipeableDrawer: FC = () => {
 
     const createList = () => (
         <List>
-            {sortOrderList.map(sortOrder => (
-                <ListItem button onClick={() => dispatch(setSortOrder(sortOrder))}>
-                    <ListItemText primary={sortOrder} />
+            {sortOrderList.map(elm => (
+                <ListItem button onClick={() => dispatch(setSortOrder(elm))}>
+                    <ListItemText primary={elm} />
                 </ListItem>
             ))}
         </List>
@@ -48,7 +60,14 @@ export const CustomSwipeableDrawer: FC = () => {
 
     return (
         <div>
-            <IconButton onClick={toggleDrawer(true)}><SortIcon /></IconButton>
+            <Button
+                className={classes.button}
+                onClick={toggleDrawer(true)}
+                disabled={disabled}
+                startIcon={<ImportExportIcon />}
+            >
+                {currentSortOrder}
+            </Button>
             <SwipeableDrawer
                 anchor={'bottom'}
                 open={drawerOpen}

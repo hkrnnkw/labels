@@ -170,7 +170,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                {haveFollowed && <CustomSwipeableDrawer/>}
+                <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!haveFollowed} />
                 {filtered.length > 0 ?
                     filtered.map(([name, fav]) => generateAlbums(name, fav))
                     :

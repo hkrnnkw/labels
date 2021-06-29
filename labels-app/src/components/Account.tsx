@@ -39,7 +39,7 @@ const Account: FC = () => {
 
     return (
         <div className={classes.root}>
-            {filtered.length > 0 && <CustomSwipeableDrawer/>}
+            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!filtered.length} />
             {filtered.length > 0 ?
                 <List>
                     {filtered.map(([name, fav]) => {
