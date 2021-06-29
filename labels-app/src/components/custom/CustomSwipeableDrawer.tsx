@@ -7,7 +7,7 @@ import {
 import ImportExportIcon from '@material-ui/icons/ImportExport';
 import { setSortOrder } from '../../stores/albums';
 import { SortOrder } from '../../utils/types';
-import { RF, ABC } from '../../handlers/sortHandler';
+import { RF, ABC, NNR } from '../../handlers/sortHandler';
 
 export interface SwipeableDrawerProps {
     currentSortOrder: SortOrder,
@@ -39,7 +39,7 @@ export const CustomSwipeableDrawer: FC<SwipeableDrawerProps> = ({ currentSortOrd
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const sortOrderList: SortOrder[] = [RF, ABC];
+    const sortOrderList: SortOrder[] = [RF, ABC, NNR];
 
     // メニューの開閉
     const toggleDrawer = (open: boolean) => (event: KeyboardEvent | MouseEvent) => {
