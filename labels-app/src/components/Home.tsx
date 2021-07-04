@@ -11,7 +11,7 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import { setNeedDefaults, setInitLabels, setAddLabel } from '../stores/albums';
 import { Label, SearchResult, SortOrder } from '../utils/types';
-import { Props } from '../utils/interfaces';
+import { Album, Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
@@ -112,9 +112,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         }
     };
 
-    const generateAlbums = (label: Label): JSX.Element => {
-        const { name, date, newReleases } = label;
-        const albumGridListTiles: JSX.Element[] = newReleases.map(album => (
+    const albumGridListTiles = (newReleases: Album[]): JSX.Element[] => {
+        return newReleases.map(album => (
             <GridListTile
                 key={`${album.artists[0].name} - ${album.name}`}
                 cols={2}
@@ -136,7 +135,11 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     />
                 </Link>
             </GridListTile>
-        ));
+        ))
+    };
+
+    const generateAlbums = (label: Label): JSX.Element => {
+        const { name, date, newReleases } = label;
         return (
             <Container className={classes.container} id={name}>
                 <Link
@@ -154,7 +157,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     cols={5}
                     spacing={8}
                 >
-                    {albumGridListTiles}
+                    {albumGridListTiles(newReleases)}
                 </GridList>
             </Container>
         );
