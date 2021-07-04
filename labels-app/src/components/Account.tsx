@@ -31,17 +31,17 @@ const Account: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
-    // const sorted: Label[] = sortHandler(home, sortOrder);
+    const sorted: Label[] = sortHandler(home, sortOrder);
 
     // サインアウト
     const signOut = async () => await auth.signOut();
 
     return (
         <div className={classes.root}>
-            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!home.length} />
-            {home.length > 0 ?
+            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
+            {sorted.length > 0 ?
                 <List>
-                    {home.map(label => {
+                    {sorted.map(label => {
                         return (
                             <Link component={RouterLink} to={{ pathname: `${labelPath}/${label.name}`, state: { labelName: label.name } }}>
                                 <ListItem>{label.name}</ListItem>

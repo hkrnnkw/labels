@@ -14,7 +14,8 @@ export const sortHandler = (labelList: Label[], order: SortOrder): Label[] => {
 
 // フォローした日時で降順ソート
 const sortRecentlyFollowed = (labelList: Label[]): Label[] => {
-    return labelList.sort((a: Label, b: Label) => {
+    const arrayForSort: Label[] = [...labelList];
+    return arrayForSort.sort((a: Label, b: Label) => {
         const aDate = a.date, bDate = b.date;
         return (aDate > bDate ? -1 : aDate < bDate ? 1 : 0);
     });
@@ -22,14 +23,16 @@ const sortRecentlyFollowed = (labelList: Label[]): Label[] => {
 
 // （大文字・小文字を区別せず）レーベル名で昇順ソート
 const sortAlphabetical = (labelList: Label[]): Label[] => {
-    return labelList.sort((a: Label, b: Label) => {
+    const arrayForSort: Label[] = [...labelList];
+    return arrayForSort.sort((a: Label, b: Label) => {
         const aKey = a.name, bKey = b.name;
         return (aKey < bKey ? -1 : aKey > bKey ? 1 : 0);
     });
 };
 
 const sortNumOfNewReleases = (labelList: Label[]): Label[] => {
-    return labelList.sort((a: Label, b: Label) => {
+    const arrayForSort: Label[] = [...labelList];
+    return arrayForSort.sort((a: Label, b: Label) => {
         const aNum = a.newReleases.length, bNum = b.newReleases.length;
         return (aNum > bNum ? -1 : aNum < bNum ? 1 : 0);
     });
