@@ -9,7 +9,7 @@ import {
     Typography, Link, List, ListItem, Button, 
 } from '@material-ui/core';
 import { label as labelPath } from '../utils/paths';
-import { LabelEntry } from '../utils/types';
+import { Label } from '../utils/types';
 import { sortHandler } from '../handlers/sortHandler';
 import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
 
@@ -31,20 +31,20 @@ const Account: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
-    const sorted: LabelEntry[] = sortHandler(Object.entries(home), sortOrder);
+    // const sorted: Label[] = sortHandler(home, sortOrder);
 
     // サインアウト
     const signOut = async () => await auth.signOut();
 
     return (
         <div className={classes.root}>
-            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
-            {sorted.length > 0 ?
+            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!home.length} />
+            {home.length > 0 ?
                 <List>
-                    {sorted.map(([name, fav]) => {
+                    {home.map(label => {
                         return (
-                            <Link component={RouterLink} to={{ pathname: `${labelPath}/${name}`, state: { label: name } }}>
-                                <ListItem>{name}</ListItem>
+                            <Link component={RouterLink} to={{ pathname: `${labelPath}/${label.name}`, state: { labelName: label.name } }}>
+                                <ListItem>{label.name}</ListItem>
                             </Link>
                         )
                     })}

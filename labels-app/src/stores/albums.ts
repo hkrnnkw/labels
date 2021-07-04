@@ -4,7 +4,7 @@ import { Album } from '../utils/interfaces';
 import { Label, SearchResult, SortOrder } from "../utils/types";
 
 type AlbumsState = {
-    home: Label;
+    home: Label[];
     saved: Album[];
     sortOrder: SortOrder;
     searched: SearchResult;
@@ -12,7 +12,7 @@ type AlbumsState = {
 }
 
 const initialState: AlbumsState = {
-    home: {},
+    home: [],
     saved: [],
     sortOrder: RF,
     searched: { query: {}, albums: [] },
@@ -23,15 +23,14 @@ const slice = createSlice({
     name: "albums",
     initialState,
     reducers: {
+        setInitLabels: (state: AlbumsState, action: PayloadAction<Label[]>) => {
+            state.home = action.payload;
+        },
         setAddLabel: (state: AlbumsState, action: PayloadAction<Label>) => {
-            state.home = {...state.home, ...action.payload};
+            state.home.push(action.payload);
         },
         setDeleteLabel: (state: AlbumsState, action: PayloadAction<string>) => {
-            if (!state.sortOrder) {
-                state.home[action.payload].date = -1;
-                return;
-            }
-            delete state.home[action.payload];
+            state.home = state.home.filter(label => label.name !== action.payload);
         },
         setSaved: (state: AlbumsState, action: PayloadAction<Album[]>) => {
             state.saved = action.payload;
@@ -53,4 +52,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setAddLabel, setDeleteLabel, setSaved, setSortOrder, setSearched, clearSearched, setNeedDefaults } = slice.actions;
+export const { setInitLabels, setAddLabel, setDeleteLabel, setSaved, setSortOrder, setSearched, clearSearched, setNeedDefaults } = slice.actions;

@@ -35,14 +35,11 @@ export type SearchResult = {
     albums: Album[];
 }
 
-export type Favorite = {
+export type Label = {
+    name: string;
     date: number;
     newReleases: Album[];
 }
-
-export type Label = { [name: string]: Favorite };
-
-export type LabelEntry = [string, Favorite];
 
 export type Year = { [year: string]: Album[] };
 

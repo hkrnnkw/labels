@@ -9,8 +9,8 @@ import {
     Dialog, DialogActions, DialogContent,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setNeedDefaults, setAddLabel } from '../stores/albums';
-import { Favorite, Label, LabelEntry, SearchResult, SortOrder } from '../utils/types';
+import { setNeedDefaults, setInitLabels, setAddLabel } from '../stores/albums';
+import { Label, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
@@ -63,7 +63,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, sortOrder, needDefaults } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
-    const [defaultLabels, setDefaultLabels] = useState<Label>({});
+    const [defaultLabels, setDefaultLabels] = useState<Label[]>([]);
 
     useEffect(() => {
         if (!uid.length || Object.keys(home).length || needDefaults === false) return;
@@ -87,12 +87,15 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
 
-            const labelObj: Label = {};
-            for (const result of results) {
+            const labelList: Label[] = results.map(result => {
                 const name = result.query.label || '';
-                labelObj[name] = { date: favLabels[name] || -1, newReleases: result.albums };
-            };
-            haveFav ? dispatch(setAddLabel(labelObj)) : setDefaultLabels(labelObj);
+                return {
+                    name: name,
+                    date: favLabels[name] || -1,
+                    newReleases: result.albums,
+                }
+            });
+            haveFav ? dispatch(setInitLabels(labelList)) : setDefaultLabels(labelList);
         };
 
         fetchLabels()
@@ -100,18 +103,17 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, [uid, home, needDefaults, dispatch, tokenChecker]);
 
     // フォロー操作
-    const handleFav = async (labelName: string) => {
+    const handleFav = async (label: Label) => {
         try {
-            const newDate: number = await addFavLabelToFirestore(uid, labelName);
-            const favorite: Favorite = home[labelName];
-            dispatch(setAddLabel({ [labelName]: { ...favorite, date: newDate } }));
+            label.date = await addFavLabelToFirestore(uid, label.name);
+            dispatch(setAddLabel(label));
         } catch (err) {
             console.log(err);
         }
     };
 
-    const generateAlbums = (name: string, fav: Favorite): JSX.Element => {
-        const { date, newReleases } = fav;
+    const generateAlbums = (label: Label): JSX.Element => {
+        const { name, date, newReleases } = label;
         const albumGridListTiles: JSX.Element[] = newReleases.map(album => (
             <GridListTile
                 key={`${album.artists[0].name} - ${album.name}`}
@@ -139,13 +141,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             <Container className={classes.container} id={name}>
                 <Link
                     component={RouterLink}
-                    to={{ pathname: `${labelPath}/${name}`, state: { label: name } }}
+                    to={{ pathname: `${labelPath}/${name}`, state: { labelName: name } }}
                     className={classes.labelName}
                 >
                     {name}
                 </Link>
                 {date < 0 &&
-                    <Button onClick={() => handleFav(name)}>フォロー</Button>
+                    <Button onClick={() => handleFav(label)}>フォロー</Button>
                 }
                 <GridList
                     className={classes.gridList}
@@ -166,15 +168,15 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     const handleClose = () => dispatch(setNeedDefaults(false));
 
-    const suggestDefaultLabels = (defaultEntries: LabelEntry[], drawerOpen: boolean): JSX.Element => {
-        const filtered = defaultEntries.filter(([name, fav]) => fav.newReleases.length);
+    const suggestDefaultLabels = (defaults: Label[], drawerOpen: boolean): JSX.Element => {
+        const filtered = defaults.filter(label => label.newReleases.length);
         return (
             <Dialog
                 open={drawerOpen}
                 onClose={handleClose}
             >
                 <DialogContent>
-                    {filtered.map(([name, fav]) => generateAlbums(name, fav))}
+                    {filtered.map(label => generateAlbums(label))}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Skip</Button>
@@ -183,24 +185,21 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         )
     };
     
-    const privateHome = (labelObj: Label, order: SortOrder, defaults: Label, drawerOpen?: boolean): JSX.Element => {
-        const entries: LabelEntry[] = Object.entries(labelObj);
-        const defaultEntries: LabelEntry[] = Object.entries(defaults);
-        const filtered = entries.filter(([name, fav]) => fav.newReleases.length);
-        const sorted: LabelEntry[] = sortHandler(filtered, order);
+    const privateHome = (homeList: Label[], order: SortOrder, defaults: Label[], drawerOpen?: boolean): JSX.Element => {
+        const filtered = homeList.filter(label => label.newReleases.length);
+        const sorted: Label[] = sortHandler(filtered, order);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
                 <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
-                {!entries.length ?
+                {!homeList.length ?
                     <Typography>You have not followed labels yet.</Typography>
                     :
                     !sorted.length ?
                         <Typography>No releases recently</Typography>
                         :
-                        sorted.map(([name, fav]) => generateAlbums(name, fav))}
-                {(drawerOpen && defaultEntries.length > 0) &&
-                    suggestDefaultLabels(defaultEntries, drawerOpen)}
+                        sorted.map(label => generateAlbums(label))}
+                {(drawerOpen && defaults.length > 0) && suggestDefaultLabels(defaults, drawerOpen)}
             </div>
         )
     };

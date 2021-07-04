@@ -57,10 +57,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Label: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { state } = useLocation<{ label: string }>();
+    const { labelName } = useLocation<{ labelName: string }>().state;
     const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { home } = useSelector((rootState: RootState) => rootState.albums);
-    const dateOfFollow: number = home[state.label]?.date || -1;
+    const thisLabel: LabelType | undefined  = home.find(label => label.name === labelName);
+    const followedDate: number = thisLabel?.date || -1;
     const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -75,7 +76,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         const fetchLabel = async (): Promise<Year> => {
             const token: string = await tokenChecker();
             const last5years: number[] = getLast5Years();
-            const tasks = last5years.map(year => searchAlbums({ label: state.label, year: year.toString() }, token));
+            const tasks = last5years.map(year => searchAlbums({ label: labelName, year: year.toString() }, token));
             const results: SearchResult[] = await Promise.all(tasks);
 
             const yearObj: Year = {};
@@ -85,7 +86,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         fetchLabel()
             .then(albums => setAlbumsOfYears(albums))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [state.label, tokenChecker]);
+    }, [labelName, tokenChecker]);
 
     // レーベルのアーティストを取得
     useEffect(() => {
@@ -111,16 +112,20 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     // フォロー操作
     const handleFav = async () => {
         try {
-            if (dateOfFollow > 0) {
-                await deleteUnfavLabelFromFirestore(uid, state.label);
-                dispatch(setDeleteLabel(state.label));
+            if (followedDate > 0) {
+                await deleteUnfavLabelFromFirestore(uid, labelName);
+                dispatch(setDeleteLabel(labelName));
                 return;
             }
-            const newDate: number = await addFavLabelToFirestore(uid, state.label);
+            const newDate: number = await addFavLabelToFirestore(uid, labelName);
             const token: string = await tokenChecker();
-            const result: SearchResult = await searchAlbums({ label: state.label, getNew: true }, token);
-            const newHome: LabelType = { [state.label]: { date: newDate, newReleases: result.albums } };
-            dispatch(setAddLabel(newHome));
+            const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
+            const newLabel: LabelType = {
+                name: labelName,
+                date: newDate,
+                newReleases: result.albums,
+            };
+            dispatch(setAddLabel(newLabel));
         } catch (err) {
             console.log(err);
         }
@@ -189,8 +194,8 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
     return (
         <div className={classes.root}>
-            <Typography>{state.label}</Typography>
-            <Button onClick={handleFav}>{dateOfFollow > 0 ? 'フォロー中' : 'フォロー'}</Button>
+            <Typography>{labelName}</Typography>
+            <Button onClick={handleFav}>{followedDate > 0 ? 'フォロー中' : 'フォロー'}</Button>
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
             {generateYears(albumsOfYears)}
         </div>

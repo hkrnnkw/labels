@@ -91,7 +91,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
             <div className={classes.names}>
                 {createArtistNames(fullArtists)}
             </div>
-            <Link component={RouterLink} to={{ pathname: `${labelPath}/${label}`, state: { label: label } }}>{label}</Link>
+            <Link component={RouterLink} to={{ pathname: `${labelPath}/${label}`, state: { labelName: label } }}>{label}</Link>
             <List>
                 {tracks.items.map(track => <ListItem>{track.name}</ListItem>)}
             </List>
