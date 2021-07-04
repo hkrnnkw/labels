@@ -4,8 +4,7 @@ export const RF = 'Recently followed';
 export const ABC = 'Alphabetical';
 export const NNR = 'Number of new releases';
 
-export const sortHandler = (label: Label, order: SortOrder): LabelEntry[] => {
-    const entries: LabelEntry[] = Object.entries(label);
+export const sortHandler = (entries: LabelEntry[], order: SortOrder): LabelEntry[] => {
     switch (order) {
         case RF: return sortRecentlyFollowed(entries);
         case ABC: return sortAlphabetical(entries);

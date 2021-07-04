@@ -6,15 +6,16 @@ import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link, Typography,
+    Dialog, DialogActions, DialogContent,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setAddLabel, setSortOrder } from '../stores/albums';
+import { setNeedDefaults, setAddLabel } from '../stores/albums';
 import { Favorite, Label, LabelEntry, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
-import { ABC, sortHandler } from '../handlers/sortHandler';
+import { sortHandler } from '../handlers/sortHandler';
 import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -60,18 +61,18 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
-    const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
+    const { home, sortOrder, needDefaults } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
-    const [haveFollowed, setHaveFollowed] = useState(false);
+    const [defaultLabels, setDefaultLabels] = useState<Label>({});
 
     useEffect(() => {
-        if (!uid.length || Object.keys(home).length) return;
+        if (!uid.length || Object.keys(home).length || needDefaults === false) return;
 
         const DEFAULT_LABELS: string[] = [
-            'PAN', 'Warp Records', 'XL Recordings', 'Stones Throw Records', 'Rough Trade', 'Ninja Tune', '4AD',
-            'Brainfeeder', 'Dirty Hit', 'AD 93', 'Hyperdub', 'Jagjaguwar', 'Ghostly International', 'Dog Show Records',
-            'Because Music', 'Text Records', 'Domino Recording Co', 'Perpetual Novice', 'EQT Recordings',
-            'Republic Records', 'Smalltown Supersound', 'aritech',
+            '4AD', 'AD 93', 'aritech', 'Because Music', 'Brainfeeder', 'Dirty Hit', 'Dog Show Records',
+            'Domino Recording Co', 'EQT Recordings', 'Ghostly International', 'Hyperdub', 'Jagjaguwar',
+            'Ninja Tune', 'PAN', 'Perpetual Novice', 'Republic Records', 'Rough Trade',
+            'Smalltown Supersound', 'Stones Throw Records', 'Text Records', 'Warp Records', 'XL Recordings', 
         ];
 
         // レーベルの情報を取得
@@ -79,8 +80,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
             const keys = Object.keys(favLabels);
             const haveFav = keys.length > 0;
-            if (!haveFav) dispatch(setSortOrder(ABC));
-            setHaveFollowed(haveFav);
+            if (needDefaults === undefined) dispatch(setNeedDefaults(!haveFav));
             const labelNames: string[] = haveFav ? keys : DEFAULT_LABELS;
             
             const token: string = await tokenChecker();
@@ -92,12 +92,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 const name = result.query.label || '';
                 labelObj[name] = { date: favLabels[name] || -1, newReleases: result.albums };
             };
-            dispatch(setAddLabel(labelObj));
+            haveFav ? dispatch(setAddLabel(labelObj)) : setDefaultLabels(labelObj);
         };
 
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [uid, home, tokenChecker, dispatch]);
+    }, [uid, home, needDefaults, dispatch, tokenChecker]);
 
     // フォロー操作
     const handleFav = async (labelName: string) => {
@@ -163,19 +163,44 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         setClicked(true);
         await signIn();
     };
+
+    const handleClose = () => dispatch(setNeedDefaults(false));
+
+    const suggestDefaultLabels = (defaultEntries: LabelEntry[], drawerOpen: boolean): JSX.Element => {
+        const filtered = defaultEntries.filter(([name, fav]) => fav.newReleases.length);
+        return (
+            <Dialog
+                open={drawerOpen}
+                onClose={handleClose}
+            >
+                <DialogContent>
+                    {filtered.map(([name, fav]) => generateAlbums(name, fav))}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleClose}>Skip</Button>
+                </DialogActions>
+            </Dialog>
+        )
+    };
     
-    const privateHome = (labelObj: Label, order: SortOrder): JSX.Element => {
-        const sorted: LabelEntry[] = sortHandler(labelObj, order);
-        const filtered = sorted.filter(([name, fav]) => fav.newReleases.length);
+    const privateHome = (labelObj: Label, order: SortOrder, defaults: Label, drawerOpen?: boolean): JSX.Element => {
+        const entries: LabelEntry[] = Object.entries(labelObj);
+        const defaultEntries: LabelEntry[] = Object.entries(defaults);
+        const filtered = entries.filter(([name, fav]) => fav.newReleases.length);
+        const sorted: LabelEntry[] = sortHandler(filtered, order);
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!haveFollowed} />
-                {filtered.length > 0 ?
-                    filtered.map(([name, fav]) => generateAlbums(name, fav))
+                <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
+                {!entries.length ?
+                    <Typography>You have not followed labels yet.</Typography>
                     :
-                    <Typography>ニューリリースがありません</Typography>
-                }
+                    !sorted.length ?
+                        <Typography>No releases recently</Typography>
+                        :
+                        sorted.map(([name, fav]) => generateAlbums(name, fav))}
+                {(drawerOpen && defaultEntries.length > 0) &&
+                    suggestDefaultLabels(defaultEntries, drawerOpen)}
             </div>
         )
     };
@@ -188,7 +213,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         </div>
     );
 
-    return signedIn ? privateHome(home, sortOrder) : guestHome(clicked);
+    return signedIn ? privateHome(home, sortOrder, defaultLabels, needDefaults) : guestHome(clicked);
 };
 
 export default withRouter(Home);

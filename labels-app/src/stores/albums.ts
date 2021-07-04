@@ -8,6 +8,7 @@ type AlbumsState = {
     saved: Album[];
     sortOrder: SortOrder;
     searched: SearchResult;
+    needDefaults?: boolean;
 }
 
 const initialState: AlbumsState = {
@@ -15,6 +16,7 @@ const initialState: AlbumsState = {
     saved: [],
     sortOrder: RF,
     searched: { query: {}, albums: [] },
+    needDefaults: undefined,
 };
 
 const slice = createSlice({
@@ -43,9 +45,12 @@ const slice = createSlice({
         clearSearched: (state: AlbumsState) => {
             state.searched = initialState.searched;
         },
+        setNeedDefaults: (state: AlbumsState, action: PayloadAction<boolean>) => {
+            state.needDefaults = action.payload;
+        },
     },
 });
 
 export default slice;
 
-export const { setAddLabel, setDeleteLabel, setSaved, setSortOrder, setSearched, clearSearched } = slice.actions;
+export const { setAddLabel, setDeleteLabel, setSaved, setSortOrder, setSearched, clearSearched, setNeedDefaults } = slice.actions;

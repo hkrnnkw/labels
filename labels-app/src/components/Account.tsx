@@ -31,18 +31,17 @@ const Account: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { home, sortOrder } = useSelector((rootState: RootState) => rootState.albums);
-    const sorted: LabelEntry[] = sortHandler(home, sortOrder);
-    const filtered = sorted.filter(([name, fav]) => fav.date > 0);
+    const sorted: LabelEntry[] = sortHandler(Object.entries(home), sortOrder);
 
     // サインアウト
     const signOut = async () => await auth.signOut();
 
     return (
         <div className={classes.root}>
-            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!filtered.length} />
-            {filtered.length > 0 ?
+            <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
+            {sorted.length > 0 ?
                 <List>
-                    {filtered.map(([name, fav]) => {
+                    {sorted.map(([name, fav]) => {
                         return (
                             <Link component={RouterLink} to={{ pathname: `${labelPath}/${name}`, state: { label: name } }}>
                                 <ListItem>{name}</ListItem>
@@ -51,7 +50,7 @@ const Account: FC = () => {
                     })}
                 </List>
                 :
-                <Typography>フォローしているレーベルがまだありません</Typography>
+                <Typography>You have not followed labels yet.</Typography>
             }
             <Button onClick={signOut}>ログアウト</Button>
         </div>
