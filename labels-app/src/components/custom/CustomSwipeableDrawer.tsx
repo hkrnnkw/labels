@@ -10,7 +10,7 @@ import { setSortOrder } from '../../stores/albums';
 import { SortOrder } from '../../utils/types';
 import { RF, ABC, NNR } from '../../handlers/sortHandler';
 
-export interface SwipeableDrawerProps {
+interface SwipeableDrawerProps {
     currentSortOrder: SortOrder,
     disabled: boolean,
 }
