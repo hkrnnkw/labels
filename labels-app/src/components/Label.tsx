@@ -1,26 +1,26 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, Link, Button, Container, GridList, GridListTile, GridListTileBar, Avatar,
+    Typography, Link, Container, Avatar,
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { Label as LabelType, SearchResult, Year } from '../utils/types';
-import { album as albumPath, artist as artistPath } from '../utils/paths';
-import { setAddLabel, setDeleteLabel } from '../stores/albums';
+import { artist as artistPath } from '../utils/paths';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
-import { addFavLabelToFirestore, deleteUnfavLabelFromFirestore } from '../handlers/dbHandler';
+import { CustomGridList } from './custom/CustomGridList';
+import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
     root: {
-
+        backgroundColor: theme.palette.background.default,
     },
     container: {
         display: 'flex',
@@ -30,21 +30,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         padding: 0,
         marginBottom: '30px',
     },
-    gridList: {
-        flexWrap: 'nowrap',
-        transform: 'translateZ(0)',
-    },
     year: {
-        width: '100%',
-    },
-    title: {
-        color: '#FFFFFF',
-    },
-    titleBar: {
-        background:
-            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
-    },
-    jacket: {
         width: '100%',
     },
     '@media (min-width: 960px)': {
@@ -55,13 +41,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 const Label: FC<Props> = ({ tokenChecker }) => {
-    const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { labelName } = useLocation<{ labelName: string }>().state;
     const { uid } = useSelector((rootState: RootState) => rootState.user);
     const { home } = useSelector((rootState: RootState) => rootState.albums);
-    const thisLabel: LabelType | undefined  = home.find(label => label.name === labelName);
-    const followedDate: number = thisLabel?.date || -1;
+    const thisLabel: LabelType = home.find(label => label.name === labelName) || { name: labelName, date: -1, newReleases: [] };
     const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -109,28 +93,6 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [albumsOfYears, tokenChecker]);
 
-    // フォロー操作
-    const handleFav = async () => {
-        try {
-            if (followedDate > 0) {
-                await deleteUnfavLabelFromFirestore(uid, labelName);
-                dispatch(setDeleteLabel(labelName));
-                return;
-            }
-            const newDate: number = await addFavLabelToFirestore(uid, labelName);
-            const token: string = await tokenChecker();
-            const result: SearchResult = await searchAlbums({ label: labelName, getNew: true }, token);
-            const newLabel: LabelType = {
-                name: labelName,
-                date: newDate,
-                newReleases: result.albums,
-            };
-            dispatch(setAddLabel(newLabel));
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
     const generateArtists = (artists: Artist[]): JSX.Element => (
         <AvatarGroup max={6}>
             {artists.map(artist => (
@@ -142,46 +104,14 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     );
 
     const generateAlbums = (year: string, albums: Album[]): JSX.Element => {
-        if (!albums.length) return (
-            <Container className={classes.container} id={year}>
-                <Typography className={classes.year}>{year}</Typography>
-                <Typography>作品がありません</Typography>
-            </Container>
-        );
-
-        const albumGridListTiles: JSX.Element[] = albums.map(album => (
-            <GridListTile
-                key={`${album.artists[0].name} - ${album.name}`}
-                cols={2}
-                rows={0.8}
-            >
-                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
-                    <img
-                        src={album.images[0].url}
-                        alt={`${album.artists[0].name} - ${album.name}`}
-                        className={classes.jacket}
-                    />
-                    <GridListTileBar
-                        title={album.name}
-                        subtitle={album.artists[0].name}
-                        classes={{
-                            root: classes.titleBar,
-                            title: classes.title,
-                        }}
-                    />
-                </Link>
-            </GridListTile>
-        ));
         return (
             <Container className={classes.container} id={year}>
                 <Typography className={classes.year}>{year}</Typography>
-                <GridList
-                    className={classes.gridList}
-                    cols={5}
-                    spacing={8}
-                >
-                    {albumGridListTiles}
-                </GridList>
+                {!albums.length ?
+                    <Typography>No releases.</Typography>
+                    :
+                    <CustomGridList albums={albums} />
+                }
             </Container>
         );
     };
@@ -195,7 +125,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     return (
         <div className={classes.root}>
             <Typography>{labelName}</Typography>
-            <Button onClick={handleFav}>{followedDate > 0 ? 'フォロー中' : 'フォロー'}</Button>
+            <FollowButton uid={uid} label={thisLabel} tokenChecker={tokenChecker} />
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
             {generateYears(albumsOfYears)}
         </div>

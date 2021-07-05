@@ -5,18 +5,19 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    GridList, GridListTile, GridListTileBar, Container, IconButton, Button, Link, Typography,
-    Dialog, DialogActions, DialogContent,
+    Container, IconButton, Button, Link, Typography, Dialog, DialogActions, DialogContent,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { setNeedDefaults, setInitLabels, setAddLabel } from '../stores/albums';
+import { setNeedDefaults, setInitLabels } from '../stores/albums';
 import { Label, SearchResult, SortOrder } from '../utils/types';
-import { Album, Props } from '../utils/interfaces';
-import { album as albumPath, search as searchPath, label as labelPath } from '../utils/paths';
+import { Props } from '../utils/interfaces';
+import { search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
-import { getListOfFavLabelsFromFirestore, addFavLabelToFirestore } from '../handlers/dbHandler';
+import { getListOfFavLabelsFromFirestore } from '../handlers/dbHandler';
 import { sortHandler } from '../handlers/sortHandler';
 import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
+import { CustomGridList } from './custom/CustomGridList';
+import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -25,6 +26,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         backgroundColor: theme.palette.background.default,
     },
+    signInButton: {
+        textTransform: 'none',
+    },
     container: {
         display: 'flex',
         flexWrap: 'wrap',
@@ -32,23 +36,36 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         overflow: 'hidden',
         padding: 0,
         marginBottom: '30px',
+        '& a#labelName': {
+            width: '75%',
+            padding: '6px 0',
+            display: 'flex',
+            alignItems: 'center',
+        },
+        '& button': {
+            width: '25%',
+            textTransform: 'none',
+            '& .MuiButton-label': {
+                display: 'initial',
+            },
+        },
     },
-    gridList: {
-        flexWrap: 'nowrap',
-        transform: 'translateZ(0)',
-    },
-    labelName: {
-        width: '100%',
-    },
-    title: {
-        color: '#FFFFFF',
-    },
-    titleBar: {
-        background:
-            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
-    },
-    jacket: {
-        width: '100%',
+    dialog: {
+        '& .MuiDialog-container': {
+            height: 'max-content',
+        },
+        '& .MuiDialog-paperScrollPaper': {
+            height: '100vh',
+        },
+        '& .MuiDialog-paper': {
+            margin: 0,
+        },
+        '& .MuiDialogContent-root': {
+            padding: 0,
+        },
+        '& .MuiContainer-root': {
+            marginTop: '30px',
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -102,63 +119,19 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [uid, home, needDefaults, dispatch, tokenChecker]);
 
-    // フォロー操作
-    const handleFav = async (label: Label) => {
-        try {
-            label.date = await addFavLabelToFirestore(uid, label.name);
-            dispatch(setAddLabel(label));
-        } catch (err) {
-            console.log(err);
-        }
-    };
-
-    const albumGridListTiles = (newReleases: Album[]): JSX.Element[] => {
-        return newReleases.map(album => (
-            <GridListTile
-                key={`${album.artists[0].name} - ${album.name}`}
-                cols={2}
-                rows={0.8}
-            >
-                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
-                    <img
-                        src={album.images[0].url}
-                        alt={`${album.artists[0].name} - ${album.name}`}
-                        className={classes.jacket}
-                    />
-                    <GridListTileBar
-                        title={album.name}
-                        subtitle={album.artists[0].name}
-                        classes={{
-                            root: classes.titleBar,
-                            title: classes.title,
-                        }}
-                    />
-                </Link>
-            </GridListTile>
-        ))
-    };
-
-    const generateAlbums = (label: Label): JSX.Element => {
-        const { name, date, newReleases } = label;
+    const generateAlbumsOfLabel = (label: Label): JSX.Element => {
+        const { name, newReleases } = label;
         return (
             <Container className={classes.container} id={name}>
                 <Link
+                    id={'labelName'}
                     component={RouterLink}
                     to={{ pathname: `${labelPath}/${name}`, state: { labelName: name } }}
-                    className={classes.labelName}
                 >
                     {name}
                 </Link>
-                {date < 0 &&
-                    <Button onClick={() => handleFav(label)}>フォロー</Button>
-                }
-                <GridList
-                    className={classes.gridList}
-                    cols={5}
-                    spacing={8}
-                >
-                    {albumGridListTiles(newReleases)}
-                </GridList>
+                <FollowButton uid={uid} label={label} tokenChecker={tokenChecker} />
+                <CustomGridList albums={newReleases} />
             </Container>
         );
     };
@@ -177,9 +150,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             <Dialog
                 open={drawerOpen}
                 onClose={handleClose}
+                className={classes.dialog}
             >
                 <DialogContent>
-                    {filtered.map(label => generateAlbums(label))}
+                    {filtered.map(label => generateAlbumsOfLabel(label))}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Skip</Button>
@@ -199,9 +173,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     <Typography>You have not followed labels yet.</Typography>
                     :
                     !sorted.length ?
-                        <Typography>No releases recently</Typography>
+                        <Typography>No releases recently.</Typography>
                         :
-                        sorted.map(label => generateAlbums(label))}
+                        sorted.map(label => generateAlbumsOfLabel(label))}
                 {(drawerOpen && defaults.length > 0) && suggestDefaultLabels(defaults, drawerOpen)}
             </div>
         )
@@ -209,7 +183,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     const guestHome = (disabled: boolean): JSX.Element => (
         <div className={classes.root}>
-            <Button onClick={handleSignIn} disabled={disabled}>はじめる</Button>
+            <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
+                Let's get started.
+            </Button>
             {/* TODO ローディングサークル出す */}
             {/* {disabled && } */}
         </div>

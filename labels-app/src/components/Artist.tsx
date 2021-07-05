@@ -1,36 +1,22 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
-import { useLocation, Link as RouterLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, GridList, GridListTile, GridListTileBar, Link, List, ListItem, ListItemText,
+    Typography, List, ListItem, ListItemText,
 } from '@material-ui/core';
 import { Props, Album, Artist as ArtistObj } from '../utils/interfaces';
-import { album as albumPath } from '../utils/paths';
 import { getArtistAlbums } from '../handlers/spotifyHandler';
+import { CustomGridList } from './custom/CustomGridList';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
     root: {
-
+        backgroundColor: theme.palette.background.default,
     },
     profile: {
-        width: '100%',
-    },
-    gridList: {
-        flexWrap: 'nowrap',
-        transform: 'translateZ(0)',
-    },
-    title: {
-        color: '#FFFFFF',
-    },
-    titleBar: {
-        background:
-            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
-    },
-    jacket: {
         width: '100%',
     },
     '@media (min-width: 960px)': {
@@ -73,37 +59,7 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
                     )
                 })}
             </List>}
-            <GridList
-                className={classes.gridList}
-                cols={5}
-                spacing={8}
-            >
-                {albums.map(album => {
-                    return (
-                        <GridListTile
-                            key={`${album.artists[0].name} - ${album.name}`}
-                            cols={2}
-                            rows={0.8}
-                        >
-                            <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
-                                <img
-                                    src={album.images[0].url}
-                                    alt={`${album.artists[0].name} - ${album.name}`}
-                                    className={classes.jacket}
-                                />
-                                <GridListTileBar
-                                    title={album.name}
-                                    subtitle={album.artists[0].name}
-                                    classes={{
-                                        root: classes.titleBar,
-                                        title: classes.title,
-                                    }}
-                                />
-                            </Link>
-                        </GridListTile>
-                    )
-                })}
-            </GridList>
+            <CustomGridList albums={albums} />
         </div>
     )
 };
