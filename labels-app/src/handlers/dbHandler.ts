@@ -14,7 +14,7 @@ export const getListOfFavLabelsFromFirestore = async (uid: string): Promise<{ [n
     const doc = await db.collection("users").doc(uid).get();
     const data = doc.data();
     if (!data) throw new Error(`${uid}のドキュメントにアクセスできません`);
-    const favLabels: { [name: string]: number; } = data.favLabels;
+    const favLabels: { [name: string]: number; } = data.favLabels || {};
     return favLabels;
 };
 
