@@ -18,14 +18,14 @@ import { Auth, Spotify } from './utils/types';
 import { UserProfile } from './utils/interfaces';
 import { home, album, artist, label, account, callback, search } from './utils/paths';
 import {
-    IconButton, Link,
+    Avatar, IconButton, Link,
 } from '@material-ui/core';
 import PersonIcon from '@material-ui/icons/Person';
 import { checkTokenExpired } from './handlers/spotifyHandler';
 
 const App: FC = () => {
     const dispatch = useDispatch();
-    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { spotify, uid, displayName: userName, photoURL: profilePic } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
@@ -67,8 +67,12 @@ const App: FC = () => {
     return (
         <BrowserRouter>
             <Link component={RouterLink} to={home}>Labels</Link>
-            {user &&
-                <Link component={RouterLink} to={account}><IconButton><PersonIcon /></IconButton></Link>}
+            <Link component={RouterLink} to={account}>
+                {profilePic !== null ?
+                    <Avatar alt={userName} src={profilePic} />
+                    :
+                    <IconButton><PersonIcon /></IconButton>}
+            </Link>
             <Switch>
                 <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
                 <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />

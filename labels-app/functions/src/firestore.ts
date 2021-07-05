@@ -16,6 +16,7 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
     const userAccountTask = admin.auth().updateUser(spotifyID, {
         displayName: displayName,
         email: email,
+        photoURL: photoURL,
     }).catch(error => {
         // ユーザが存在しない場合
         if (error.code === 'auth/user-not-found') {
@@ -29,6 +30,7 @@ export const manageUser = async (spotifyRefreshToken: string, spotifyID: string,
                 uid: spotifyID,
                 displayName: displayName,
                 email: email,
+                photoURL: photoURL,
             });
         }
         throw error;
