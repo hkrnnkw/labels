@@ -6,8 +6,10 @@ import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Container, IconButton, Button, Link, Typography, Dialog, DialogActions, DialogContent,
+    Avatar,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
+import PersonIcon from '@material-ui/icons/Person';
 import { setNeedDefaults, setInitLabels } from '../stores/albums';
 import { Label, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
@@ -77,7 +79,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
+    const { signedIn, uid, displayName, photoURL } = useSelector((rootState: RootState) => rootState.user);
     const { home, sortOrder, needDefaults } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
     const [defaultLabels, setDefaultLabels] = useState<Label[]>([]);
@@ -168,6 +170,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
+                {!photoURL ?
+                    <IconButton><PersonIcon /></IconButton>
+                    :
+                    <Avatar alt={displayName} src={photoURL} />}
                 <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
                 {!homeList.length ?
                     <Typography>You have not followed labels yet.</Typography>
