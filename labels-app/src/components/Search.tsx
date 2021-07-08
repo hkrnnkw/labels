@@ -23,34 +23,37 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         flexWrap: 'wrap',
         justifyContent: 'space-around',
         overflow: 'hidden',
+        backgroundColor: theme.palette.background.default,
     },
     searchbar: {
         display: 'inline-flex',
         justifyContent: 'space-between',
         width: '100vw',
-        margin: '6px 0 12px',
+        margin: theme.spacing(1, 0, 3),
+        position: 'fixed',
+        zIndex: 3,
         '& div.MuiFormControl-root.MuiTextField-root': {
-            width: '76vw',
-            height: '35px',
+            width: `calc(80vw - ${theme.spacing(4)}px)`,
+            height: '36px',
             border: 'none',
             borderRadius: '4px',
-            marginLeft: '4vw',
+            marginLeft: theme.spacing(4),
             '&:focus': {
                 outline: 'none',
             },
             '& div.MuiOutlinedInput-adornedStart': {
-                paddingLeft: '8px',
+                paddingLeft: theme.spacing(2),
                 '& div.MuiInputAdornment-positionStart': {
                     marginRight: 0,
                 },
             },
             '& input#outlined-search': {
-                padding: '8px',
+                padding: theme.spacing(2),
             },
         },
         '& a': {
             width: '20vw',
-            height: '35px',
+            height: '36px',
             fontSize: '0.8rem',
             display: 'inline-flex',
             alignItems: 'center',
@@ -58,8 +61,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     list: {
-        marginRight: theme.spacing(4),
-        marginLeft: theme.spacing(4),
+        margin: theme.spacing(13, 4, 0, 4),
+        height: `calc(100vh - ${theme.spacing(13)}px)`,
+        overflowY: 'scroll',
     },
     listItem: {
         width: `calc(100vw - ${theme.spacing(8)}px)`,
