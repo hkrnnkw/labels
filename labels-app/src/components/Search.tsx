@@ -57,23 +57,36 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             justifyContent: 'center',
         },
     },
+    list: {
+        marginRight: theme.spacing(4),
+        marginLeft: theme.spacing(4),
+    },
     listItem: {
-        width: '100%',
+        width: `calc(100vw - ${theme.spacing(8)}px)`,
         float: 'left',
         padding: 0,
-        marginBottom: theme.spacing(1),
+        marginBottom: theme.spacing(4),
+        overflow: 'hidden',
         '& img': {
-            width: '20%',
+            width: '16vw',
             float: 'left',
-            marginRight: theme.spacing(2),
+            marginRight: theme.spacing(4),
         },
-        '& div': {
+        '& div.MuiListItemText-multiline': {
+            width: `calc(84vw - ${theme.spacing(12)}px)`,
+            height: '16vw', // imgのwidthと同じ値
+            margin: 0,
+            float: 'left',
             whiteSpace: "nowrap",
             '& span': {
+                fontSize: '1.2rem',
+                lineHeight: '1.8rem',
                 textOverflow: "ellipsis",
                 overflow: "hidden",
             },
             '& p': {
+                fontSize: '1.0rem',
+                lineHeight: '2.0rem',
                 textOverflow: "ellipsis",
                 overflow: "hidden",
             },
@@ -152,7 +165,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                 </ListItem>
             );
         });
-        return <List>{albumListItems}</List>;
+        return <List className={classes.list}>{albumListItems}</List>;
     };
 
     return (
