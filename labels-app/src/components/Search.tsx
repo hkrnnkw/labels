@@ -5,12 +5,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    List, ListItem, ListItemText, IconButton, TextField, Typography, Link,
+    List, ListItem, ListItemText, TextField, Typography, Link, InputAdornment,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Props, Album } from '../utils/interfaces';
 import { SearchQuery, SearchResult } from '../utils/types';
-import { album as albumPath } from '../utils/paths';
+import { album as albumPath, home as homePath } from '../utils/paths';
 import { getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
 import { setSaved, setSearched, clearSearched } from '../stores/albums';
 
@@ -25,18 +25,36 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         overflow: 'hidden',
     },
     searchbar: {
-        '& div': {
-            width: '90vw',
+        display: 'inline-flex',
+        justifyContent: 'space-between',
+        width: '100vw',
+        margin: '6px 0 12px',
+        '& div.MuiFormControl-root.MuiTextField-root': {
+            width: '76vw',
             height: '35px',
             border: 'none',
             borderRadius: '4px',
+            marginLeft: '4vw',
             '&:focus': {
                 outline: 'none',
             },
+            '& div.MuiOutlinedInput-adornedStart': {
+                paddingLeft: '8px',
+                '& div.MuiInputAdornment-positionStart': {
+                    marginRight: 0,
+                },
+            },
+            '& input#outlined-search': {
+                padding: '8px',
+            },
         },
-        '& button': {
-            width: '5vw',
+        '& a': {
+            width: '20vw',
             height: '35px',
+            fontSize: '0.8rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
         },
     },
     listItem: {
@@ -106,6 +124,11 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         }
     };
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== 'Enter' || !typing.length || typed === typing) return;
+        doSearching(typing).catch(err => console.log(err));
+    };
+
     // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
         if (!albums.length && typed.length) return <Typography>見つかりませんでした</Typography>;
@@ -136,18 +159,20 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         <div className={classes.root}>
             <span className={classes.searchbar}>
                 <TextField
-                    id="search"
+                    id='outlined-search'
+                    variant='outlined'
                     value={typing}
-                    placeholder="アーティストを検索"
-                    type="search"
-                    onChange={e => setTyping(e.target.value)}
+                    placeholder='Search'
+                    type='search'
+                    autoComplete='off'
+                    onChange={(e) => setTyping(e.target.value)}
+                    InputProps={{
+                        startAdornment: <InputAdornment position='start'><SearchIcon/></InputAdornment>,
+                        spellCheck: false,
+                        onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event),
+                    }}
                 />
-                <IconButton
-                    onClick={() => doSearching(typing)}
-                    disabled={!typing.length || typed === typing}
-                >
-                    <SearchIcon />
-                </IconButton>
+                <Link component={RouterLink} to={homePath}>Cancel</Link>
             </span>
             {generateAlbums(typed.length ? searched.albums : saved)}
         </div>
