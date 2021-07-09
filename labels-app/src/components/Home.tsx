@@ -6,10 +6,8 @@ import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Container, IconButton, Button, Link, Typography, Dialog, DialogActions, DialogContent,
-    Avatar,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import PersonIcon from '@material-ui/icons/Person';
 import { setNeedDefaults, setInitLabels } from '../stores/albums';
 import { Label, SearchResult, SortOrder } from '../utils/types';
 import { Props } from '../utils/interfaces';
@@ -17,7 +15,8 @@ import { search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore } from '../handlers/dbHandler';
 import { sortHandler } from '../handlers/sortHandler';
-import { CustomSwipeableDrawer } from './custom/CustomSwipeableDrawer';
+import { SortDrawer } from './custom/SortDrawer';
+import { SignOutDrawer } from './custom/SignOutDrawer';
 import { CustomGridList } from './custom/CustomGridList';
 import { FollowButton } from './custom/FollowButton';
 
@@ -170,11 +169,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         return (
             <div className={classes.root}>
                 <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                {!photoURL ?
-                    <IconButton><PersonIcon /></IconButton>
-                    :
-                    <Avatar alt={displayName} src={photoURL} />}
-                <CustomSwipeableDrawer currentSortOrder={sortOrder} disabled={!sorted.length} />
+                <SignOutDrawer displayName={displayName} photoURL={photoURL} />
+                <SortDrawer currentSortOrder={sortOrder} />
                 {!homeList.length ?
                     <Typography>You have not followed labels yet.</Typography>
                     :

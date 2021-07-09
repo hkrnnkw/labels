@@ -1,5 +1,4 @@
 // 正常系
-export const account = '/account';
 export const album = '/album';
 export const artist = '/artist';
 export const callback = '/callback';

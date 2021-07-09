@@ -9,14 +9,13 @@ import Album from './components/Album';
 import Artist from './components/Artist';
 import Label from './components/Label';
 import Search from './components/Search';
-import Account from './components/Account';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { RootState } from './stores';
 import { setUserProfile, setAuth, setClearUser, setSpotifyTokens } from './stores/user';
 import { Auth, Spotify } from './utils/types';
 import { UserProfile } from './utils/interfaces';
-import { home, album, artist, label, account, callback, search } from './utils/paths';
+import { home, album, artist, label, callback, search } from './utils/paths';
 import { checkTokenExpired } from './handlers/spotifyHandler';
 
 const App: FC = () => {
@@ -68,7 +67,6 @@ const App: FC = () => {
                 <PrivateRoute path={artist} render={() => <Artist tokenChecker={tokenChecker} />} />
                 <PrivateRoute path={label} render={() => <Label tokenChecker={tokenChecker} />} />
                 <PrivateRoute path={search} render={() => <Search tokenChecker={tokenChecker} />} />
-                <PrivateRoute path={account} render={() => <Account />} />
                 <GuestRoute path={callback} component={Callback} />
                 <Route component={NotFound} />
             </Switch>
