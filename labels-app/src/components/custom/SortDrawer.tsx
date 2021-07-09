@@ -22,7 +22,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
     },
     openButton: {
-        width: '100vw',
+        display: 'flex',
+        padding: theme.spacing(1.5, 0),
+        margin: theme.spacing(0, 4),
         '& .MuiButton-label': {
             justifyContent: 'flex-start',
             textTransform: 'none',

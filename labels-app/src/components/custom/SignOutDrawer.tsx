@@ -19,11 +19,18 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
     },
     openButton: {
-        width: '100vw',
+        display: 'flex',
+        minWidth: '36px',
+        padding: theme.spacing(1.5, 0),
+        margin: theme.spacing(0, 4),
         '& .MuiButton-label': {
             justifyContent: 'flex-start',
             textTransform: 'none',
         },
+    },
+    icon: {
+        width: '36px',
+        height: '36px',
     },
     cancelButton: {
         width: '100vw',
@@ -59,11 +66,11 @@ export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL })
         <div>
             {!photoURL ?
                 <IconButton className={classes.openButton} onClick={toggleDrawer(true)}>
-                    <PersonIcon />
+                    <PersonIcon className={classes.icon} />
                 </IconButton>
                 :
                 <Button className={classes.openButton} onClick={toggleDrawer(true)}>
-                    <Avatar alt={displayName} src={photoURL} />
+                    <Avatar alt={displayName} src={photoURL} className={classes.icon} />
                 </Button>
             }
             <SwipeableDrawer

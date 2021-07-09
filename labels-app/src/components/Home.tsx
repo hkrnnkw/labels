@@ -26,9 +26,38 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     root: {
         backgroundColor: theme.palette.background.default,
+        '& button': {
+            textTransform: 'none',
+        },
     },
-    signInButton: {
-        textTransform: 'none',
+    searchButton: {
+        margin: theme.spacing(0, 4),
+        '& .MuiIconButton-root': {
+            padding: theme.spacing(3, 0),
+        },
+    },
+    signInButton:{
+
+    },
+    header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    showAll: {
+        width: '88px',
+        height: '24px',
+        margin: theme.spacing(0, 4),
+        borderRadius: '12px',
+        color: theme.palette.primary.light,
+        border: `1px solid ${theme.palette.primary.light}`,
+        backgroundColor: 'transparent',
+        transition: 'none',
+        '&#selected': {
+            color: theme.palette.background.default,
+            border: 'none',
+            backgroundColor: theme.palette.primary.light,
+        },
     },
     container: {
         display: 'flex',
@@ -82,6 +111,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const { home, sortOrder, needDefaults } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
     const [defaultLabels, setDefaultLabels] = useState<Label[]>([]);
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         if (!uid.length || Object.keys(home).length || needDefaults === false) return;
@@ -168,9 +198,22 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const sorted: Label[] = sortHandler(filtered, order);
         return (
             <div className={classes.root}>
-                <Link component={RouterLink} to={searchPath}><IconButton><SearchIcon /></IconButton></Link>
-                <SignOutDrawer displayName={displayName} photoURL={photoURL} />
-                <SortDrawer currentSortOrder={sortOrder} />
+                <span className={classes.header}>
+                    <SignOutDrawer displayName={displayName} photoURL={photoURL} />
+                    <Link component={RouterLink} to={searchPath} className={classes.searchButton}>
+                        <IconButton><SearchIcon /></IconButton>
+                    </Link>
+                </span>
+                <span className={classes.header}>
+                    <SortDrawer currentSortOrder={sortOrder} />
+                    <Button
+                        className={classes.showAll}
+                        id={showAll ? 'selected' : undefined}
+                        onClick={() => setShowAll(!showAll)}
+                    >
+                        Show all
+                    </Button>
+                </span>
                 {!homeList.length ?
                     <Typography>You have not followed labels yet.</Typography>
                     :
@@ -186,7 +229,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const guestHome = (disabled: boolean): JSX.Element => (
         <div className={classes.root}>
             <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
-                Let's get started.
+                Let's get started with Spotify.
             </Button>
             {/* TODO ローディングサークル出す */}
             {/* {disabled && } */}
