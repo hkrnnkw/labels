@@ -195,7 +195,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     
     const privateHome = (homeList: Label[], order: SortOrder, defaults: Label[], drawerOpen?: boolean): JSX.Element => {
         const filtered = homeList.filter(label => label.newReleases.length);
-        const sorted: Label[] = sortHandler(filtered, order);
+        const sorted: Label[] = sortHandler(showAll ? homeList : filtered, order);
         return (
             <div className={classes.root}>
                 <span className={classes.header}>
