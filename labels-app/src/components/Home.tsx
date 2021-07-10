@@ -60,24 +60,30 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     container: {
+        width: '100vw',
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
         overflow: 'hidden',
         padding: 0,
-        marginBottom: '30px',
+        margin: theme.spacing(2, 0, 6),
         '& a#labelName': {
-            width: '75%',
+            width: `calc(75% - ${theme.spacing(8)}px)`,
             padding: '6px 0',
+            margin: theme.spacing(0, 4),
             display: 'flex',
             alignItems: 'center',
         },
         '& button': {
-            width: '25%',
+            width: `calc(25% - ${theme.spacing(4)}px)`,
             textTransform: 'none',
+            margin: theme.spacing(0, 2),
             '& .MuiButton-label': {
                 display: 'initial',
             },
+        },
+        '& p': {
+            margin: theme.spacing(0, 4),
         },
     },
     dialog: {
@@ -162,7 +168,11 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     {name}
                 </Link>
                 <FollowButton uid={uid} label={label} tokenChecker={tokenChecker} />
-                <CustomGridList albums={newReleases} />
+                {!newReleases.length ?
+                    <Typography>No releases recently.</Typography>
+                    :
+                    <CustomGridList albums={newReleases} />
+                }
             </Container>
         );
     };

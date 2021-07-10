@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Album } from '../../utils/interfaces';
 import {
-    GridList, GridListTile, GridListTileBar, Link,
+    GridList, GridListTile, Link, Typography,
 } from '@material-ui/core';
 import { album as albumPath } from '../../utils/paths';
 
@@ -21,13 +21,22 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     gridList: {
         flexWrap: 'nowrap',
         transform: 'translateZ(0)',
-    },
-    title: {
-        color: '#FFFFFF',
-    },
-    titleBar: {
-        background:
-            'linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 70%, rgba(0,0,0,0) 100%)',
+        padding: theme.spacing(2, 4, 0),
+        columnGap: theme.spacing(2),
+        '& h6.MuiTypography-root': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+        },
+        '& h6.MuiTypography-subtitle1': {
+            fontWeight: 700,
+            whiteSpace: 'nowrap',
+        },
+        '& h6.MuiTypography-subtitle2': {
+            display: '-webkit-box',
+            lineClamp: 2,
+            boxOrient: 'vertical',
+            wordBreak: 'break-all',
+        },
     },
     jacket: {
         width: '100%',
@@ -42,35 +51,32 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 export const CustomGridList: FC<CustomGridListProps> = ({ albums }) => {
     const classes = ambiguousStyles();
 
-    const gridListTiles: JSX.Element[] = albums.map(album => (
-        <GridListTile
-            key={`${album.artists[0].name} - ${album.name}`}
-            cols={2}
-            rows={0.8}
-        >
-            <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
-                <img
-                    src={album.images[0].url}
-                    alt={`${album.artists[0].name} - ${album.name}`}
-                    className={classes.jacket}
-                />
-                <GridListTileBar
-                    title={album.name}
-                    subtitle={album.artists[0].name}
-                    classes={{
-                        root: classes.titleBar,
-                        title: classes.title,
-                    }}
-                />
-            </Link>
-        </GridListTile>
-    ));
+    const gridListTiles: JSX.Element[] = albums.map(album => {
+        const artistNames: string[] = album.artists.map(artist => artist.name);
+        return (
+            <GridListTile
+                key={`${album.artists[0].name} - ${album.name}`}
+                cols={5}
+            >
+                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
+                    <img
+                        src={album.images[0].url}
+                        alt={`${album.artists[0].name} - ${album.name}`}
+                        className={classes.jacket}
+                    />
+                    <Typography variant='subtitle1'>{album.name}</Typography>
+                    <Typography variant='subtitle2'>{artistNames.join(', ')}</Typography>
+                </Link>
+            </GridListTile>
+        )
+    });
 
     return (
         <GridList
             className={classes.gridList}
-            cols={5}
-            spacing={8}
+            cols={11}
+            spacing={0}
+            cellHeight={'auto'}
         >
             {gridListTiles}
         </GridList>
