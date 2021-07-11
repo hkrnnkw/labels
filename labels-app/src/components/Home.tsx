@@ -5,7 +5,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Container, IconButton, Button, Link, Typography, Dialog, DialogActions, DialogContent,
+    Container, Button, Fab, Link, Typography, Dialog, DialogActions, DialogContent,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setNeedDefaults, setInitLabels } from '../stores/albums';
@@ -16,7 +16,6 @@ import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore } from '../handlers/dbHandler';
 import { sortHandler } from '../handlers/sortHandler';
 import { SortDrawer } from './custom/SortDrawer';
-import { SignOutDrawer } from './custom/SignOutDrawer';
 import { CustomGridList } from './custom/CustomGridList';
 import { FollowButton } from './custom/FollowButton';
 
@@ -31,10 +30,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     searchButton: {
-        margin: theme.spacing(0, 4),
-        '& .MuiIconButton-root': {
-            padding: theme.spacing(3, 0),
-        },
+        zIndex: 100,
+        position: 'fixed',
+        bottom: theme.spacing(4),
+        right: theme.spacing(4),
     },
     signInButton:{
 
@@ -129,7 +128,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { signedIn, uid, displayName, photoURL } = useSelector((rootState: RootState) => rootState.user);
+    const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, sortOrder, needDefaults } = useSelector((rootState: RootState) => rootState.albums);
     const [clicked, setClicked] = useState(false);
     const [defaultLabels, setDefaultLabels] = useState<Label[]>([]);
@@ -225,13 +224,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const sorted: Label[] = sortHandler(showAll ? homeList : filtered, order);
         return (
             <div className={classes.root}>
-                <span className={classes.header}>
-                    <SignOutDrawer displayName={displayName} photoURL={photoURL} />
-                    <Link component={RouterLink} to={searchPath} className={classes.searchButton}>
-                        <IconButton><SearchIcon /></IconButton>
-                    </Link>
-                </span>
-                <span className={classes.header}>
+                <div className={classes.header}>
                     <SortDrawer currentSortOrder={sortOrder} />
                     <Button
                         className={classes.showAll}
@@ -240,7 +233,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     >
                         Show all
                     </Button>
-                </span>
+                </div>
+                <Fab color='primary' aria-label='search' component={RouterLink} to={searchPath} className={classes.searchButton}>
+                    <SearchIcon />
+                </Fab>
                 {!homeList.length ?
                     <Typography>You have not followed labels yet.</Typography>
                     :

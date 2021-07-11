@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { BrowserRouter, Switch, Route } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, Link as RouterLink } from 'react-router-dom';
 import firebase, { auth } from './firebase';
 import PrivateRoute from './routes/PrivateRoute';
 import GuestRoute from './routes/GuestRoute';
@@ -11,6 +11,9 @@ import Label from './components/Label';
 import Search from './components/Search';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
+import { SignOutDrawer } from './components/custom/SignOutDrawer';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import { Link, Typography } from '@material-ui/core';
 import { RootState } from './stores';
 import { setUserProfile, setAuth, setClearUser, setSpotifyTokens } from './stores/user';
 import { Auth, Spotify } from './utils/types';
@@ -18,9 +21,38 @@ import { UserProfile } from './utils/interfaces';
 import { home, album, artist, label, callback, search } from './utils/paths';
 import { checkTokenExpired } from './handlers/spotifyHandler';
 
+const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
+    contentClass: {
+        minHeight: '100vh',
+    },
+    root: {
+        backgroundColor: theme.palette.background.default,
+    },
+    header: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        '& div#title': {
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'flex-start',
+            '& a.MuiLink-root': {
+                fontSize: '1.25rem',
+                padding: theme.spacing(0, 4),
+            },
+        },
+    },
+    '@media (min-width: 960px)': {
+        contentClass: {
+            display: 'flex',
+        },
+    },
+}));
+
 const App: FC = () => {
     const dispatch = useDispatch();
-    const { spotify, uid } = useSelector((rootState: RootState) => rootState.user);
+    const classes = ambiguousStyles();
+    const { spotify, uid, displayName: userName, photoURL: userPic } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
@@ -61,6 +93,13 @@ const App: FC = () => {
 
     return (
         <BrowserRouter>
+            <div className={classes.header}>
+                <div id='title'>
+                    <Link component={RouterLink} to={home}>Labels</Link>
+                    <Typography variant='subtitle2'>v0.1 beta</Typography>
+                </div>
+                <SignOutDrawer displayName={userName} photoURL={userPic} />
+            </div>
             <Switch>
                 <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
                 <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />
