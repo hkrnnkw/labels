@@ -28,19 +28,21 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         '&::-webkit-scrollbar': {
             display: 'none',
         },
-        '& h6.MuiTypography-root': {
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-        },
-        '& h6.MuiTypography-subtitle1': {
-            fontWeight: 700,
-            whiteSpace: 'nowrap',
-        },
-        '& h6.MuiTypography-subtitle2': {
-            display: '-webkit-box',
-            lineClamp: 2,
-            boxOrient: 'vertical',
-            wordBreak: 'break-all',
+        '& h6': {
+            '&.MuiTypography-root': {
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+            },
+            '&.MuiTypography-subtitle1': {
+                fontWeight: 700,
+                whiteSpace: 'nowrap',
+            },
+            '&.MuiTypography-subtitle2': {
+                display: '-webkit-box',
+                lineClamp: 2,
+                boxOrient: 'vertical',
+                wordBreak: 'break-all',
+            },
         },
     },
     jacket: {
