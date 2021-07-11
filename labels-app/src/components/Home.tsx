@@ -107,6 +107,13 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         '& .MuiContainer-root': {
             marginTop: '30px',
         },
+        '& .MuiDialogActions-root': {
+            backgroundColor: theme.palette.primary.main,
+            '& button': {
+                color: '#FFFFFF',
+                textTransform: 'none',
+            },
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
