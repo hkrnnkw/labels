@@ -23,6 +23,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         transform: 'translateZ(0)',
         padding: theme.spacing(2, 4, 0),
         columnGap: theme.spacing(2),
+        msOverflowStyle: 'none',
+        scrollbarWidth: 'none',
+        '&::-webkit-scrollbar': {
+            display: 'none',
+        },
         '& h6.MuiTypography-root': {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
