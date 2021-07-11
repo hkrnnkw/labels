@@ -67,17 +67,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         overflow: 'hidden',
         padding: 0,
         margin: theme.spacing(2, 0, 6),
-        '& a#labelName': {
-            fontSize: '1.6rem',
-            width: `calc(75% - ${theme.spacing(4)}px)`,
-            padding: theme.spacing(2, 0),
-            margin: theme.spacing(0, 0, 0, 4),
-            display: 'inline-block',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            alignItems: 'center',
-        },
         '& button': {
             width: `calc(25% - ${theme.spacing(4)}px)`,
             textTransform: 'none',
@@ -89,6 +78,21 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
         '& p': {
             margin: theme.spacing(0, 4),
+        },
+    },
+    labelName: {
+        width: `calc(100% - ${theme.spacing(8)}px)`,
+        fontSize: '1.6rem',
+        padding: theme.spacing(2, 0),
+        margin: theme.spacing(0, 4),
+        display: 'inline-block',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        alignItems: 'center',
+        '&#isDefault': {
+            width: `calc(75% - ${theme.spacing(4)}px)`,
+            margin: theme.spacing(0, 0, 0, 4),
         },
     },
     dialog: {
@@ -168,18 +172,19 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [uid, home, needDefaults, dispatch, tokenChecker]);
 
-    const generateAlbumsOfLabel = (label: Label): JSX.Element => {
+    const generateAlbumsOfLabel = (label: Label, isDefault: boolean = false): JSX.Element => {
         const { name, newReleases } = label;
         return (
             <Container className={classes.container} id={name}>
                 <Link
-                    id={'labelName'}
+                    className={classes.labelName}
+                    id={isDefault ? 'isDefault' : undefined}
                     component={RouterLink}
                     to={{ pathname: `${labelPath}/${name}`, state: { labelName: name } }}
                 >
                     {name}
                 </Link>
-                <FollowButton uid={uid} label={label} tokenChecker={tokenChecker} />
+                {isDefault && <FollowButton uid={uid} label={label} tokenChecker={tokenChecker} />}
                 {!newReleases.length ?
                     <Typography>No releases recently.</Typography>
                     :
@@ -206,7 +211,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 className={classes.dialog}
             >
                 <DialogContent>
-                    {filtered.map(label => generateAlbumsOfLabel(label))}
+                    {filtered.map(label => generateAlbumsOfLabel(label, true))}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleClose}>Skip</Button>
