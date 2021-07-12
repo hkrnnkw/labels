@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Label, SearchResult } from "../../utils/types";
@@ -29,12 +29,15 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 export const FollowButton: FC<FollowButtonProps> = ({ uid, label, tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
+    const [isFollowing, setIsFollowing] = useState(label.date > 0);
 
     // フォロー操作
     const handleFollow = async () => {
+        const doUnfollow: boolean = isFollowing;
+        setIsFollowing(!isFollowing);
         try {
             // すでにフォローしている場合
-            if (label.date > 0) {
+            if (doUnfollow) {
                 await deleteUnfavLabelFromFirestore(uid, label.name);
                 dispatch(setDeleteLabel(label.name));
                 return;
@@ -64,7 +67,7 @@ export const FollowButton: FC<FollowButtonProps> = ({ uid, label, tokenChecker }
 
     return (
         <Button onClick={() => handleFollow()}>
-            {label.date < 0 ? 'Follow' : 'Following'}
+            {isFollowing ? 'Following' : 'Follow'}
         </Button>
     );
 };
