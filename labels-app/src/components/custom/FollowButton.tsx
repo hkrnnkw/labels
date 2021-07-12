@@ -22,9 +22,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     root: {
         backgroundColor: theme.palette.background.default,
     },
-    followButton: {
-        textTransform: 'none',
-    },
     '@media (min-width: 960px)': {
         contentClass: {
             display: 'flex',
@@ -69,7 +66,7 @@ export const FollowButton: FC<FollowButtonProps> = ({ uid, label, tokenChecker }
     };
 
     return (
-        <Button onClick={() => handleFollow()} className={classes.followButton}>
+        <Button onClick={() => handleFollow()}>
             {label.date < 0 ? 'Follow' : 'Following'}
         </Button>
     );

@@ -27,7 +27,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(0, 4),
         '& .MuiButton-label': {
             justifyContent: 'flex-start',
-            textTransform: 'none',
         },
     },
     cancelButton: {

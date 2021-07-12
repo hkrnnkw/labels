@@ -18,12 +18,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
+    search: {
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-around',
         overflow: 'hidden',
-        backgroundColor: theme.palette.background.default,
     },
     searchbar: {
         display: 'inline-flex',
@@ -173,7 +172,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     };
 
     return (
-        <div className={classes.root}>
+        <div className={classes.search}>
             <span className={classes.searchbar}>
                 <TextField
                     id='outlined-search'

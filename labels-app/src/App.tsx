@@ -27,6 +27,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     root: {
         backgroundColor: theme.palette.background.default,
+        minHeight: '100vh',
+        '& button': {
+            textTransform: 'none',
+        },
     },
     header: {
         display: 'flex',
@@ -93,6 +97,7 @@ const App: FC = () => {
 
     return (
         <BrowserRouter>
+        <div className={classes.root}>
             <div className={classes.header}>
                 <div id='title'>
                     <Link component={RouterLink} to={home}>Labels</Link>
@@ -109,6 +114,7 @@ const App: FC = () => {
                 <GuestRoute path={callback} component={Callback} />
                 <Route component={NotFound} />
             </Switch>
+        </div>
         </BrowserRouter>
     )
 }

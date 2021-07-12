@@ -23,12 +23,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
-        backgroundColor: theme.palette.background.default,
-        '& button': {
-            textTransform: 'none',
-        },
-    },
     searchButton: {
         zIndex: 100,
         position: 'fixed',
@@ -66,15 +60,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         overflow: 'hidden',
         padding: 0,
         margin: theme.spacing(2, 0, 6),
-        '& button': {
-            width: `calc(25% - ${theme.spacing(4)}px)`,
-            textTransform: 'none',
-            margin: theme.spacing(0, 2),
-            padding: theme.spacing(2),
-            '& .MuiButton-label': {
-                display: 'initial',
-            },
-        },
         '& p': {
             margin: theme.spacing(0, 4),
         },
@@ -95,6 +80,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     dialog: {
+        '& button': {
+            textTransform: 'none',
+        },
         '& .MuiDialog-container': {
             height: 'max-content',
         },
@@ -106,15 +94,20 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
         '& .MuiDialogContent-root': {
             padding: 0,
-        },
-        '& .MuiContainer-root': {
-            marginTop: '30px',
+            marginTop: theme.spacing(4),
+            '& button': {
+                width: `calc(25% - ${theme.spacing(4)}px)`,
+                margin: theme.spacing(0, 2),
+                padding: theme.spacing(2),
+                '& .MuiButton-label': {
+                    display: 'initial',
+                },
+            },
         },
         '& .MuiDialogActions-root': {
             backgroundColor: theme.palette.primary.main,
             '& button': {
                 color: '#FFFFFF',
-                textTransform: 'none',
             },
         },
     },
@@ -223,7 +216,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const filtered = homeList.filter(label => label.newReleases.length);
         const sorted: Label[] = sortHandler(showAll ? homeList : filtered, order);
         return (
-            <div className={classes.root}>
+            <div>
                 <div className={classes.header}>
                     <SortDrawer currentSortOrder={sortOrder} />
                     <Button
@@ -250,7 +243,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     };
 
     const guestHome = (disabled: boolean): JSX.Element => (
-        <div className={classes.root}>
+        <div>
             <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
                 Let's get started with Spotify.
             </Button>
