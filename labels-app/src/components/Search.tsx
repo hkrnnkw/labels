@@ -5,12 +5,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    List, ListItem, ListItemText, TextField, Typography, Link, InputAdornment,
+    List, ListItem, ListItemText, TextField, Typography, Link, InputAdornment, Button,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { Props, Album } from '../utils/interfaces';
 import { SearchQuery, SearchResult } from '../utils/types';
-import { album as albumPath, home as homePath } from '../utils/paths';
+import { album as albumPath } from '../utils/paths';
 import { getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
 import { setSaved, setSearched, clearSearched } from '../stores/albums';
 
@@ -50,13 +50,21 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 padding: theme.spacing(2),
             },
         },
-        '& a': {
-            width: '20vw',
-            height: '36px',
-            fontSize: '0.8rem',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+        '& button.MuiButton-root': {
+            padding: 0,
+            color: theme.palette.primary.main,
+            '&.Mui-disabled': {
+                opacity: 0.26,
+            },
+            '& span.MuiButton-label': {
+                width: '20vw',
+                height: '36px',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+            },
         },
     },
     list: {
@@ -147,7 +155,8 @@ const Search: FC<Props> = ({ tokenChecker }) => {
 
     // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
-        if (!albums.length && typed.length) return <Typography>見つかりませんでした</Typography>;
+        // TODO 見つからない時のスタイル崩れ
+        if (!albums.length && typed.length) return <Typography>Couldn't find "{typed}"</Typography>;
 
         const albumListItems: JSX.Element[] = albums.map(album => {
             return (
@@ -178,7 +187,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                     id='outlined-search'
                     variant='outlined'
                     value={typing}
-                    placeholder='Search'
+                    placeholder='Artists, albums, or songs'
                     type='search'
                     autoComplete='off'
                     onChange={(e) => setTyping(e.target.value)}
@@ -188,7 +197,12 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                         onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => handleKeyDown(event),
                     }}
                 />
-                <Link component={RouterLink} to={homePath}>Cancel</Link>
+                <Button
+                    onClick={() => doSearching(typing)}
+                    disabled={!typing.length || typed === typing}
+                >
+                    Search
+                </Button>
             </span>
             {generateAlbums(typed.length ? searched.albums : saved)}
         </div>
