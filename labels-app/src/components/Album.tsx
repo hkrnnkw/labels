@@ -13,9 +13,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
-
-    },
     jacket: {
         width: '100%',
     },
@@ -81,7 +78,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     };
 
     return (
-        <div className={classes.root}>
+        <div>
             <img
                 src={images[0].url}
                 alt={`${simpleArtists[0].name} - ${title}`}

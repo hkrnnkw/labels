@@ -19,9 +19,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
-        backgroundColor: theme.palette.background.default,
-    },
     '@media (min-width: 960px)': {
         contentClass: {
             display: 'flex',

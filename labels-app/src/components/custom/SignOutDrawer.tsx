@@ -15,9 +15,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
-        backgroundColor: theme.palette.background.default,
-    },
     openButton: {
         display: 'flex',
         minWidth: '36px',

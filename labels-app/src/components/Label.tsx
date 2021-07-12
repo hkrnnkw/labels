@@ -19,9 +19,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
-        backgroundColor: theme.palette.background.default,
-    },
     container: {
         display: 'flex',
         flexWrap: 'wrap',
@@ -123,7 +120,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     };
 
     return (
-        <div className={classes.root}>
+        <div>
             <Typography>{labelName}</Typography>
             <FollowButton uid={uid} label={thisLabel} tokenChecker={tokenChecker} />
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}

@@ -15,9 +15,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         minHeight: '100vh',
     },
-    root: {
-        backgroundColor: theme.palette.background.default,
-    },
     gridList: {
         flexWrap: 'nowrap',
         transform: 'translateZ(0)',
