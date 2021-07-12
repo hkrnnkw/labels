@@ -201,6 +201,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 open={drawerOpen}
                 onClose={handleClose}
                 className={classes.dialog}
+                fullScreen={true}
             >
                 <DialogContent>
                     {filtered.map(label => generateAlbumsOfLabel(label, true))}
