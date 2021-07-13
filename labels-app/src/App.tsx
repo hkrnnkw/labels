@@ -44,6 +44,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 fontSize: '1.25rem',
                 padding: theme.spacing(0, 4),
             },
+            '& a.MuiLink-underlineHover:hover': {
+                textDecoration: 'none',
+            },
         },
     },
     '@media (min-width: 960px)': {
