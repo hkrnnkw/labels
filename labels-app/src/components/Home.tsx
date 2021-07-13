@@ -39,9 +39,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     showAll: {
         width: '88px',
-        height: '24px',
+        height: '28px',
+        fontSize: '0.8rem',
         margin: theme.spacing(0, 4),
-        borderRadius: '12px',
+        borderRadius: '14px',
         color: theme.palette.primary.light,
         border: `1px solid ${theme.palette.primary.light}`,
         backgroundColor: 'transparent',
@@ -82,6 +83,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     dialog: {
         '& button': {
             textTransform: 'none',
+            fontSize: '0.8rem',
+            fontWeight: 700,
         },
         '& .MuiDialog-container': {
             height: 'max-content',
