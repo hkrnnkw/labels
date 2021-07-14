@@ -72,7 +72,7 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
     const res = await getReqProcessor(url, accessToken);
     const simpleAlbums: SimpleAlbum[] = res.data.albums.items;
     if (!simpleAlbums.length) return { query: query, albums: [] };
-    const albumIds: string[] = simpleAlbums.map(album => album.id);
+    const albumIds: string[] = simpleAlbums.flatMap(album => [album.id] || []);
 
     const albums: Album[] = await getFullAlbumObj(albumIds, accessToken);
     const result: SearchResult = {
