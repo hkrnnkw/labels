@@ -23,16 +23,20 @@ import { checkTokenExpired } from './handlers/spotifyHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
-    },
-    root: {
-        backgroundColor: theme.palette.background.default,
-        minHeight: '100vh',
+        maxHeight: '100vh',
+        position: 'relative',
         '& button': {
             textTransform: 'none',
         },
     },
     header: {
+        width: '100vw',
+        backgroundColor: theme.palette.background.default,
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        zIndex: 5,
+        paddingTop: theme.spacing(4),
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -100,7 +104,7 @@ const App: FC = () => {
 
     return (
         <BrowserRouter>
-        <div className={classes.root}>
+        <div className={classes.contentClass}>
             <div className={classes.header}>
                 <div id='title'>
                     <Link component={RouterLink} to={home}>Labels</Link>

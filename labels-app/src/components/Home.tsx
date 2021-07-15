@@ -21,7 +21,12 @@ import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
+        width: '100vw',
+        minHeight: `calc(100vh - 64px)`,
+        height: 'max-content',
+        backgroundColor: theme.palette.background.default,
+        position: 'absolute',
+        top: '48px',
     },
     searchButton: {
         zIndex: 100,
@@ -220,7 +225,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const filtered = homeList.filter(label => label.newReleases.length);
         const sorted: Label[] = sortHandler(showAll ? homeList : filtered, order);
         return (
-            <div>
+            <div className={classes.contentClass}>
                 <div className={classes.header}>
                     <SortDrawer currentSortOrder={sortOrder} />
                     <Button
@@ -247,7 +252,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     };
 
     const guestHome = (disabled: boolean): JSX.Element => (
-        <div>
+        <div className={classes.contentClass}>
             <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
                 Let's get started with Spotify.
             </Button>

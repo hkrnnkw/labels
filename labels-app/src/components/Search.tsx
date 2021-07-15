@@ -16,19 +16,19 @@ import { setSaved, setSearched, clearSearched } from '../stores/albums';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
-    },
-    search: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-around',
-        overflow: 'hidden',
+        width: '100vw',
+        minHeight: `calc(100vh - 64px)`,
+        height: 'max-content',
+        backgroundColor: theme.palette.background.default,
+        position: 'absolute',
+        top: '48px',
     },
     searchbar: {
         display: 'inline-flex',
         justifyContent: 'space-between',
         width: '100vw',
-        margin: theme.spacing(1, 0, 3),
+        backgroundColor: theme.palette.background.default,
+        padding: theme.spacing(1, 0),
         position: 'fixed',
         zIndex: 3,
         '& div.MuiFormControl-root.MuiTextField-root': {
@@ -68,9 +68,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     list: {
-        margin: theme.spacing(13, 4, 0, 4),
-        height: `calc(100vh - ${theme.spacing(13)}px)`,
-        overflowY: 'scroll',
+        height: '100%',
+        margin: theme.spacing(13, 4, 0),
     },
     listItem: {
         width: `calc(100vw - ${theme.spacing(8)}px)`,
@@ -181,7 +180,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     };
 
     return (
-        <div className={classes.search}>
+        <div className={classes.contentClass}>
             <span className={classes.searchbar}>
                 <TextField
                     id='outlined-search'
