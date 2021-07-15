@@ -58,6 +58,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             backgroundColor: theme.palette.primary.light,
         },
     },
+    falsyMessage: {
+        width: `calc(100vw - ${theme.spacing(8)}px)`,
+        margin: theme.spacing(10, 4),
+        textAlign: 'center',
+    },
     container: {
         width: '100vw',
         display: 'flex',
@@ -240,10 +245,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     <SearchIcon />
                 </Fab>
                 {!homeList.length ?
-                    <Typography>You have not followed labels yet.</Typography>
+                    <Typography className={classes.falsyMessage}>Not following any label.</Typography>
                     :
                     !sorted.length ?
-                        <Typography>No releases recently.</Typography>
+                        <Typography className={classes.falsyMessage}>No releases recently.</Typography>
                         :
                         sorted.map(label => generateAlbumsOfLabel(label))}
                 {(drawerOpen && defaults.length > 0) && suggestDefaultLabels(defaults, drawerOpen)}
