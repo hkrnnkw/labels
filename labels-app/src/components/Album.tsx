@@ -3,37 +3,97 @@ import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, Avatar, List, ListItem, Link,
+    Typography, Avatar, List, ListItem, ListItemText, Link, Container,
 } from '@material-ui/core';
 import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { getArtists } from '../handlers/spotifyHandler';
+import { convertReleaseDate, getArtists } from '../handlers/spotifyHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
+        width: '100vw',
+        minHeight: `calc(100vh - 64px)`,
+        height: 'max-content',
+        backgroundColor: theme.palette.background.default,
+        position: 'absolute',
+        top: '48px',
     },
     jacket: {
         width: '100%',
+        height: 'auto',
+        margin: theme.spacing(2, 0),
     },
-    names: {
-        width: '97%',
+    container: {
+        width: `calc(100vw - ${theme.spacing(8)}px)`,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
+        padding: 0,
+        margin: theme.spacing(2, 4, 6),
     },
-    comma: {
-        display: 'inline',
+    labelName: {
+        width: '100%',
+        fontSize: '1.6rem',
+        padding: theme.spacing(2, 0),
+        wordBreak: 'break-all',
+    },
+    title: {
+        width: '100%',
+        margin: theme.spacing(2, 0, 1),
+        fontSize: '1.2rem',
+        fontWeight: 700,
     },
     artist: {
+        width: '100%',
         display: 'flex',
         alignItems: 'center',
+        '&.MuiList-root': {
+            alignItems: 'flex-start',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+        },
+        '& li': {
+            padding: theme.spacing(1, 0),
+            '& a.MuiLink-root': {
+                display: 'flex',
+                alignItems: 'center',
+                '& .MuiAvatar-root': {
+                    marginRight: theme.spacing(3),
+                },
+                '&#higherSide': {
+                    '& .MuiAvatar-root': {
+                        width: '24px',
+                        height: '24px',
+                        marginRight: theme.spacing(2),
+                    },
+                    '& .MuiListItemText-root': {
+                        '& span': {
+                            fontSize: '0.875rem',
+                        },
+                    },
+                },
+            },
+        },
     },
-    artistAvatar: {
-        marginRight: '10px',
-    },
-    artistName: {
-
+    tracks: {
+        width: '100%',
+        display: 'flex',
+        alignItems: 'flex-start',
+        flexDirection: 'column',
+        flexWrap: 'nowrap',
+        margin: theme.spacing(3, 0),
+        padding: 0,
+        '& li': {
+            padding: theme.spacing(0),
+            '& .MuiListItemText-root': {
+                margin: 0,
+                '& span': {
+                    fontSize: '0.875rem',
+                    lineHeight: '1.6rem',
+                },
+            },
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -61,48 +121,51 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     }, [simpleArtists, tokenChecker]);
 
     // アーティスト名を並べる
-    const createArtistNames = (artists: Artist[]): JSX.Element[] => {
-        const result: JSX.Element[] = [];
-        for (let i = 0; i < artists.length; i++) {
-            if (i !== 0) result.push(<Typography className={classes.comma}>, </Typography>);
-            result.push(
-                <Link
-                    component={RouterLink}
-                    to={{ pathname: `${artistPath}/${artists[i].id}`, state: { artist: artists[i] } }}
-                >
-                    {artists[i].name}
-                </Link>,
-            );
+    const createArtistNames = (artists: Artist[], lowerSide: boolean = false): JSX.Element[] => {
+        if (lowerSide || artists.length === 1) {
+            return artists.map(artist => (
+                <ListItem>
+                    <Link
+                        component={RouterLink}
+                        to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }}
+                        id={lowerSide ? undefined : 'higherSide'}
+                    >
+                        <Avatar alt={artist.name} src={artist.images[0].url} />
+                        <ListItemText>{artist.name}</ListItemText>
+                    </Link>
+                </ListItem>
+            ));
         }
-        return result;
+        else {
+            const artistNames: string[] = artists.map(artist => artist.name);
+            return [<Typography variant='subtitle2'>{artistNames.join(', ')}</Typography>];
+        }
     };
 
     return (
-        <div>
-            <img
-                src={images[0].url}
-                alt={`${simpleArtists[0].name} - ${title}`}
-                className={classes.jacket}
-            />
-            <Typography>{title}</Typography>
-            <div className={classes.names}>
-                {createArtistNames(fullArtists)}
-            </div>
-            <Link component={RouterLink} to={{ pathname: `${labelPath}/${label}`, state: { labelName: label } }}>{label}</Link>
-            <List>
-                {tracks.items.map(track => <ListItem>{track.name}</ListItem>)}
-            </List>
-            <Typography>{release_date}</Typography>
-            <List>
-                {fullArtists.map(artist => { return (
-                    <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }} className={classes.artist}>
-                        <ListItem>
-                            <Avatar src={artist.images[0].url} className={classes.artistAvatar} />
-                            <Typography className={classes.artistName}>{artist.name}</Typography>
-                        </ListItem>
-                    </Link>
-                )})}
-            </List>
+        <div className={classes.contentClass}>
+            <Container className={classes.container}>
+                <Link
+                    className={classes.labelName}
+                    component={RouterLink}
+                    to={{ pathname: `${labelPath}/${label}`, state: { labelName: label } }}
+                >
+                    {label}
+                </Link>
+                <img
+                    src={images[0].url}
+                    alt={`${simpleArtists[0].name} - ${title}`}
+                    className={classes.jacket}
+                />
+                <Typography className={classes.title}>{title}</Typography>
+                <div className={classes.artist}>{createArtistNames(fullArtists)}</div>
+                <List className={classes.tracks}>
+                    {tracks.items.map(track =>
+                        <ListItem><ListItemText>{track.name}</ListItemText></ListItem>)}
+                </List>
+                <Typography>{convertReleaseDate(release_date)}</Typography>
+                <List className={classes.artist}>{createArtistNames(fullArtists, true)}</List>
+            </Container>
         </div>
     )
 };

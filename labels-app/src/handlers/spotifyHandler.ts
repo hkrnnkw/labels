@@ -107,3 +107,51 @@ export const getArtistAlbums = async (artistId: string, accessToken: string): Pr
     const albumIds: string[] = simpleAlbums.map(album => album.id);
     return await getFullAlbumObj(albumIds, accessToken);
 };
+
+// release_dateをYYYY-MM-DD形式から変換
+export const convertReleaseDate = (rawDate: string): string => {
+    const rawArray: string[] = rawDate.split('-');
+    const year: string = rawArray[0];
+    if (rawArray.length === 1) return year;
+    const day: string = rawArray[2].startsWith('0') ? rawArray[2].slice(1) : rawArray[2];
+    const converted: string[] = [day, ', ', year];
+    switch (rawArray[1]) {
+        case '01':
+            converted.unshift('January ');
+            break;
+        case '02':
+            converted.unshift('February ');
+            break;
+        case '03':
+            converted.unshift('March ');
+            break;
+        case '04':
+            converted.unshift('April ');
+            break;
+        case '05':
+            converted.unshift('May ');
+            break;
+        case '06':
+            converted.unshift('June ');
+            break;
+        case '07':
+            converted.unshift('July ');
+            break;
+        case '08':
+            converted.unshift('August ');
+            break;
+        case '09':
+            converted.unshift('September ');
+            break;
+        case '10':
+            converted.unshift('October ');
+            break;
+        case '11':
+            converted.unshift('November ');
+            break;
+        case '12':
+            converted.unshift('December ');
+            break;
+    }
+    return converted.join('');
+};
