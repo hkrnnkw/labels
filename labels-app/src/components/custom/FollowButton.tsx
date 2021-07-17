@@ -1,5 +1,6 @@
 import React, { FC, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Label, SearchResult } from "../../utils/types";
 import {
@@ -10,8 +11,7 @@ import { searchAlbums } from "../../handlers/spotifyHandler";
 import { setAddLabel, setDeleteLabel } from '../../stores/albums';
 
 interface FollowButtonProps {
-    uid: string,
-    label: Label,
+    labelName: string,
     tokenChecker: () => Promise<string>,
 }
 
@@ -26,9 +26,12 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const FollowButton: FC<FollowButtonProps> = ({ uid, label, tokenChecker }) => {
+export const FollowButton: FC<FollowButtonProps> = ({ labelName, tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
+    const { uid } = useSelector((rootState: RootState) => rootState.user);
+    const { home } = useSelector((rootState: RootState) => rootState.albums);
+    const label: Label = home.find(followingLabel => followingLabel.name === labelName) || { name: labelName, date: -1, newReleases: [] };
     const [isFollowing, setIsFollowing] = useState(label.date > 0);
 
     // フォロー操作

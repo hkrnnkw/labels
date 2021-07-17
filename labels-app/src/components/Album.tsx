@@ -8,6 +8,7 @@ import {
 import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
 import { convertReleaseDate, getArtists } from '../handlers/spotifyHandler';
+import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -105,7 +106,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Album: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: AlbumObj }>();
-    const { artists: simpleArtists, images, name: title, label, tracks, release_date } = state.album;
+    const { artists: simpleArtists, images, name: title, label: labelName, tracks, release_date } = state.album;
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
 
     // アーティストの情報を取得
@@ -148,10 +149,11 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 <Link
                     className={classes.labelName}
                     component={RouterLink}
-                    to={{ pathname: `${labelPath}/${label}`, state: { labelName: label } }}
+                    to={{ pathname: `${labelPath}/${labelName}`, state: { labelName: labelName } }}
                 >
-                    {label}
+                    {labelName}
                 </Link>
+                <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
                 <img
                     src={images[0].url}
                     alt={`${simpleArtists[0].name} - ${title}`}

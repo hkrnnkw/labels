@@ -163,10 +163,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const results: SearchResult[] = await Promise.all(tasks);
 
             const labelList: Label[] = results.map(result => {
-                const name = result.query.label || '';
+                const labelName = result.query.label || '';
                 return {
-                    name: name,
-                    date: favLabels[name] || -1,
+                    name: labelName,
+                    date: favLabels[labelName] || -1,
                     newReleases: result.albums,
                 }
             });
@@ -178,18 +178,18 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, [uid, home, needDefaults, dispatch, tokenChecker]);
 
     const generateAlbumsOfLabel = (label: Label, isDefault: boolean = false): JSX.Element => {
-        const { name, newReleases } = label;
+        const { name: labelName, newReleases } = label;
         return (
-            <Container className={classes.container} id={name}>
+            <Container className={classes.container} id={labelName}>
                 <Link
                     className={classes.labelName}
                     id={isDefault ? 'isDefault' : undefined}
                     component={RouterLink}
-                    to={{ pathname: `${labelPath}/${name}`, state: { labelName: name } }}
+                    to={{ pathname: `${labelPath}/${labelName}`, state: { labelName: labelName } }}
                 >
-                    {name}
+                    {labelName}
                 </Link>
-                {isDefault && <FollowButton uid={uid} label={label} tokenChecker={tokenChecker} />}
+                {isDefault && <FollowButton labelName={labelName} tokenChecker={tokenChecker} />}
                 {!newReleases.length ?
                     <Typography>No releases recently.</Typography>
                     :

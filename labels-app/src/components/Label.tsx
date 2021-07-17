@@ -1,15 +1,13 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, Link, Container, Avatar,
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
-import { Label as LabelType, SearchResult, Year } from '../utils/types';
+import { SearchResult, Year } from '../utils/types';
 import { artist as artistPath } from '../utils/paths';
 import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
 import { CustomGridList } from './custom/CustomGridList';
@@ -40,9 +38,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Label: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { labelName } = useLocation<{ labelName: string }>().state;
-    const { uid } = useSelector((rootState: RootState) => rootState.user);
-    const { home } = useSelector((rootState: RootState) => rootState.albums);
-    const thisLabel: LabelType = home.find(label => label.name === labelName) || { name: labelName, date: -1, newReleases: [] };
     const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
@@ -122,7 +117,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     return (
         <div>
             <Typography>{labelName}</Typography>
-            <FollowButton uid={uid} label={thisLabel} tokenChecker={tokenChecker} />
+            <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
             {generateYears(albumsOfYears)}
         </div>
