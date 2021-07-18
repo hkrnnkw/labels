@@ -31,9 +31,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     cancelButton: {
         width: '100vw',
         height: '7.5vh',
-        '& .MuiButton-label': {
-            textTransform: 'none',
-        },
     },
     '@media (min-width: 960px)': {
         contentClass: {

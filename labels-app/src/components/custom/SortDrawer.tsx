@@ -24,14 +24,12 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(0, 4),
         '& .MuiButton-label': {
             justifyContent: 'flex-start',
+            fontWeight: 500,
         },
     },
     cancelButton: {
         width: '100vw',
         height: '7.5vh',
-        '& .MuiButton-label': {
-            textTransform: 'none',
-        },
     },
     selectedItem: {
         color: 'Purple',

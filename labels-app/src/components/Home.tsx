@@ -91,11 +91,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     dialog: {
-        '& button': {
-            textTransform: 'none',
-            fontSize: '0.8rem',
-            fontWeight: 700,
-        },
         '& .MuiDialog-container': {
             height: 'max-content',
         },

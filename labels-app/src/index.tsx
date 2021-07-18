@@ -13,6 +13,13 @@ const theme = createMuiTheme({
                 fontWeight: 700,
             },
         },
+        MuiButton: {
+            label: {
+                textTransform: 'none',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+            },
+        },
     },
     props: {
 

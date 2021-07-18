@@ -25,9 +25,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         maxHeight: '100vh',
         position: 'relative',
-        '& button': {
-            textTransform: 'none',
-        },
     },
     header: {
         width: '100vw',
