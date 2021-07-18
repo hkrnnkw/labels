@@ -92,8 +92,8 @@ export const getSavedAlbums = async (accessToken: string): Promise<Album[]> => {
 
 // アーティストの情報を取得
 export const getArtists = async (artistIds: string[], accessToken: string): Promise<Artist[]> => {
-    const ids: string = artistIds.join();
-    const url = `https://api.spotify.com/v1/artists?ids=${ids.replace(',', '%2C')}`;
+    const ids: string = artistIds.join('%2C');
+    const url = `https://api.spotify.com/v1/artists?ids=${ids}`;
     const res = await getReqProcessor(url, accessToken);
     const artists: Artist[] = res.data.artists;
     return artists;
@@ -154,4 +154,13 @@ export const convertReleaseDate = (rawDate: string): string => {
             break;
     }
     return converted.join('');
+};
+
+// 指定した要素数で配列を分割
+export const sliceArrayByNumber = (array: string[], num: number): string[][] => {
+    const length = Math.ceil(array.length / num);
+    const results: string[][] = new Array(length);
+    return results.fill([]).map((_: string[], i: number) => {
+        return array.slice(i * num, (i + 1) * num);
+    });
 };

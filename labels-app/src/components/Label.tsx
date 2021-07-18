@@ -9,7 +9,7 @@ import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { SearchResult, Year } from '../utils/types';
 import { artist as artistPath } from '../utils/paths';
-import { getArtists, searchAlbums } from '../handlers/spotifyHandler';
+import { getArtists, searchAlbums, sliceArrayByNumber } from '../handlers/spotifyHandler';
 import { CustomGridList } from './custom/CustomGridList';
 import { FollowButton } from './custom/FollowButton';
 
@@ -99,11 +99,17 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         const idSet = new Set<string>();
         for (const artist of artists) idSet.add(artist.id);
 
-        const fetchArtists = async (): Promise<Artist[]> => {
+        const fetchArtists = async (artistIds: string[]): Promise<Artist[]> => {
             const token: string = await tokenChecker();
-            return await getArtists(Array.from(idSet), token);
+            if (artistIds.length < 50) {
+                return await getArtists(artistIds, token);
+            }
+            const idsSliced: string[][] = sliceArrayByNumber(artistIds, 50);
+            const tasks = idsSliced.map(ids => getArtists(ids, token));
+            const results: Artist[][] = await Promise.all(tasks);
+            return results.flat();
         };
-        fetchArtists()
+        fetchArtists(Array.from(idSet))
             .then(results => setArtistsOfLabel(results))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [albumsOfYears, tokenChecker]);
