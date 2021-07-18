@@ -46,8 +46,8 @@ const getReqProcessor = async (url: string, accessToken: string): Promise<AxiosR
 
 // アルバムオブジェクト(Full)を取得
 const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise<Album[]> => {
-    const ids: string = albumIds.join();
-    const url = `https://api.spotify.com/v1/albums?ids=${ids.replace(',', '%2C')}`;
+    const ids: string = albumIds.join('%2C');
+    const url = `https://api.spotify.com/v1/albums?ids=${ids}`;
     const res = await getReqProcessor(url, accessToken);
     const albums: Album[] = res.data.albums;
     return albums;
