@@ -18,7 +18,16 @@ interface FollowButtonProps {
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         width: '80px',
-        padding: theme.spacing(2),
+        padding: theme.spacing(1, 2),
+        border: `1px ${theme.palette.secondary.light} solid`,
+        color: theme.palette.secondary.light,
+        backgroundColor: 'transparent',
+        transition: 'none',
+        '&#following': {
+            border: 'none',
+            color: theme.palette.background.default,
+            backgroundColor: theme.palette.secondary.light,
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -70,7 +79,11 @@ export const FollowButton: FC<FollowButtonProps> = ({ labelName, tokenChecker })
     };
 
     return (
-        <Button className={classes.contentClass} onClick={() => handleFollow()}>
+        <Button
+            id={isFollowing ? 'following' : undefined}
+            className={classes.contentClass}
+            onClick={() => handleFollow()}
+        >
             {isFollowing ? 'Following' : 'Follow'}
         </Button>
     );

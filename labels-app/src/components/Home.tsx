@@ -68,6 +68,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         display: 'flex',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
+        alignItems: 'center',
         overflow: 'hidden',
         padding: 0,
         margin: theme.spacing(2, 0, 6),
@@ -86,8 +87,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         whiteSpace: 'nowrap',
         alignItems: 'center',
         '&#isDefault': {
-            width: `calc(100vw - ${theme.spacing(28)}px)`,
-            margin: theme.spacing(0, 0, 0, 4),
+            width: `calc(100vw - ${theme.spacing(30)}px)`,
+            margin: theme.spacing(0, 2, 0, 4),
         },
     },
     dialog: {
