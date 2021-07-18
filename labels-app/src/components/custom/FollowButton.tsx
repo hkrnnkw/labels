@@ -17,7 +17,8 @@ interface FollowButtonProps {
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
+        width: '80px',
+        padding: theme.spacing(2),
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -69,7 +70,7 @@ export const FollowButton: FC<FollowButtonProps> = ({ labelName, tokenChecker })
     };
 
     return (
-        <Button onClick={() => handleFollow()}>
+        <Button className={classes.contentClass} onClick={() => handleFollow()}>
             {isFollowing ? 'Following' : 'Follow'}
         </Button>
     );

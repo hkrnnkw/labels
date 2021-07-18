@@ -34,10 +34,14 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(2, 4, 6),
     },
     labelName: {
-        width: '100%',
+        width: `calc(100vw - ${theme.spacing(28)}px)`,
         fontSize: '1.6rem',
         padding: theme.spacing(2, 0),
-        wordBreak: 'break-all',
+        display: 'inline-block',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        alignItems: 'center',
     },
     title: {
         width: '100%',

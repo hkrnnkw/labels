@@ -86,7 +86,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         whiteSpace: 'nowrap',
         alignItems: 'center',
         '&#isDefault': {
-            width: `calc(75% - ${theme.spacing(4)}px)`,
+            width: `calc(100vw - ${theme.spacing(28)}px)`,
             margin: theme.spacing(0, 0, 0, 4),
         },
     },
@@ -104,12 +104,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             padding: 0,
             marginTop: theme.spacing(4),
             '& button': {
-                width: `calc(25% - ${theme.spacing(4)}px)`,
-                margin: theme.spacing(0, 2),
-                padding: theme.spacing(2),
-                '& .MuiButton-label': {
-                    display: 'initial',
-                },
+                margin: theme.spacing(0, 4, 0, 0),
             },
         },
         '& .MuiDialogActions-root': {
