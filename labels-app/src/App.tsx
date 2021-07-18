@@ -66,6 +66,10 @@ const App: FC = () => {
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
     auth.onAuthStateChanged(firebaseUser => setUser(firebaseUser));
 
+    useEffect(() => {
+        document.body.style.backgroundColor = '#fafafa';
+    }, []);
+
     // ユーザステータスの切替え
     useEffect(() => {
         if (!user) {
