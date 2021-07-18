@@ -32,7 +32,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         height: '7.5vh',
     },
     selectedItem: {
-        color: 'Purple',
+        color: theme.palette.primary.main,
     },
     '@media (min-width: 960px)': {
         contentClass: {
