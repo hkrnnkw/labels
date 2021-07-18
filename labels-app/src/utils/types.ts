@@ -41,7 +41,10 @@ export type Label = {
     newReleases: Album[];
 }
 
-export type Year = { [year: string]: Album[] };
+export type Year = {
+    yearStr: string;
+    releases: Album[];
+}
 
 const SortOrderCA = {
     RF: RF,

@@ -63,7 +63,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Label: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { labelName } = useLocation<{ labelName: string }>().state;
-    const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
+    const [albumsOfYears, setAlbumsOfYears] = useState<Year[]>([]);
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
     // レーベルの各年のアルバムを取得
@@ -74,15 +74,16 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             return new Array(5).fill(thisYear).map((y: number, i: number) => y - i);
         };
 
-        const fetchLabel = async (): Promise<Year> => {
+        const fetchLabel = async (): Promise<Year[]> => {
             const token: string = await tokenChecker();
             const last5years: number[] = getLast5Years();
             const tasks = last5years.map(year => searchAlbums({ label: labelName, year: year.toString() }, token));
             const results: SearchResult[] = await Promise.all(tasks);
 
-            const yearObj: Year = {};
-            for (const result of results) yearObj[result.query.year || ''] = result.albums;
-            return yearObj;
+            return results.map(result => ({
+                yearStr: result.query.year || '',
+                releases: result.albums,
+            }));
         };
         fetchLabel()
             .then(albums => setAlbumsOfYears(albums))
@@ -91,22 +92,19 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
     // レーベルのアーティストを取得
     useEffect(() => {
-        const years: Album[][] = Object.values(albumsOfYears);
-        if (!years.length) return;
+        const allAlbums: Album[] = albumsOfYears.flatMap(year => year.releases || []);
+        if (!allAlbums.length) return;
 
+        const artists = allAlbums.flatMap(album => album.artists || []);
         const idSet = new Set<string>();
-        for (const albums of years) {
-            for (const album of albums) {
-                for (const artist of album.artists) idSet.add(artist.id);
-            }
-        }
+        for (const artist of artists) idSet.add(artist.id);
 
         const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();
             return await getArtists(Array.from(idSet), token);
         };
         fetchArtists()
-            .then(artists => setArtistsOfLabel(artists))
+            .then(results => setArtistsOfLabel(results))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [albumsOfYears, tokenChecker]);
 
@@ -120,23 +118,25 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         </AvatarGroup>
     );
 
-    const generateAlbums = (year: string, albums: Album[]): JSX.Element => {
+    const generateAlbums = (year: Year): JSX.Element => {
+        const { yearStr, releases } = year;
         return (
-            <Container className={classes.container} id={year}>
-                <Typography id={'year'}>{year}</Typography>
-                {!albums.length ?
+            <Container className={classes.container} id={yearStr}>
+                <Typography id={'year'}>{yearStr}</Typography>
+                {!releases.length ?
                     <Typography>No releases.</Typography>
                     :
-                    <CustomGridList albums={albums} />
+                    <CustomGridList albums={releases} />
                 }
             </Container>
         );
     };
 
-    const generateYears = (years: Year): JSX.Element[] => {
-        const entries: [string, Album[]][] = Object.entries(years);
-        const sorted = entries.sort((a, b) => a[0] > b[0] ? -1 : a[0] < b[0] ? 1 : 0);
-        return sorted.map(([year, albums]) => generateAlbums(year, albums));
+    const generateYears = (years: Year[]): JSX.Element[] => {
+        const sorted = years.sort((a: Year, b: Year) => {
+            return a.yearStr > b.yearStr ? -1 : a.yearStr < b.yearStr ? 1 : 0;
+        });
+        return sorted.map(year => generateAlbums(year));
     };
 
     return (
