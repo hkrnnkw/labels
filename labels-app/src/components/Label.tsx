@@ -15,18 +15,43 @@ import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
+        width: '100vw',
+        minHeight: `calc(100vh - 64px)`,
+        height: 'max-content',
+        backgroundColor: theme.palette.background.default,
+        position: 'absolute',
+        top: '48px',
     },
     container: {
+        width: '100vw',
         display: 'flex',
         flexWrap: 'wrap',
-        justifyContent: 'space-around',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
         overflow: 'hidden',
         padding: 0,
-        marginBottom: '30px',
+        margin: theme.spacing(4, 0),
+        '& p': {
+            margin: theme.spacing(0, 4),
+            '&#year': {
+                fontSize: '1.25rem',
+            },
+        },
     },
-    year: {
-        width: '100%',
+    labelName: {
+        width: `calc(100% - ${theme.spacing(8)}px)`,
+        fontSize: '1.6rem',
+        fontWeight: 700,
+        wordBreak: 'break-all',
+        margin: theme.spacing(0, 4),
+        padding: theme.spacing(2, 0),
+    },
+    subHeader: {
+        width: `calc(100% - ${theme.spacing(8)}px)`,
+        display: 'flex',
+        margin: theme.spacing(0, 4),
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -98,7 +123,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const generateAlbums = (year: string, albums: Album[]): JSX.Element => {
         return (
             <Container className={classes.container} id={year}>
-                <Typography className={classes.year}>{year}</Typography>
+                <Typography id={'year'}>{year}</Typography>
                 {!albums.length ?
                     <Typography>No releases.</Typography>
                     :
@@ -115,10 +140,12 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     };
 
     return (
-        <div>
-            <Typography>{labelName}</Typography>
-            <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
-            {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
+        <div className={classes.contentClass}>
+            <Typography className={classes.labelName}>{labelName}</Typography>
+            <div className={classes.subHeader}>
+                {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
+                <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
+            </div>
             {generateYears(albumsOfYears)}
         </div>
     )
