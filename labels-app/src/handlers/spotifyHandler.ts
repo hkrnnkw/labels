@@ -108,9 +108,6 @@ export const getArtistAlbums = async (artistId: string, accessToken: string): Pr
     const res = await getReqProcessor(url, accessToken);
     const simpleAlbums: SimpleAlbum[] = res.data.items;
     const albumIds: string[] = simpleAlbums.map(album => album.id);
-    if (albumIds.length < 20) {
-        return await getFullAlbumObj(albumIds, accessToken);
-    }
     const idsSliced: string[][] = sliceArrayByNumber(albumIds, 20);
     const tasks = idsSliced.map(ids => getFullAlbumObj(ids, accessToken));
     const results: Album[][] = await Promise.all(tasks);
@@ -167,6 +164,7 @@ export const convertReleaseDate = (rawDate: string): string => {
 
 // 指定した要素数で配列を分割
 const sliceArrayByNumber = (array: string[], num: number): string[][] => {
+    if (array.length <= num) return [array];
     const length = Math.ceil(array.length / num);
     const results: string[][] = new Array(length);
     return results.fill([]).map((_: string[], i: number) => {
