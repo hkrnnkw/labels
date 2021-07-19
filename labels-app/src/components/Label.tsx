@@ -9,7 +9,7 @@ import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { SearchResult, Year } from '../utils/types';
 import { artist as artistPath } from '../utils/paths';
-import { getArtists, searchAlbums, sliceArrayByNumber, isVariousAritist } from '../handlers/spotifyHandler';
+import { getArtists, searchAlbums, isVariousAritist } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
 import { ContainerOfYears } from './custom/ContainerOfYears';
 
@@ -84,13 +84,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
         const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();
-            if (artistIds.length < 50) {
-                return await getArtists(artistIds, token);
-            }
-            const idsSliced: string[][] = sliceArrayByNumber(artistIds, 50);
-            const tasks = idsSliced.map(ids => getArtists(ids, token));
-            const results: Artist[][] = await Promise.all(tasks);
-            return results.flat();
+            return await getArtists(artistIds, token);
         };
         fetchArtists()
             .then(artists => setArtistsOfLabel(artists))

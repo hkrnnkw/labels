@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { convertReleaseDate, getArtists, sliceArrayByNumber } from '../handlers/spotifyHandler';
+import { convertReleaseDate, getArtists } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -120,13 +120,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();
             const artistIds: string[] = simpleArtists.map(artist => artist.id);
-            if (artistIds.length < 50) {
-                return await getArtists(artistIds, token);
-            }
-            const idsSliced: string[][] = sliceArrayByNumber(artistIds, 50);
-            const tasks = idsSliced.map(ids => getArtists(ids, token));
-            const results: Artist[][] = await Promise.all(tasks);
-            return results.flat();
+            return await getArtists(artistIds, token);
         };
         fetchArtists()
             .then(artists => setFullArtists(artists))
