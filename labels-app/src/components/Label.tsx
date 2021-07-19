@@ -3,15 +3,15 @@ import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, Link, Container, Avatar,
+    Typography, Link, Avatar,
 } from '@material-ui/core';
 import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { SearchResult, Year } from '../utils/types';
 import { artist as artistPath } from '../utils/paths';
 import { getArtists, searchAlbums, sliceArrayByNumber, isVariousAritist } from '../handlers/spotifyHandler';
-import { CustomGridList } from './custom/CustomGridList';
 import { FollowButton } from './custom/FollowButton';
+import { ContainerOfYears } from './custom/ContainerOfYears';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -21,22 +21,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
         top: '48px',
-    },
-    container: {
-        width: '100vw',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'baseline',
-        overflow: 'hidden',
-        padding: 0,
-        margin: theme.spacing(4, 0),
-        '& p': {
-            margin: theme.spacing(0, 4),
-            '&#year': {
-                fontSize: '1.25rem',
-            },
-        },
     },
     labelName: {
         width: `calc(100% - ${theme.spacing(8)}px)`,
@@ -123,25 +107,6 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         </AvatarGroup>
     );
 
-    const generateAlbums = (year: string, albums: Album[]): JSX.Element => {
-        return (
-            <Container className={classes.container} id={year}>
-                <Typography id={'year'}>{year}</Typography>
-                {!albums.length ?
-                    <Typography>No releases.</Typography>
-                    :
-                    <CustomGridList albums={albums} />
-                }
-            </Container>
-        );
-    };
-
-    const generateYears = (years: Year): JSX.Element[] => {
-        const entries: [string, Album[]][] = Object.entries(years);
-        const sorted = entries.sort((a, b) => a[0] > b[0] ? -1 : a[0] < b[0] ? 1 : 0);
-        return sorted.map(([year, albums]) => generateAlbums(year, albums));
-    };
-
     return (
         <div className={classes.contentClass}>
             <Typography className={classes.labelName}>{labelName}</Typography>
@@ -149,7 +114,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
                 {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             </div>
-            {generateYears(albumsOfYears)}
+            <ContainerOfYears years={albumsOfYears} />
         </div>
     )
 };

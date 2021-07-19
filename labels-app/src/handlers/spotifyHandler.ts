@@ -101,11 +101,17 @@ export const getArtists = async (artistIds: string[], accessToken: string): Prom
 
 // アーティストのアルバムを取得
 export const getArtistAlbums = async (artistId: string, accessToken: string): Promise<Album[]> => {
-    const url = `https://api.spotify.com/v1/artists/${artistId}/albums`;
+    const url = `https://api.spotify.com/v1/artists/${artistId}/albums?market=US&limit=50`;
     const res = await getReqProcessor(url, accessToken);
     const simpleAlbums: SimpleAlbum[] = res.data.items;
     const albumIds: string[] = simpleAlbums.map(album => album.id);
-    return await getFullAlbumObj(albumIds, accessToken);
+    if (albumIds.length < 20) {
+        return await getFullAlbumObj(albumIds, accessToken);
+    }
+    const idsSliced: string[][] = sliceArrayByNumber(albumIds, 20);
+    const tasks = idsSliced.map(ids => getFullAlbumObj(ids, accessToken));
+    const results: Album[][] = await Promise.all(tasks);
+    return results.flat();
 };
 
 // release_dateをYYYY-MM-DD形式から変換

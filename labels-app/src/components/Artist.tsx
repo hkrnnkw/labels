@@ -3,18 +3,61 @@ import { withRouter } from 'react-router';
 import { useLocation } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, List, ListItem, ListItemText,
+    Typography, List, ListItem, ListItemText, Container,
 } from '@material-ui/core';
 import { Props, Album, Artist as ArtistObj } from '../utils/interfaces';
+import { Year } from '../utils/types';
 import { getArtistAlbums } from '../handlers/spotifyHandler';
-import { CustomGridList } from './custom/CustomGridList';
+import { ContainerOfYears } from './custom/ContainerOfYears';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        minHeight: '100vh',
+        width: '100vw',
+        minHeight: `calc(100vh - 64px)`,
+        height: 'max-content',
+        backgroundColor: theme.palette.background.default,
+        position: 'absolute',
+        top: '48px',
     },
-    profile: {
-        width: '100%',
+    container: {
+        width: `calc(100vw - ${theme.spacing(8)}px)`,
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        overflow: 'hidden',
+        padding: 0,
+        margin: theme.spacing(2, 4, 6),
+        '& img': {
+            width: '100%',
+            height: 'auto',
+            margin: theme.spacing(2, 0),
+        },
+        '& p': {
+            width: '100%',
+            fontSize: '1.6rem',
+            fontWeight: 700,
+            wordBreak: 'break-all',
+            padding: theme.spacing(2, 0),
+        },
+        '& ul': {
+            width: '100%',
+            display: 'flex',
+            alignItems: 'flex-start',
+            flexDirection: 'column',
+            flexWrap: 'nowrap',
+            margin: theme.spacing(3, 0),
+            padding: 0,
+            '& li': {
+                padding: theme.spacing(0),
+                '& .MuiListItemText-root': {
+                    margin: 0,
+                    '& span': {
+                        fontSize: '0.875rem',
+                        lineHeight: '1.6rem',
+                    },
+                },
+            },
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -27,36 +70,43 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ artist: ArtistObj }>();
     const { id: artistId, name: artistName, genres, images } = state.artist;
-    const [albums, setAlbums] = useState<Album[]>([]);
+    const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
 
     useEffect(() => {
-        const fetchAlbums = async (): Promise<Album[]> => {
+        const fetchAlbums = async (): Promise<Year> => {
             const token: string = await tokenChecker();
-            return await getArtistAlbums(artistId, token);
+            const albums: Album[] = await getArtistAlbums(artistId, token);
+            const yearObj: Year = {};
+            for (const album of albums) {
+                const yearKey: string = album.release_date.split('-')[0];
+                const releasesOfYear: Album[] = yearObj[yearKey] || [];
+                releasesOfYear.push(album);
+                yearObj[yearKey] = releasesOfYear;
+            };
+            return yearObj;
         }
         fetchAlbums()
-            .then(data => setAlbums(data))
+            .then(results => setAlbumsOfYears(results))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [artistId, tokenChecker]);
 
     return (
-        <div>
-            <img
-                src={images[0].url}
-                alt={artistName}
-                className={classes.profile}
-            />
-            <Typography>{artistName}</Typography>
-            {genres.length > 0 && <List>
-                {genres.map(genre => {
-                    return (
-                        <ListItem>
-                            <ListItemText>{genre}</ListItemText>
-                        </ListItem>
-                    )
-                })}
-            </List>}
-            <CustomGridList albums={albums} />
+        <div className={classes.contentClass}>
+            <Container className={classes.container}>
+                <img
+                    src={images[0].url}
+                    alt={artistName}
+                />
+                <Typography>{artistName}</Typography>
+                {genres.length > 0 &&
+                    <List>
+                        {genres.map(genre => (
+                            <ListItem><ListItemText>{genre}</ListItemText></ListItem>
+                        ))}
+                    </List>
+                }
+            </Container>
+            <ContainerOfYears years={albumsOfYears} />
         </div>
     )
 };
