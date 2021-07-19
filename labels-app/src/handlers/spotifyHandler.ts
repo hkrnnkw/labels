@@ -68,7 +68,7 @@ export const searchAlbums = async (query: SearchQuery, accessToken: string): Pro
     if (keywords) options.push(keywords.replace(' ', '%20'));
     if (!options.length) return { query: query, albums: [] };
 
-    const url = `https://api.spotify.com/v1/search?q=${options.join('%20')}&type=album&limit=20`;
+    const url = `https://api.spotify.com/v1/search?q=${options.join('%20')}&type=album&market=US&limit=20`;
     const res = await getReqProcessor(url, accessToken);
     const simpleAlbums: SimpleAlbum[] = res.data.albums.items;
     if (!simpleAlbums.length) return { query: query, albums: [] };

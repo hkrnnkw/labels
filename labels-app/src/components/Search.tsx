@@ -186,7 +186,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                     id='outlined-search'
                     variant='outlined'
                     value={typing}
-                    placeholder='Artists, albums, or songs'
+                    placeholder='Artists or albums'
                     type='search'
                     autoComplete='off'
                     onChange={(e) => setTyping(e.target.value)}
