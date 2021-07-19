@@ -164,3 +164,9 @@ export const sliceArrayByNumber = (array: string[], num: number): string[][] => 
         return array.slice(i * num, (i + 1) * num);
     });
 };
+
+export const isVariousAritist = (artistName: string): boolean => {
+    return artistName === 'ヴァリアス・アーティスト'
+        || artistName.localeCompare('various artists', 'en', { sensitivity: 'base' }) === 0
+        || artistName.localeCompare('v.a.', 'en', { sensitivity: 'base' }) === 0;
+};

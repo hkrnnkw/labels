@@ -9,7 +9,7 @@ import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { SearchResult, Year } from '../utils/types';
 import { artist as artistPath } from '../utils/paths';
-import { getArtists, searchAlbums, sliceArrayByNumber } from '../handlers/spotifyHandler';
+import { getArtists, searchAlbums, sliceArrayByNumber, isVariousAritist } from '../handlers/spotifyHandler';
 import { CustomGridList } from './custom/CustomGridList';
 import { FollowButton } from './custom/FollowButton';
 
@@ -91,17 +91,14 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
     // レーベルのアーティストを取得
     useEffect(() => {
-        const years: Album[][] = Object.values(albumsOfYears);
-        if (!years.length) return;
+        const albums: Album[] = Object.values(albumsOfYears).flat();
+        if (!albums.length) return;
 
-        const idSet = new Set<string>();
-        for (const albums of years) {
-            for (const album of albums) {
-                for (const artist of album.artists) idSet.add(artist.id);
-            }
-        }
+        const simpleArtists = albums.flatMap(album => album.artists || []);
+        const tempArtistIds: string[] = simpleArtists.flatMap(artist => isVariousAritist(artist.name) ? [] : [artist.id]);
+        const artistIds = Array.from(new Set<string>(tempArtistIds));
 
-        const fetchArtists = async (artistIds: string[]): Promise<Artist[]> => {
+        const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();
             if (artistIds.length < 50) {
                 return await getArtists(artistIds, token);
@@ -111,7 +108,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             const results: Artist[][] = await Promise.all(tasks);
             return results.flat();
         };
-        fetchArtists(Array.from(idSet))
+        fetchArtists()
             .then(artists => setArtistsOfLabel(artists))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [albumsOfYears, tokenChecker]);
