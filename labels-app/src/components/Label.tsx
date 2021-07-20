@@ -36,6 +36,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(0, 4),
         alignItems: 'center',
         justifyContent: 'space-between',
+        '& a.MuiAvatarGroup-avatar': {
+            border: 'none',
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -92,10 +95,10 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     }, [albumsOfYears, tokenChecker]);
 
     const generateArtists = (artists: Artist[]): JSX.Element => (
-        <AvatarGroup max={6}>
+        <AvatarGroup max={7}>
             {artists.map(artist => (
                 <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
-                    <Avatar alt={artist.name} src={artist.images[0].url} />
+                    <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
                 </Link>
             ))}
         </AvatarGroup>
