@@ -7,7 +7,7 @@ import {
 } from '@material-ui/core';
 import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { convertReleaseDate, getArtists } from '../handlers/spotifyHandler';
+import { convertReleaseDate, getArtists, isVariousAritist } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -114,21 +114,30 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const { state } = useLocation<{ album: AlbumObj }>();
     const { artists: simpleArtists, images, name: title, label: labelName, tracks, release_date } = state.album;
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
+    const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
+    const VARIOUS_ARTISTS: string = 'Various Artists';
 
     // アーティストの情報を取得
     useEffect(() => {
+        const artistIds: string[] = isVA ?
+            tracks.items.flatMap(item => item.artists.map(artist => artist.id))
+            :
+            simpleArtists.map(artist => artist.id);
+
         const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();
-            const artistIds: string[] = simpleArtists.map(artist => artist.id);
             return await getArtists(artistIds, token);
         };
         fetchArtists()
             .then(artists => setFullArtists(artists))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [simpleArtists, tokenChecker]);
+    }, [isVA, tracks.items, simpleArtists, tokenChecker]);
 
     // アーティスト名を並べる
     const createArtistNames = (artists: Artist[], lowerSide: boolean = false): JSX.Element[] => {
+        // Various Artistsの場合
+        if (isVA && !lowerSide) return [<Typography variant='subtitle2'>{VARIOUS_ARTISTS}</Typography>];
+
         if (lowerSide || artists.length === 1) {
             return artists.map(artist => (
                 <ListItem>
@@ -137,7 +146,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                         to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }}
                         id={lowerSide ? undefined : 'higherSide'}
                     >
-                        <Avatar alt={artist.name} src={artist.images[0].url} />
+                        <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
                         <ListItemText>{artist.name}</ListItemText>
                     </Link>
                 </ListItem>
