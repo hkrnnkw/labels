@@ -247,17 +247,19 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         )
     };
 
-    const guestHome = (disabled: boolean): JSX.Element => (
+    const guestHome = (disabled: boolean, appStatus: false | undefined): JSX.Element => (
         <div className={classes.contentClass}>
-            <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
-                Let's get started with Spotify.
-            </Button>
+            {appStatus === false &&
+                <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
+                    Let's get started with Spotify.
+                </Button>
+            }
             {/* TODO ローディングサークル出す */}
             {/* {disabled && } */}
         </div>
     );
 
-    return signedIn ? privateHome(home, sortOrder, defaultLabels, needDefaults) : guestHome(clicked);
+    return signedIn ? privateHome(home, sortOrder, defaultLabels, needDefaults) : guestHome(clicked, signedIn);
 };
 
 export default withRouter(Home);

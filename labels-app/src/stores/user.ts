@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { UserProfile } from "../utils/interfaces";
-import { Auth, Spotify } from "../utils/types";
+import { Auth, Spotify, SignedIn } from "../utils/types";
 
-type UserState = UserProfile & Auth & Spotify;
+type UserState = SignedIn & UserProfile & Auth & Spotify;
 
 const initialState: UserState = {
     uid: '',
-    signedIn: false,
+    signedIn: undefined,
     refreshToken: '',
     displayName: '',
     email: '',
@@ -22,6 +22,9 @@ const slice = createSlice({
     name: "user",
     initialState,
     reducers: {
+        setSignInStatus: (state: UserState, action: PayloadAction<boolean>) => {
+            state.signedIn = action.payload;
+        },
         setUserProfile: (state: UserState, action: PayloadAction<UserProfile>) => {
             const { uid, displayName, email, photoURL } = action.payload;
             state.uid = uid;
@@ -30,8 +33,7 @@ const slice = createSlice({
             state.photoURL = photoURL;
         },
         setAuth: (state: UserState, action: PayloadAction<Auth>) => {
-            const { signedIn, refreshToken, emailVerified } = action.payload;
-            state.signedIn = signedIn;
+            const { refreshToken, emailVerified } = action.payload;
             state.refreshToken = refreshToken;
             state.emailVerified = emailVerified;
         },
@@ -47,4 +49,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setUserProfile, setAuth, setSpotifyTokens, setClearUser } = slice.actions;
+export const { setSignInStatus, setUserProfile, setAuth, setSpotifyTokens, setClearUser } = slice.actions;

@@ -15,7 +15,7 @@ import { SignOutDrawer } from './components/custom/SignOutDrawer';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Link, Typography } from '@material-ui/core';
 import { RootState } from './stores';
-import { setUserProfile, setAuth, setClearUser, setSpotifyTokens } from './stores/user';
+import { setUserProfile, setAuth, setClearUser, setSpotifyTokens, setSignInStatus } from './stores/user';
 import { Auth, Spotify } from './utils/types';
 import { UserProfile } from './utils/interfaces';
 import { home, album, artist, label, callback, search } from './utils/paths';
@@ -60,11 +60,15 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const App: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { spotify, uid, displayName: userName, photoURL: userPic } = useSelector((rootState: RootState) => rootState.user);
+    const { spotify, uid, displayName: userName, photoURL: userPic, signedIn } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
-    auth.onAuthStateChanged(firebaseUser => setUser(firebaseUser));
+    auth.onAuthStateChanged(firebaseUser => {
+        const appValid: boolean = firebaseUser !== null;
+        if (appValid !== signedIn) dispatch(setSignInStatus(appValid));
+        setUser(firebaseUser);
+    });
 
     useEffect(() => {
         document.body.style.backgroundColor = '#fafafa';
@@ -87,7 +91,6 @@ const App: FC = () => {
         };
         dispatch(setUserProfile(newProfile));
         const newAuth: Auth = {
-            signedIn: true,
             refreshToken: refreshToken,
             emailVerified: emailVerified,
         };

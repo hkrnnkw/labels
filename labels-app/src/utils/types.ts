@@ -9,8 +9,11 @@ export type Image = {
     url: string;
 }
 
+export type SignedIn = {
+    signedIn: boolean | undefined;
+}
+
 export type Auth = {
-    signedIn: boolean;
     refreshToken: string;
     emailVerified: boolean;
 }
