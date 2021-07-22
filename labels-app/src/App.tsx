@@ -114,7 +114,7 @@ const App: FC = () => {
                     <Link component={RouterLink} to={home}>Labels</Link>
                     <Typography variant='subtitle2'>v0.1 beta</Typography>
                 </div>
-                <SignOutDrawer displayName={userName} photoURL={userPic} />
+                {signedIn && <SignOutDrawer displayName={userName} photoURL={userPic} />}
             </div>
             <Switch>
                 <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />

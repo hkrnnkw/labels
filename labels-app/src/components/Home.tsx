@@ -27,6 +27,17 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
         top: '48px',
+        '&#guest': {
+            display: 'flex',
+            justifyContent: 'center',
+            position: 'relative',
+            '& button': {
+                height: '44px',
+                padding: theme.spacing(2),
+                position: 'absolute',
+                top: '200px',
+            },
+        },
     },
     searchButton: {
         zIndex: 100,
@@ -240,7 +251,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     );
 
     const guestHome = (disabled: boolean, appStatus: false | undefined): JSX.Element => (
-        <div className={classes.contentClass}>
+        <div className={classes.contentClass} id='guest'>
             {appStatus === false &&
                 <Button onClick={handleSignIn} disabled={disabled} className={classes.signInButton}>
                     Let's get started with Spotify.
