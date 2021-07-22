@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setNeedDefaults, setInitLabels } from '../stores/albums';
-import { Label, SearchResult, SortOrder } from '../utils/types';
+import { Label, SearchResult } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { search as searchPath, label as labelPath } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
@@ -146,14 +146,14 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
             const keys = Object.keys(favLabels);
             const haveFav = keys.length > 0;
-            if (needDefaults === undefined) dispatch(setNeedDefaults(!haveFav));
             const labelNames: string[] = haveFav ? keys : DEFAULT_LABELS;
             
             const token: string = await tokenChecker();
             const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
 
-            const labelList: Label[] = results.map(result => {
+            const labelList: Label[] = results.flatMap(result => {
+                if (!haveFav && !result.albums.length) return [];
                 const labelName = result.query.label || '';
                 return {
                     name: labelName,
@@ -162,6 +162,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 }
             });
             haveFav ? dispatch(setInitLabels(labelList)) : setDefaultLabels(labelList);
+            if (needDefaults === undefined) dispatch(setNeedDefaults(!haveFav));
         };
 
         fetchLabels()
@@ -198,54 +199,45 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     const handleClose = () => dispatch(setNeedDefaults(false));
 
-    const suggestDefaultLabels = (defaults: Label[], drawerOpen: boolean): JSX.Element => {
-        const filtered = defaults.filter(label => label.newReleases.length);
-        return (
-            <Dialog
-                open={drawerOpen}
-                onClose={handleClose}
-                className={classes.dialog}
-                fullScreen={true}
-            >
-                <DialogContent>
-                    {filtered.map(label => generateAlbumsOfLabel(label, true))}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Skip</Button>
-                </DialogActions>
-            </Dialog>
-        )
-    };
+    const suggestDefaultLabels = (defaults: Label[], drawerOpen: boolean): JSX.Element => (
+        <Dialog
+            open={drawerOpen}
+            onClose={handleClose}
+            className={classes.dialog}
+            fullScreen={true}
+        >
+            <DialogContent>
+                {defaults.map(label => generateAlbumsOfLabel(label, true))}
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose}>Skip</Button>
+            </DialogActions>
+        </Dialog>
+    );
     
-    const privateHome = (homeList: Label[], order: SortOrder, defaults: Label[], drawerOpen?: boolean): JSX.Element => {
-        const filtered = homeList.filter(label => label.newReleases.length);
-        const sorted: Label[] = sortHandler(showAll ? homeList : filtered, order);
-        return (
-            <div className={classes.contentClass}>
-                <div className={classes.header}>
-                    <SortDrawer currentSortOrder={sortOrder} />
-                    <Button
-                        className={classes.showAll}
-                        id={showAll ? 'selected' : undefined}
-                        onClick={() => setShowAll(!showAll)}
-                    >
-                        Show all
-                    </Button>
-                </div>
-                <Fab color='primary' aria-label='search' component={RouterLink} to={searchPath} className={classes.searchButton}>
-                    <SearchIcon />
-                </Fab>
-                {!homeList.length ?
-                    <Typography className={classes.falsyMessage}>Not following any label.</Typography>
-                    :
-                    !sorted.length ?
-                        <Typography className={classes.falsyMessage}>No releases recently.</Typography>
-                        :
-                        sorted.map(label => generateAlbumsOfLabel(label))}
-                {(drawerOpen && defaults.length > 0) && suggestDefaultLabels(defaults, drawerOpen)}
+    const privateHome = (sorted: Label[], defaults: Label[], falsyMessage: string, drawerOpen?: boolean): JSX.Element => (
+        <div className={classes.contentClass}>
+            <div className={classes.header}>
+                <SortDrawer currentSortOrder={sortOrder} />
+                <Button
+                    className={classes.showAll}
+                    id={showAll ? 'selected' : undefined}
+                    onClick={() => setShowAll(!showAll)}
+                >
+                    Show all
+                </Button>
             </div>
-        )
-    };
+            <Fab color='primary' aria-label='search' component={RouterLink} to={searchPath} className={classes.searchButton}>
+                <SearchIcon />
+            </Fab>
+            {drawerOpen === undefined ? null :
+                !sorted.length ?
+                    <Typography className={classes.falsyMessage}>{falsyMessage}</Typography>
+                    :
+                    sorted.map(label => generateAlbumsOfLabel(label))}
+            {(drawerOpen && defaults.length > 0) && suggestDefaultLabels(defaults, drawerOpen)}
+        </div>
+    );
 
     const guestHome = (disabled: boolean, appStatus: false | undefined): JSX.Element => (
         <div className={classes.contentClass}>
@@ -259,7 +251,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         </div>
     );
 
-    return signedIn ? privateHome(home, sortOrder, defaultLabels, needDefaults) : guestHome(clicked, signedIn);
+    if (signedIn) {
+        const falsyMessage: string = !home.length ? 'Not following any label.' : 'No releases recently.';
+        const forSort: Label[] = showAll ? home : home.filter(label => label.newReleases.length);
+        return privateHome(sortHandler(forSort, sortOrder), defaultLabels, falsyMessage, needDefaults);
+    }
+    else return guestHome(clicked, signedIn);
 };
 
 export default withRouter(Home);
