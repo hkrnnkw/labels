@@ -47,6 +47,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         position: 'fixed',
         bottom: theme.spacing(4),
         right: theme.spacing(4),
+        backgroundColor: theme.palette.secondary.main,
+        '& .MuiFab-label': {
+            color: theme.palette.background.default,
+        },
     },
     header: {
         display: 'flex',
@@ -70,6 +74,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     falsyMessage: {
+        color: theme.palette.text.secondary,
         width: `calc(100vw - ${theme.spacing(8)}px)`,
         margin: theme.spacing(10, 4),
         textAlign: 'center',
@@ -85,6 +90,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(2, 0, 6),
         '& p': {
             margin: theme.spacing(0, 4),
+            color: theme.palette.text.secondary,
         },
     },
     labelName: {

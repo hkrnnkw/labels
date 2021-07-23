@@ -26,7 +26,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     openButton: {
         display: 'flex',
-        padding: theme.spacing(1.5, 0),
+        padding: theme.spacing(2, 0),
         margin: theme.spacing(0, 4),
         '& .MuiButton-label': {
             justifyContent: 'flex-start',

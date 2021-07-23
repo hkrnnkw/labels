@@ -33,12 +33,14 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             '&.MuiTypography-subtitle1': {
                 fontWeight: 700,
                 whiteSpace: 'nowrap',
+                color: theme.palette.primary.main,
             },
             '&.MuiTypography-subtitle2': {
                 display: '-webkit-box',
                 lineClamp: 2,
                 boxOrient: 'vertical',
                 wordBreak: 'break-all',
+                color: theme.palette.text.secondary,
             },
         },
     },

@@ -19,14 +19,14 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         width: '80px',
         padding: theme.spacing(1, 2),
-        border: `1px ${theme.palette.secondary.light} solid`,
-        color: theme.palette.secondary.light,
+        border: `1px ${theme.palette.secondary.main} solid`,
+        color: theme.palette.secondary.main,
         backgroundColor: 'transparent',
         transition: 'none',
         '&#following': {
             border: 'none',
             color: theme.palette.background.default,
-            backgroundColor: theme.palette.secondary.light,
+            backgroundColor: theme.palette.secondary.main,
         },
     },
     '@media (min-width: 960px)': {
