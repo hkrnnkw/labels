@@ -25,9 +25,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         maxHeight: '100vh',
         position: 'relative',
+        backgroundColor: theme.palette.background.default,
     },
     header: {
         width: '100vw',
+        color: theme.palette.text.secondary,
         backgroundColor: theme.palette.background.default,
         position: 'fixed',
         top: 0,

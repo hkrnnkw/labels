@@ -12,8 +12,9 @@ interface SignOutDrawerProps {
 }
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
-    contentClass: {
-        minHeight: '100vh',
+    paper: {
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.background.default,
     },
     openButton: {
         display: 'flex',
@@ -31,11 +32,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     cancelButton: {
         width: '100vw',
         height: '7.5vh',
+        color: theme.palette.text.secondary,
     },
     '@media (min-width: 960px)': {
-        contentClass: {
-            display: 'flex',
-        },
+
     },
 }));
 
@@ -71,6 +71,7 @@ export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL })
                 open={drawerOpen}
                 onClose={toggleDrawer(false)}
                 onOpen={toggleDrawer(true)}
+                classes={{ paper: classes.paper }}
             >
                 <div
                     role="presentation"

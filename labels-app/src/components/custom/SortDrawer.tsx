@@ -15,8 +15,14 @@ interface SortDrawerProps {
 }
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
-    contentClass: {
-        minHeight: '100vh',
+    paper: {
+        color: theme.palette.text.primary,
+        backgroundColor: theme.palette.background.default,
+        '& .MuiTypography-colorTextSecondary': {
+            color: theme.palette.text.secondary,
+            fontSize: '0.8rem',
+            fontWeight: 700,
+        },
     },
     openButton: {
         display: 'flex',
@@ -30,14 +36,13 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     cancelButton: {
         width: '100vw',
         height: '7.5vh',
+        color: theme.palette.text.secondary,
     },
     selectedItem: {
-        color: theme.palette.primary.main,
+        color: theme.palette.secondary.main,
     },
     '@media (min-width: 960px)': {
-        contentClass: {
-            display: 'flex',
-        },
+
     },
 }));
 
@@ -89,6 +94,7 @@ export const SortDrawer: FC<SortDrawerProps> = ({ currentSortOrder }) => {
                 open={drawerOpen}
                 onClose={toggleDrawer(false)}
                 onOpen={toggleDrawer(true)}
+                classes={{ paper: classes.paper }}
             >
                 <div
                     role="presentation"

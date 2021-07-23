@@ -36,6 +36,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 padding: theme.spacing(2),
                 position: 'absolute',
                 top: '200px',
+                '&:disabled': {
+                    color: theme.palette.text.disabled,
+                },
             },
         },
     },
@@ -56,14 +59,14 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         fontSize: '0.8rem',
         margin: theme.spacing(0, 4),
         borderRadius: '14px',
-        color: theme.palette.primary.light,
-        border: `1px solid ${theme.palette.primary.light}`,
+        color: theme.palette.secondary.main,
         backgroundColor: 'transparent',
+        border: `1px solid ${theme.palette.secondary.main}`,
         transition: 'none',
         '&#selected': {
             color: theme.palette.background.default,
+            backgroundColor: theme.palette.secondary.main,
             border: 'none',
-            backgroundColor: theme.palette.primary.light,
         },
     },
     falsyMessage: {
@@ -119,7 +122,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         '& .MuiDialogActions-root': {
             backgroundColor: theme.palette.primary.main,
             '& button': {
-                color: '#FFFFFF',
+                color: theme.palette.background.default,
             },
         },
     },
