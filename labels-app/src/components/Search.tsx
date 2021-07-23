@@ -35,6 +35,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             width: `calc(80vw - ${theme.spacing(4)}px)`,
             height: '36px',
             border: 'none',
+            backgroundColor: theme.palette.divider,
             borderRadius: '4px',
             marginLeft: theme.spacing(4),
             '&:focus': {
@@ -46,13 +47,16 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                     marginRight: 0,
                 },
             },
+            '& fieldset.MuiOutlinedInput-notchedOutline': {
+                border: 'none',
+            },
             '& input#outlined-search': {
                 padding: theme.spacing(2),
             },
         },
         '& button.MuiButton-root': {
             padding: 0,
-            color: theme.palette.primary.main,
+            color: theme.palette.secondary.main,
             '&.Mui-disabled': {
                 opacity: 0.26,
             },
