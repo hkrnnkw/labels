@@ -24,18 +24,20 @@ const theme = createMuiTheme({
     props: {
 
     },
-    // paletteには、ひとまずサンプルを設定
     palette: {
         primary: {
-            main: '#ff4400',
+            main: '#e0ffff',        // light blue
         },
         secondary: {
-            light: '#0066ff',
-            main: '#0044ff',
-            contrastText: '#ffcc00',
+            main: '#a0d3d9',        // grayish blue
         },
         background: {
-            default: '#fafafa',
+            default: '#2d2e2e',     // bluish black
+        },
+        text: {
+            primary: '#ffffff',     // white
+            secondary: '#e3e6e6',   // bluish gray
+            disabled: '#aaaeae',    // gray
         },
         contrastThreshold: 3,
         tonalOffset: 0.2,

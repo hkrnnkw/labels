@@ -71,7 +71,7 @@ const App: FC = () => {
     });
 
     useEffect(() => {
-        document.body.style.backgroundColor = '#fafafa';
+        document.body.style.backgroundColor = '#232424';
     }, []);
 
     // ユーザステータスの切替え
