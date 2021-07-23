@@ -18,6 +18,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
         top: '48px',
+        '& .MuiTypography-subtitle2': {
+            color: theme.palette.text.secondary,
+        },
     },
     jacket: {
         width: '100%',
@@ -50,6 +53,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(2, 0, 1),
         fontSize: '1.2rem',
         fontWeight: 700,
+        color: theme.palette.text.secondary,
     },
     artist: {
         width: '100%',
@@ -65,6 +69,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             '& a.MuiLink-root': {
                 display: 'flex',
                 alignItems: 'center',
+                color: theme.palette.text.primary,
                 '& .MuiAvatar-root': {
                     marginRight: theme.spacing(3),
                 },
@@ -84,20 +89,21 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     tracks: {
+        color: theme.palette.text.secondary,
         width: '100%',
         display: 'flex',
         alignItems: 'flex-start',
         flexDirection: 'column',
         flexWrap: 'nowrap',
-        margin: theme.spacing(3, 0),
+        margin: theme.spacing(4, 0),
         padding: 0,
         '& li': {
             padding: theme.spacing(0),
             '& .MuiListItemText-root': {
                 margin: 0,
                 '& span': {
-                    fontSize: '0.875rem',
-                    lineHeight: '1.6rem',
+                    fontSize: '1.0rem',
+                    lineHeight: '1.8rem',
                 },
             },
         },
@@ -180,7 +186,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                     {tracks.items.map(track =>
                         <ListItem><ListItemText>{track.name}</ListItemText></ListItem>)}
                 </List>
-                <Typography>{convertReleaseDate(release_date)}</Typography>
+                <Typography variant='subtitle2'>{convertReleaseDate(release_date)}</Typography>
                 <List className={classes.artist}>{createArtistNames(fullArtists, true)}</List>
             </Container>
         </div>
