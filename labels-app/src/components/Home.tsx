@@ -56,6 +56,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        margin: theme.spacing(0, 0, 2),
     },
     showAll: {
         width: '88px',
@@ -87,7 +88,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         alignItems: 'center',
         overflow: 'hidden',
         padding: 0,
-        margin: theme.spacing(2, 0, 6),
+        margin: theme.spacing(0, 0, 7),
         '& p': {
             margin: theme.spacing(0, 4),
             color: theme.palette.text.secondary,
@@ -255,7 +256,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 </Button>
             </div>
             <Fab color='primary' aria-label='search' component={RouterLink} to={searchPath} className={classes.searchButton}>
-                <SearchIcon />
+                <SearchIcon style={{ fontSize: 28 }} />
             </Fab>
             {drawerOpen === undefined ? null :
                 !sorted.length ?
