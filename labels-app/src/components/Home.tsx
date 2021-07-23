@@ -117,18 +117,28 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
         '& .MuiDialog-paper': {
             margin: 0,
+            backgroundColor: theme.palette.background.paper,
         },
         '& .MuiDialogContent-root': {
             padding: 0,
             marginTop: theme.spacing(4),
             '& button': {
                 margin: theme.spacing(0, 4, 0, 0),
+                border: `1px ${theme.palette.secondary.dark} solid`,
+                color: theme.palette.secondary.dark,
+                '&#following': {
+                    color: theme.palette.background.paper,
+                    backgroundColor: theme.palette.secondary.dark,
+                },
+            },
+            '& .MuiTypography-subtitle2': {
+                color: theme.palette.secondary.light,
             },
         },
         '& .MuiDialogActions-root': {
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: theme.palette.text.primary,
             '& button': {
-                color: theme.palette.background.default,
+                color: theme.palette.background.paper,
             },
         },
     },

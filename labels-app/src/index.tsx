@@ -29,10 +29,13 @@ const theme = createMuiTheme({
             main: '#e0ffff',        // light blue
         },
         secondary: {
+            light: '#c7eff4',
             main: '#a0d3d9',        // grayish blue
+            dark: '#5c7f83',
         },
         background: {
             default: '#2d2e2e',     // bluish black
+            paper: '#00d4d4',       // turquoise blue
         },
         text: {
             primary: '#ffffff',     // white
