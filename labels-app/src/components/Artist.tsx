@@ -26,7 +26,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         justifyContent: 'space-between',
         overflow: 'hidden',
         padding: 0,
-        margin: theme.spacing(2, 4, 6),
+        margin: theme.spacing(0, 4, 6),
         '& img': {
             width: '100%',
             height: 'auto',
@@ -34,21 +34,28 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
         '& p': {
             width: '100%',
-            fontSize: '1.6rem',
+            fontSize: '1.2rem',
             fontWeight: 700,
+            color: theme.palette.text.secondary,
             wordBreak: 'break-all',
-            padding: theme.spacing(2, 0),
+            padding: theme.spacing(2, 0, 1),
         },
-        '& ul': {
+        '& ul#genres': {
             width: '100%',
             display: 'flex',
             alignItems: 'flex-start',
-            flexDirection: 'column',
-            flexWrap: 'nowrap',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
             margin: theme.spacing(3, 0),
             padding: 0,
             '& li': {
-                padding: theme.spacing(0),
+                width: 'fit-content',
+                height: '28px',
+                borderRadius: '14px',
+                padding: theme.spacing(3),
+                margin: theme.spacing(1, 2, 1, 0),
+                color: theme.palette.background.default,
+                backgroundColor: theme.palette.text.secondary,
                 '& .MuiListItemText-root': {
                     margin: 0,
                     '& span': {
@@ -99,7 +106,7 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
                 />
                 <Typography>{artistName}</Typography>
                 {genres.length > 0 &&
-                    <List>
+                    <List id='genres'>
                         {genres.map(genre => (
                             <ListItem><ListItemText>{genre}</ListItemText></ListItem>
                         ))}
