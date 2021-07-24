@@ -1,17 +1,16 @@
 import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
-import { useLocation, Link as RouterLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, Link, Avatar,
+    Typography,
 } from '@material-ui/core';
-import { AvatarGroup } from '@material-ui/lab';
 import { Props, Album, Artist } from '../utils/interfaces';
 import { SearchResult, Year } from '../utils/types';
-import { artist as artistPath } from '../utils/paths';
 import { getArtists, searchAlbums, isVariousAritist } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
 import { ContainerOfYears } from './custom/ContainerOfYears';
+import { AvatarsDrawer } from './custom/AvatarsDrawer';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -43,20 +42,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(0, 4, 2),
         alignItems: 'center',
         justifyContent: 'space-between',
-        '& div.MuiAvatarGroup-root': {
-            width: `calc(100% - ${theme.spacing(20)}px)`,
-            margin: theme.spacing(2, 0, 2, 1),
-            '& .MuiAvatarGroup-avatar': {
-                border: 'none',
-                margin: theme.spacing(0, 0, 0, -1),
-            },
-            '& div.MuiAvatarGroup-avatar': {
-                color: theme.palette.text.primary,
-                backgroundColor: 'transparent',
-                fontSize: '0.8rem',
-                fontWeight: 700,
-            },
-        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -112,21 +97,11 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
     }, [albumsOfYears, tokenChecker]);
 
-    const generateArtists = (artists: Artist[]): JSX.Element => (
-        <AvatarGroup max={7}>
-            {artists.map(artist => (
-                <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
-                    <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
-                </Link>
-            ))}
-        </AvatarGroup>
-    );
-
     return (
         <div className={classes.contentClass}>
             <Typography className={classes.labelName}>{labelName}</Typography>
             <div className={classes.subHeader}>
-                {generateArtists(artistsOfLabel)}
+                <AvatarsDrawer artists={artistsOfLabel} labelName={labelName} />
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             </div>
             <ContainerOfYears years={albumsOfYears} />
