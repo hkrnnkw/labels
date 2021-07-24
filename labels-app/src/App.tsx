@@ -35,7 +35,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         position: 'fixed',
         top: 0,
         left: 0,
-        zIndex: 5,
+        zIndex: 1299,
         paddingTop: theme.spacing(4),
         display: 'flex',
         justifyContent: 'space-between',

@@ -21,23 +21,41 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
         top: '48px',
+        display: 'flex',
+        flexDirection: 'column',
     },
     labelName: {
+        color: theme.palette.text.secondary,
         width: `calc(100% - ${theme.spacing(8)}px)`,
+        height: '32px',
         fontSize: '1.6rem',
         fontWeight: 700,
         wordBreak: 'break-all',
         margin: theme.spacing(0, 4),
         padding: theme.spacing(2, 0),
+        display: 'inline-flex',
+        alignItems: 'center',
     },
     subHeader: {
         width: `calc(100% - ${theme.spacing(8)}px)`,
+        height: '56px',
         display: 'flex',
-        margin: theme.spacing(0, 4),
+        margin: theme.spacing(0, 4, 2),
         alignItems: 'center',
         justifyContent: 'space-between',
-        '& a.MuiAvatarGroup-avatar': {
-            border: 'none',
+        '& div.MuiAvatarGroup-root': {
+            width: `calc(100% - ${theme.spacing(20)}px)`,
+            margin: theme.spacing(2, 0, 2, 1),
+            '& .MuiAvatarGroup-avatar': {
+                border: 'none',
+                margin: theme.spacing(0, 0, 0, -1),
+            },
+            '& div.MuiAvatarGroup-avatar': {
+                color: theme.palette.text.primary,
+                backgroundColor: 'transparent',
+                fontSize: '0.8rem',
+                fontWeight: 700,
+            },
         },
     },
     '@media (min-width: 960px)': {
@@ -108,7 +126,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         <div className={classes.contentClass}>
             <Typography className={classes.labelName}>{labelName}</Typography>
             <div className={classes.subHeader}>
-                {artistsOfLabel.length > 0 && generateArtists(artistsOfLabel)}
+                {generateArtists(artistsOfLabel)}
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             </div>
             <ContainerOfYears years={albumsOfYears} />
