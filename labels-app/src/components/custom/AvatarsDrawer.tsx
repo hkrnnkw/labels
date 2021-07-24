@@ -59,9 +59,12 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         flexDirection: 'column',
         flexWrap: 'nowrap',
         margin: theme.spacing(0, 4),
-        paddingTop: theme.spacing(3),
+        paddingTop: theme.spacing(4),
         '& li': {
-            padding: theme.spacing(1, 0),
+            '&#subtitle': {
+                padding: 0,
+            },
+            padding: theme.spacing(4, 0, 0),
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden',
@@ -136,7 +139,7 @@ export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists, labelName }) =>
                         <ClearIcon fontSize='small' />
                     </IconButton>
                     <List className={classes.artist}>
-                        <ListItem><ListItemText secondary={`Artists of ${labelName}`} /></ListItem>
+                        <ListItem id='subtitle'><ListItemText secondary={`Artists of ${labelName}`} /></ListItem>
                         {generateAvatars(true)}
                     </List>
                 </div>

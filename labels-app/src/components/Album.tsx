@@ -68,7 +68,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             flexWrap: 'nowrap',
         },
         '& li': {
-            padding: theme.spacing(1, 0),
+            padding: theme.spacing(4, 0, 0),
             '& a.MuiLink-root': {
                 display: 'flex',
                 alignItems: 'center',
