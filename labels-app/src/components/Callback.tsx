@@ -2,9 +2,10 @@ import React, { FC, useEffect, useState } from 'react';
 import { withRouter, useLocation } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj, Spotify } from '../utils/types';
-import { Typography } from '@material-ui/core';
+import { CircularProgress, Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
 import { setSpotifyTokens } from '../stores/user';
 
@@ -12,8 +13,38 @@ interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
     readonly data: [string, Spotify];
 }
 
+const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
+    contentClass: {
+        width: '100vw',
+        minHeight: `calc(100vh - 64px)`,
+        height: 'max-content',
+        backgroundColor: theme.palette.background.default,
+        position: 'relative',
+        top: '48px',
+        display: 'flex',
+        justifyContent: 'center',
+        '& .MuiCircularProgress-root': {
+            position: 'absolute',
+            top: '100px',
+        },
+        '& p': {
+            height: '44px',
+            padding: theme.spacing(2),
+            position: 'absolute',
+            top: '200px',
+            color: theme.palette.text.primary,
+        },
+    },
+    '@media (min-width: 960px)': {
+        contentClass: {
+            display: 'flex',
+        },
+    },
+}));
+
 const Callback: FC = () => {
     const dispatch = useDispatch();
+    const classes = ambiguousStyles();
     const location = useLocation();
     const [path, setPath] = useState<string>();
 
@@ -77,7 +108,13 @@ const Callback: FC = () => {
     //         })
     // };
 
-    return path ? <Redirect to={path} /> : <Typography>ログイン中・・・</Typography>;
+    return path ?
+        <Redirect to={path} />
+        :
+        <div className={classes.contentClass}>
+            <CircularProgress color='secondary' />
+            <Typography>Signing in...</Typography>
+        </div>;
 };
 
 export default withRouter(Callback);
