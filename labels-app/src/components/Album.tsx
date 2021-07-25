@@ -57,10 +57,20 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     title: {
         width: '100%',
-        margin: theme.spacing(2, 0, 1),
-        fontSize: '1.2rem',
-        fontWeight: 700,
-        color: theme.palette.text.secondary,
+        display: 'inline-flex',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+        '& p': {
+            width: `calc(100% - ${theme.spacing(12)}px)`,
+            margin: theme.spacing(2, 0),
+            fontSize: '1.2rem',
+            fontWeight: 700,
+            color: theme.palette.text.secondary,
+        },
+        '& button': {
+            color: theme.palette.secondary.main,
+            padding: theme.spacing(2.5, 3),
+        },
     },
     artist: {
         width: '100%',
@@ -71,25 +81,32 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             flexDirection: 'column',
             flexWrap: 'nowrap',
         },
+        '& .MuiTypography-root': {
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+        },
         '& li': {
             padding: theme.spacing(4, 0, 0),
             '& a.MuiLink-root': {
+                width: '100%',
                 display: 'flex',
                 alignItems: 'center',
                 color: theme.palette.text.primary,
                 '& .MuiAvatar-root': {
                     marginRight: theme.spacing(3),
                 },
-                '&#higherSide': {
-                    '& .MuiAvatar-root': {
-                        width: '24px',
-                        height: '24px',
-                        marginRight: theme.spacing(2),
-                    },
-                    '& .MuiListItemText-root': {
-                        '& span': {
-                            fontSize: '0.875rem',
-                        },
+            },
+            '&#higherSide': {
+                padding: theme.spacing(0),
+                '& .MuiAvatar-root': {
+                    width: '24px',
+                    height: '24px',
+                    marginRight: theme.spacing(2),
+                },
+                '& .MuiListItemText-root': {
+                    '& span': {
+                        fontSize: '0.875rem',
                     },
                 },
             },
@@ -111,6 +128,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 '& span': {
                     fontSize: '1.0rem',
                     lineHeight: '1.8rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
                 },
             },
         },
@@ -166,11 +186,10 @@ const Album: FC<Props> = ({ tokenChecker }) => {
 
         if (lowerSide || artists.length === 1) {
             return artists.map(artist => (
-                <ListItem>
+                <ListItem id={lowerSide ? undefined : 'higherSide'}>
                     <Link
                         component={RouterLink}
                         to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }}
-                        id={lowerSide ? undefined : 'higherSide'}
                     >
                         <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
                         <ListItemText>{artist.name}</ListItemText>
@@ -184,7 +203,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         }
     };
 
-    // アルバム保存／削除処理ボタン
+    // アルバム保存／削除処理
     const operateUserLibrary = async () => {
         if (isSaved === undefined) return;
         const temp: boolean = isSaved;
@@ -209,11 +228,13 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                     alt={`${simpleArtists[0].name} - ${title}`}
                     className={classes.jacket}
                 />
-                <Typography className={classes.title}>{title}</Typography>
+                <span className={classes.title}>
+                    <Typography>{title}</Typography>
+                    <IconButton onClick={operateUserLibrary} disabled={isSaved === undefined}>
+                        {isSaved ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                    </IconButton>
+                </span>
                 <div className={classes.artist}>{createArtistNames(fullArtists)}</div>
-                <IconButton onClick={operateUserLibrary} disabled={isSaved === undefined}>
-                    {isSaved ? <FavoriteIcon /> : <FavoriteBorderIcon />}
-                </IconButton>
                 <List className={classes.tracks}>
                     {tracks.items.map(track =>
                         <ListItem><ListItemText>{track.name}</ListItemText></ListItem>)}
