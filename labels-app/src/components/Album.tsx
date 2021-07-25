@@ -1,12 +1,14 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Typography, Avatar, List, ListItem, ListItemText, Link, Container, IconButton,
+    Snackbar,
 } from '@material-ui/core';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import CloseIcon from '@material-ui/icons/Close';
 import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
 import { checkIsAlbumsInUserLibrary, convertReleaseDate, getArtists, isVariousAritist,
@@ -135,6 +137,15 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             },
         },
     },
+    snackbar: {
+        '& .MuiSnackbarContent-root': {
+            color: theme.palette.background.default,
+            background: theme.palette.secondary.main,
+            '& button': {
+                color: theme.palette.background.default,
+            },
+        },
+    },
     '@media (min-width: 960px)': {
         contentClass: {
             display: 'flex',
@@ -150,6 +161,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const [isSaved, setIsSaved] = useState<boolean>();
     const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
     const VARIOUS_ARTISTS: string = 'Various Artists';
+    const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
     // ユーザライブラリに保存されているかチェック
     useEffect(() => {
@@ -202,12 +214,20 @@ const Album: FC<Props> = ({ tokenChecker }) => {
             return [<Typography variant='subtitle2'>{artistNames.join(', ')}</Typography>];
         }
     };
+    
+    const handleClose = (event: MouseEvent | SyntheticEvent<Element, Event>, reason: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
 
     // アルバム保存／削除処理
     const operateUserLibrary = async () => {
         if (isSaved === undefined) return;
         const temp: boolean = isSaved;
         setIsSaved(!isSaved);
+        if (!temp) setSnackbarOpen(true);
         const token: string = await tokenChecker();
         await saveOrRemoveAlbumsForCurrentUser([id], temp, token);
     };
@@ -242,6 +262,18 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 <Typography variant='subtitle2'>{convertReleaseDate(release_date)}</Typography>
                 <List className={classes.artist}>{createArtistNames(fullArtists, true)}</List>
             </Container>
+            <Snackbar
+                className={classes.snackbar}
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message='Saved this album to your library on Spotify.'
+                action={
+                    <IconButton size='small' onClick={e => handleClose(e, 'click')}>
+                        <CloseIcon fontSize='small' />
+                    </IconButton>
+                }
+            />
         </div>
     )
 };
