@@ -44,6 +44,26 @@ const getReqProcessor = async (url: string, accessToken: string): Promise<AxiosR
     });
 };
 
+// PUTリクエストを処理
+const putReqProcessor = async (url: string, albumIds: string[], accessToken: string) => {
+    await axios.put(url, {
+        albumIds: albumIds,
+    }, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+};
+
+// DELETEリクエストを処理
+const deleteReqProcessor = async (url: string, accessToken: string) => {
+    await axios.delete(url, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+};
+
 // アルバムオブジェクト(Full)を取得
 const getFullAlbumObj = async (albumIds: string[], accessToken: string): Promise<Album[]> => {
     const ids: string = albumIds.join('%2C');
@@ -112,6 +132,29 @@ export const getArtistAlbums = async (artistId: string, accessToken: string): Pr
     const tasks = idsSliced.map(ids => getFullAlbumObj(ids, accessToken));
     const results: Album[][] = await Promise.all(tasks);
     return results.flat();
+};
+
+// アルバムがユーザライブラリに保存されているかチェック
+export const checkIsAlbumsInUserLibrary = async (albumIds: string[], accessToken: string): Promise<boolean[]> => {
+    const idsSliced: string[][] = sliceArrayByNumber(albumIds, 50);
+    const tasks = idsSliced.map(ids => {
+        const url = `https://api.spotify.com/v1/me/albums/contains?ids=${ids.join('%2C')}`;
+        return getReqProcessor(url, accessToken);
+    });
+    const results = await Promise.all(tasks);
+    const isSavedList: boolean[] = results.flatMap(res => res.data);
+    return isSavedList;
+};
+
+// アルバムをユーザライブラリに保存／から削除
+export const saveOrRemoveAlbumsForCurrentUser = async (albumIds: string[], alreadySaved: boolean, accessToken: string) => {
+    const idsSliced: string[][] = sliceArrayByNumber(albumIds, 50);
+    const tasks = idsSliced.map(ids => {
+        const url = `https://api.spotify.com/v1/me/albums?ids=${ids.join('%2C')}`;
+        return alreadySaved ?
+            deleteReqProcessor(url, accessToken) : putReqProcessor(url, albumIds, accessToken);
+    });
+    await Promise.all(tasks);
 };
 
 // release_dateをYYYY-MM-DD形式から変換

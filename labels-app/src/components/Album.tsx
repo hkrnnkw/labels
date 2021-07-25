@@ -3,11 +3,15 @@ import { withRouter } from 'react-router';
 import { useLocation, Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    Typography, Avatar, List, ListItem, ListItemText, Link, Container,
+    Typography, Avatar, List, ListItem, ListItemText, Link, Container, IconButton,
 } from '@material-ui/core';
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
+import FavoriteIcon from '@material-ui/icons/Favorite';
 import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { convertReleaseDate, getArtists, isVariousAritist } from '../handlers/spotifyHandler';
+import { checkIsAlbumsInUserLibrary, convertReleaseDate, getArtists, isVariousAritist,
+    saveOrRemoveAlbumsForCurrentUser,
+} from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -121,10 +125,23 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Album: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: AlbumObj }>();
-    const { artists: simpleArtists, images, name: title, label: labelName, tracks, release_date } = state.album;
+    const { id, artists: simpleArtists, images, name: title, label: labelName, tracks, release_date } = state.album;
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
+    const [isSaved, setIsSaved] = useState<boolean>();
     const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
     const VARIOUS_ARTISTS: string = 'Various Artists';
+
+    // ユーザライブラリに保存されているかチェック
+    useEffect(() => {
+        const initSavedStatus = async (): Promise<boolean> => {
+            const token: string = await tokenChecker();
+            const result: boolean[] = await checkIsAlbumsInUserLibrary([id], token);
+            return result[0];
+        };
+        initSavedStatus()
+            .then(res => setIsSaved(res))
+            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+    }, [id, tokenChecker]);
 
     // アーティストの情報を取得
     useEffect(() => {
@@ -167,6 +184,15 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         }
     };
 
+    // アルバム保存／削除処理ボタン
+    const operateUserLibrary = async () => {
+        if (isSaved === undefined) return;
+        const temp: boolean = isSaved;
+        setIsSaved(!isSaved);
+        const token: string = await tokenChecker();
+        await saveOrRemoveAlbumsForCurrentUser([id], temp, token);
+    };
+
     return (
         <div className={classes.contentClass}>
             <Container className={classes.container}>
@@ -185,6 +211,9 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 />
                 <Typography className={classes.title}>{title}</Typography>
                 <div className={classes.artist}>{createArtistNames(fullArtists)}</div>
+                <IconButton onClick={operateUserLibrary} disabled={isSaved === undefined}>
+                    {isSaved ? <FavoriteIcon /> : <FavoriteBorderIcon />}
+                </IconButton>
                 <List className={classes.tracks}>
                     {tracks.items.map(track =>
                         <ListItem><ListItemText>{track.name}</ListItemText></ListItem>)}

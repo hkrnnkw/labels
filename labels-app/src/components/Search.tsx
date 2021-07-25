@@ -122,8 +122,6 @@ const Search: FC<Props> = ({ tokenChecker }) => {
 
     // ライブラリに保存したアルバムを取得
     useEffect(() => {
-        if (saved.length) return;
-
         const fetchSavedAlbums = async () => {
             const token: string = await tokenChecker();
             const results: Album[] = await getSavedAlbums(token);
