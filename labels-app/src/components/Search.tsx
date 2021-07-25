@@ -22,6 +22,15 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
         top: '48px',
+        '& p#notFound': {
+            color: theme.palette.text.secondary,
+            width: `calc(100% - ${theme.spacing(8)}px)`,
+            margin: theme.spacing(0, 4),
+            textAlign: 'center',
+            wordBreak: 'break-word',
+            position: 'absolute',
+            top: '100px',
+        },
     },
     searchbar: {
         display: 'inline-flex',
@@ -156,8 +165,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
 
     // アルバムリストを生成
     const generateAlbums = (albums: Album[]): JSX.Element => {
-        // TODO 見つからない時のスタイル崩れ
-        if (!albums.length && typed.length) return <Typography>Couldn't find "{typed}"</Typography>;
+        if (!albums.length && typed.length) return <Typography id='notFound'>Couldn't find "{typed}"</Typography>;
 
         const albumListItems: JSX.Element[] = albums.map(album => {
             return (
@@ -190,6 +198,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                     value={typing}
                     placeholder='Artists or albums'
                     type='search'
+                    autoFocus={true}
                     autoComplete='off'
                     onChange={(e) => setTyping(e.target.value)}
                     InputProps={{
