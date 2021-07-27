@@ -57,7 +57,18 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 export const CustomGridList: FC<CustomGridListProps> = ({ albums }) => {
     const classes = ambiguousStyles();
 
-    const gridListTiles: JSX.Element[] = albums.map(album => {
+    // リリース日で降順ソート
+    const sortByReleaseDate = (rawList: Album[]): Album[] => {
+        const arrayForSort: Album[] = [...rawList];
+        return arrayForSort.sort((a: Album, b: Album) => {
+            const aDate = a.release_date, bDate = b.release_date;
+            return (aDate > bDate ? -1 : aDate < bDate ? 1 : 0);
+        });
+    };
+    const sorted: Album[] = sortByReleaseDate(albums);
+
+    // アルバム一覧を形成
+    const createGridListTile = (_albums: Album[]): JSX.Element[] => _albums.map(album => {
         const artistNames: string[] = album.artists.map(artist => artist.name);
         return (
             <GridListTile
@@ -84,7 +95,7 @@ export const CustomGridList: FC<CustomGridListProps> = ({ albums }) => {
             spacing={0}
             cellHeight={'auto'}
         >
-            {gridListTiles}
+            {createGridListTile(sorted)}
         </GridList>
     );
 };
