@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UserProfile } from "../utils/interfaces";
-import { Auth, Spotify, SignedIn } from "../utils/types";
+import { FirebaseUser, Spotify, SignedIn } from "../utils/types";
+import firebase from '../firebase';
 
-type UserState = SignedIn & UserProfile & Auth & Spotify;
+type UserState = SignedIn & FirebaseUser & Spotify;
 
 const initialState: UserState = {
     uid: '',
@@ -25,15 +25,12 @@ const slice = createSlice({
         setSignInStatus: (state: UserState, action: PayloadAction<boolean>) => {
             state.signedIn = action.payload;
         },
-        setUserProfile: (state: UserState, action: PayloadAction<UserProfile>) => {
-            const { uid, displayName, email, photoURL } = action.payload;
+        setFirebaseUser: (state: UserState, action: PayloadAction<firebase.User>) => {
+            const { uid, displayName, email, photoURL, refreshToken, emailVerified } = action.payload;
             state.uid = uid;
-            state.displayName = displayName;
-            state.email = email;
+            state.displayName = displayName || uid;
+            state.email = email || '';
             state.photoURL = photoURL;
-        },
-        setAuth: (state: UserState, action: PayloadAction<Auth>) => {
-            const { refreshToken, emailVerified } = action.payload;
             state.refreshToken = refreshToken;
             state.emailVerified = emailVerified;
         },
@@ -49,4 +46,4 @@ const slice = createSlice({
 
 export default slice;
 
-export const { setSignInStatus, setUserProfile, setAuth, setSpotifyTokens, setClearUser } = slice.actions;
+export const { setSignInStatus, setFirebaseUser, setSpotifyTokens, setClearUser } = slice.actions;

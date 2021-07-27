@@ -15,11 +15,11 @@ import { SignOutDrawer } from './components/custom/SignOutDrawer';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Link, Typography } from '@material-ui/core';
 import { RootState } from './stores';
-import { setUserProfile, setAuth, setClearUser, setSpotifyTokens, setSignInStatus } from './stores/user';
-import { Auth, Spotify } from './utils/types';
-import { UserProfile } from './utils/interfaces';
+import { setSpotifyTokens, setSignInStatus, setFirebaseUser } from './stores/user';
+import { Spotify } from './utils/types';
 import { home, album, artist, label, callback, search } from './utils/paths';
-import { checkTokenExpired } from './handlers/spotifyHandler';
+import { refreshSpotifyToken } from './handlers/spotifyHandler';
+import axios from 'axios';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -63,7 +63,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const App: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { spotify, uid, displayName: userName, photoURL: userPic, signedIn } = useSelector((rootState: RootState) => rootState.user);
+    const { spotify, uid, displayName, photoURL, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
@@ -77,37 +77,34 @@ const App: FC = () => {
         document.body.style.backgroundColor = '#232424';
     }, []);
 
-    // ユーザステータスの切替え
     useEffect(() => {
-        if (!user) {
-            console.log(`ログインしていません`);
-            dispatch(setClearUser());
-            return;
-        }
-        const { uid: userId, displayName, email, photoURL, refreshToken, emailVerified } = user;
-        console.log(`ログイン中です：${displayName}`);
-        const newProfile: UserProfile = {
-            uid: userId,
-            displayName: displayName || userId,
-            email: email || '',
-            photoURL: photoURL,
-        };
-        dispatch(setUserProfile(newProfile));
-        const newAuth: Auth = {
-            refreshToken: refreshToken,
-            emailVerified: emailVerified,
-        };
-        dispatch(setAuth(newAuth));
+        if (user) dispatch(setFirebaseUser(user));
     }, [user, dispatch]);
 
-    // Spotifyトークンの有効期限チェック
-    const tokenChecker = useCallback(async (): Promise<string> => {
-        const checkedToken: string | Spotify = await checkTokenExpired({ spotify }, uid);
-        if (typeof checkedToken === 'string') return checkedToken;
+    // リフレッシュトークンを用いてアクセストークンを更新、uidを取得
+    const retrieveUidUsingRefreshToken = async (_refreshToken: string): Promise<string> => {
+        const params = new URLSearchParams();
+        params.append('grant_type', 'refresh_token');
+        params.append('refresh_token', _refreshToken);
 
-        dispatch(setSpotifyTokens(checkedToken));
-        return checkedToken.spotify.token;
-    }, [spotify, uid, dispatch]);
+        const url = `https://securetoken.googleapis.com/v1/token?key=${process.env.REACT_APP_FIREBASE_API_KEY}`;
+        const res = await axios.post(url, params).catch(err => { throw err });
+        const _uid: string = res.data.user_id;
+        return _uid;
+    };
+
+    // FirebaseおよびSpotifyトークンの有効期限チェック
+    const tokenChecker = useCallback(async (): Promise<string> => {
+        const { token, expiresIn } = spotify;
+        const now = new Date();
+        if (now < new Date(expiresIn)) return token;
+
+        // アクセストークンの期限が切れた場合
+        const _uid: string = uid.length > 0 ? uid : await retrieveUidUsingRefreshToken(refreshToken);
+        const refreshedSpotifyObj: Spotify = await refreshSpotifyToken(_uid);
+        dispatch(setSpotifyTokens(refreshedSpotifyObj));
+        return refreshedSpotifyObj.spotify.token;
+    }, [spotify, uid, refreshToken, dispatch]);
 
     return (
         <BrowserRouter>
@@ -117,7 +114,7 @@ const App: FC = () => {
                     <Link component={RouterLink} to={home}>Labels</Link>
                     <Typography variant='subtitle2'>v0.1 beta</Typography>
                 </div>
-                {signedIn && <SignOutDrawer displayName={userName} photoURL={userPic} />}
+                {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
             </div>
             <Switch>
                 <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />

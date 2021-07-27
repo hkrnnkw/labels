@@ -59,10 +59,3 @@ export interface Album extends SimpleAlbum {
         items: SimpleTrack[];
     };
 }
-
-export interface UserProfile {
-    uid: string;
-    displayName: string;
-    email: string;
-    photoURL: string | null;
-}

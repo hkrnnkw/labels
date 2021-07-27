@@ -92,22 +92,6 @@ const Callback: FC = () => {
             });
     }, [location.search, dispatch]);
 
-    // TODO? https://qiita.com/zaburo/items/92920fa955bdb890c52e
-    // const a = (refreshToken: string) => {
-    //     const params = new URLSearchParams();
-    //     params.append('grant_type', 'refresh_token');
-    //     params.append('refresh_token', refreshToken);
-    //     //リクエスト
-    //     axios.post('https://securetoken.googleapis.com/v1/token?key=' + firebaseConfig.apiKey, params)
-    //         .then(res => {
-    //             // console.log(res.data.access_token);
-    //             console.log(res);
-    //         })
-    //         .catch(e => {
-    //             console.log(e);
-    //         })
-    // };
-
     return path ?
         <Redirect to={path} />
         :

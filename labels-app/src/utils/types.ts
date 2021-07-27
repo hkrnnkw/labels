@@ -13,7 +13,11 @@ export type SignedIn = {
     signedIn: boolean | undefined;
 }
 
-export type Auth = {
+export type FirebaseUser = {
+    uid: string;
+    displayName: string;
+    email: string;
+    photoURL: string | null;
     refreshToken: string;
     emailVerified: boolean;
 }

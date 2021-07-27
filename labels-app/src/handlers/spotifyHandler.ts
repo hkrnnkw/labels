@@ -13,17 +13,13 @@ interface SpotifyRedirectResponse extends firebase.functions.HttpsCallableResult
     readonly data: string;
 }
 
-// トークンの有効期限を確認
-export const checkTokenExpired = async (obj: Spotify, uid: string): Promise<string | Spotify> => {
-    const { token, expiresIn } = obj.spotify;
-    const now = new Date();
-    if (now < new Date(expiresIn)) return token;
-
+// トークンを更新
+export const refreshSpotifyToken = async (uid: string): Promise<Spotify> => {
     const refreshToken: string | null = await getSpotifyRefreshTokenFromFirestore(uid).catch(() => { return null });
     if (!refreshToken) throw new Error('リフレッシュトークンを取得できませんでした');
 
-    const refreshAccessToken: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
-    const res: newAccessTokenResponse = await refreshAccessToken({ refreshToken: refreshToken });
+    const retrieveNewSpotifyObjUsingRefreshToken: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
+    const res: newAccessTokenResponse = await retrieveNewSpotifyObjUsingRefreshToken({ refreshToken: refreshToken });
     return res.data;
 };
 

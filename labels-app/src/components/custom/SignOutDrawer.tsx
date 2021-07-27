@@ -1,5 +1,7 @@
 import React, { FC, useState, KeyboardEvent, MouseEvent } from 'react';
+import { useDispatch } from 'react-redux';
 import { auth } from '../../firebase';
+import { setClearUser } from '../../stores/user';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     SwipeableDrawer, List, Button, ListItem, ListItemText, Avatar, IconButton,
@@ -15,6 +17,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     paper: {
         color: theme.palette.text.primary,
         backgroundColor: theme.palette.background.default,
+        '& #signOut': {
+            color: theme.palette.error.light,
+        },
     },
     openButton: {
         display: 'flex',
@@ -40,6 +45,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL }) => {
+    const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -51,6 +57,7 @@ export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL })
     };
 
     const signOut = async () => {
+        dispatch(setClearUser());
         await auth.signOut();
         setDrawerOpen(false);
     }
@@ -77,7 +84,9 @@ export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL })
                     role="presentation"
                 >
                     <List>
-                        <ListItem button onClick={signOut}><ListItemText primary={'Sign out'} /></ListItem>
+                        <ListItem button onClick={signOut}>
+                            <ListItemText primary={'Sign out'} id={'signOut'}/>
+                        </ListItem>
                     </List>
                     <Button
                         className={classes.cancelButton}
