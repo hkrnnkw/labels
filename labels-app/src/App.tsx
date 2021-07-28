@@ -12,20 +12,40 @@ import Search from './components/Search';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { SignOutDrawer } from './components/custom/SignOutDrawer';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Link, Typography } from '@material-ui/core';
+import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
+import { Link, Typography, useMediaQuery } from '@material-ui/core';
 import { RootState } from './stores';
 import { setSpotifyTokens, setSignInStatus, setFirebaseUser } from './stores/user';
 import { Spotify } from './utils/types';
 import { home, album, artist, label, callback, search } from './utils/paths';
 import { refreshSpotifyToken } from './handlers/spotifyHandler';
 import axios from 'axios';
+import QRCode from 'react-qr-code';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         maxHeight: '100vh',
         position: 'relative',
         backgroundColor: theme.palette.background.default,
+        '&#wider': {
+            width: '100vw',
+            minHeight: `calc(100vh - 48px)`,
+            height: 'max-content',
+            top: '48px',
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+            '& svg#qrCode': {
+                position: 'absolute',
+                top: '100px',
+                border: `1px ${theme.palette.text.primary} solid`,
+            },
+            '& h6.MuiTypography-subtitle1': {
+                position: 'absolute',
+                top: '260px',
+                color: theme.palette.text.secondary,
+            },
+        },
     },
     header: {
         width: '100vw',
@@ -61,6 +81,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 }));
 
 const App: FC = () => {
+    const theme = useTheme();
+    const isMobileSize: boolean = useMediaQuery(theme.breakpoints.down('xs'), {noSsr: true});
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { spotify, uid, displayName, photoURL, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
@@ -74,8 +96,8 @@ const App: FC = () => {
     });
 
     useEffect(() => {
-        document.body.style.backgroundColor = '#232424';
-    }, []);
+        document.body.style.backgroundColor = theme.palette.primary.main;
+    }, [theme.palette.primary.main]);
 
     useEffect(() => {
         if (user) dispatch(setFirebaseUser(user));
@@ -106,6 +128,34 @@ const App: FC = () => {
         return refreshedSpotifyObj.spotify.token;
     }, [spotify, uid, refreshToken, dispatch]);
 
+    // モバイルサイト
+    const mobileView: JSX.Element = (
+        <Switch>
+            <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={artist} render={() => <Artist tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={label} render={() => <Label tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={search} render={() => <Search tokenChecker={tokenChecker} />} />
+            <GuestRoute path={callback} component={Callback} />
+            <Route component={NotFound} />
+        </Switch>
+    );
+
+    // TODO mediumサイズとPCサイズに分離し、それぞれスタイリング
+    const widerView: JSX.Element = (
+        <div className={classes.contentClass} id='wider'>
+            <QRCode
+                value={'https://la-bels.web.app/'}
+                size={128}
+                fgColor={theme.palette.background.default}
+                id='qrCode'
+            />
+            <Typography variant='subtitle1'>
+                The current version only supports mobile site.
+            </Typography>
+        </div>
+    );
+
     return (
         <BrowserRouter>
         <div className={classes.contentClass}>
@@ -116,15 +166,7 @@ const App: FC = () => {
                 </div>
                 {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
             </div>
-            <Switch>
-                <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
-                <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />
-                <PrivateRoute path={artist} render={() => <Artist tokenChecker={tokenChecker} />} />
-                <PrivateRoute path={label} render={() => <Label tokenChecker={tokenChecker} />} />
-                <PrivateRoute path={search} render={() => <Search tokenChecker={tokenChecker} />} />
-                <GuestRoute path={callback} component={Callback} />
-                <Route component={NotFound} />
-            </Switch>
+            {isMobileSize ? mobileView : widerView}
         </div>
         </BrowserRouter>
     )
