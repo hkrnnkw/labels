@@ -102,10 +102,8 @@ export const signIn = f.https.onCall(async (data, context) => {
         const email: string = user.body['email'];
         const customToken: string = await manageUser(refreshToken, spotifyUserID, userName, profilePic, email);
         return [customToken, {
-            spotify: {
-                token: spotifyToken,
-                expiresIn: expiresIn,
-            },
+            token: spotifyToken,
+            exp: expiresIn,
         }];
     } catch (err) {
         console.log(`不具合が発生：${err.message}`);
@@ -124,11 +122,8 @@ export const refreshAccessToken = f.https.onCall(async (data, context) => {
         const expiresIn = date.setMinutes(date.getMinutes() + 58);
         console.log(`アクセストークンを更新しました：${spotifyToken}`);
         return {
-            spotify: {
-                token: spotifyToken,
-                expiresIn: expiresIn,
-                refreshToken: data.refreshToken,
-            },
+            token: spotifyToken,
+            exp: expiresIn,
         };
     } catch (err) {
         console.log('アクセストークンを更新できませんでした ', err);

@@ -12,10 +12,8 @@ const initialState: UserState = {
     email: '',
     photoURL: null,
     emailVerified: false,
-    spotify: {
-        token: '',
-        expiresIn: -1,
-    },
+    token: '',
+    exp: -1,
 };
 
 const slice = createSlice({
@@ -35,8 +33,9 @@ const slice = createSlice({
             state.emailVerified = emailVerified;
         },
         setSpotifyTokens: (state: UserState, action: PayloadAction<Spotify>) => {
-            const { spotify } = action.payload;
-            state.spotify = spotify;
+            const { token, exp } = action.payload;
+            state.token = token;
+            state.exp = exp;
         },
         setClearUser: () => {
             return initialState;

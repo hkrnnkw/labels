@@ -23,10 +23,8 @@ export type FirebaseUser = {
 }
 
 export type Spotify = {
-    spotify: {
-        token: string;
-        expiresIn: number;
-    };
+    token: string;
+    exp: number;
 }
 
 export type SearchQuery = {

@@ -85,7 +85,7 @@ const App: FC = () => {
     const isMobileSize: boolean = useMediaQuery(theme.breakpoints.down('xs'), {noSsr: true});
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
-    const { spotify, uid, displayName, photoURL, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
+    const { token, exp, uid, displayName, photoURL, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
@@ -117,16 +117,15 @@ const App: FC = () => {
 
     // FirebaseおよびSpotifyトークンの有効期限チェック
     const tokenChecker = useCallback(async (): Promise<string> => {
-        const { token, expiresIn } = spotify;
         const now = new Date();
-        if (now < new Date(expiresIn)) return token;
+        if (now < new Date(exp)) return token;
 
         // アクセストークンの期限が切れた場合
         const _uid: string = uid.length > 0 ? uid : await retrieveUidUsingRefreshToken(refreshToken);
-        const refreshedSpotifyObj: Spotify = await refreshSpotifyToken(_uid);
-        dispatch(setSpotifyTokens(refreshedSpotifyObj));
-        return refreshedSpotifyObj.spotify.token;
-    }, [spotify, uid, refreshToken, dispatch]);
+        const refreshed: Spotify = await refreshSpotifyToken(_uid);
+        dispatch(setSpotifyTokens(refreshed));
+        return refreshed.token;
+    }, [token, exp, uid, refreshToken, dispatch]);
 
     // モバイルサイト
     const mobileView: JSX.Element = (
