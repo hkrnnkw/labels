@@ -26,14 +26,13 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     labelName: {
         color: theme.palette.text.secondary,
         width: `calc(100% - ${theme.spacing(8)}px)`,
-        height: '32px',
         fontSize: '1.6rem',
+        lineHeight: 1.2,
         fontWeight: 700,
         wordBreak: 'break-all',
         margin: theme.spacing(0, 4),
         padding: theme.spacing(2, 0),
-        display: 'inline-flex',
-        alignItems: 'center',
+        display: 'inline',
     },
     subHeader: {
         width: `calc(100% - ${theme.spacing(8)}px)`,
