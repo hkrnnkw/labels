@@ -44,7 +44,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             width: `calc(80vw - ${theme.spacing(4)}px)`,
             height: '36px',
             border: 'none',
-            backgroundColor: theme.palette.divider,
+            backgroundColor: theme.palette.grey[800],
             borderRadius: '4px',
             marginLeft: theme.spacing(4),
             '&:focus': {

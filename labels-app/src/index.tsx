@@ -42,7 +42,6 @@ const theme = createMuiTheme({
             secondary: '#cacdcd',   // bluish gray
             disabled: '#aaaeae',    // gray
         },
-        divider: '#4b4c4c',         // dark gray
         contrastThreshold: 3,
         tonalOffset: 0.2,
     },
