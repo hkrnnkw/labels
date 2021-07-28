@@ -55,6 +55,10 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
+    useEffect(() => {
+        document.title = labelName;
+    }, [labelName]);
+
     // レーベルの各年のアルバムを取得
     useEffect(() => {
         const getLast5Years = (): number[] => {

@@ -162,6 +162,10 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const VARIOUS_ARTISTS: string = 'Various Artists';
     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
+    useEffect(() => {
+        document.title = title;
+    }, [title]);
+
     // ユーザライブラリに保存されているかチェック
     useEffect(() => {
         const initSavedStatus = async (): Promise<boolean> => {

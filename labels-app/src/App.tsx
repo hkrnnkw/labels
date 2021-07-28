@@ -96,11 +96,6 @@ const App: FC = () => {
     });
 
     useEffect(() => {
-        document.body.style.backgroundColor = theme.palette.primary.main;
-        document.body.style.border = 'none';
-    }, [theme.palette.primary.main]);
-
-    useEffect(() => {
         if (user) dispatch(setFirebaseUser(user));
     }, [user, dispatch]);
 

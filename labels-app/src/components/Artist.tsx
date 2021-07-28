@@ -80,6 +80,10 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
     const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
 
     useEffect(() => {
+        document.title = artistName;
+    }, [artistName]);
+
+    useEffect(() => {
         const fetchAlbums = async (): Promise<Year> => {
             const token: string = await tokenChecker();
             const albums: Album[] = await getArtistAlbums(artistId, token);
