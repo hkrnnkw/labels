@@ -19,7 +19,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         height: 'max-content',
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
-        top: '48px',
+        top: '64px',
         display: 'flex',
         flexDirection: 'column',
     },

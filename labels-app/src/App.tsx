@@ -31,7 +31,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             width: '100vw',
             minHeight: `calc(100vh - 48px)`,
             height: 'max-content',
-            top: '48px',
+            top: '64px',
             display: 'flex',
             alignItems: 'center',
             flexDirection: 'column',
@@ -97,6 +97,7 @@ const App: FC = () => {
 
     useEffect(() => {
         document.body.style.backgroundColor = theme.palette.primary.main;
+        document.body.style.border = 'none';
     }, [theme.palette.primary.main]);
 
     useEffect(() => {

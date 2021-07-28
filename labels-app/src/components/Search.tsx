@@ -21,7 +21,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         height: 'max-content',
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
-        top: '48px',
+        top: '64px',
         '& p#notFound': {
             color: theme.palette.text.secondary,
             width: `calc(100% - ${theme.spacing(8)}px)`,

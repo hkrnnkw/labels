@@ -20,7 +20,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         height: 'max-content',
         backgroundColor: theme.palette.background.default,
         position: 'relative',
-        top: '48px',
+        top: '64px',
         display: 'flex',
         justifyContent: 'center',
         '& .MuiCircularProgress-root': {
