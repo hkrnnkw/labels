@@ -86,10 +86,7 @@ const Callback: FC = () => {
         
         requestFirestoreCustomToken(results)
             .then(user => setPath(user ? home : userNotFound))
-            .catch(err => {
-                console.log(`ログインエラー：${err}`);
-                setPath(errorOccurred);
-            });
+            .catch(err => setPath(errorOccurred));
     }, [location.search, dispatch]);
 
     return path ?

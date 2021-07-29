@@ -13,8 +13,6 @@ interface RouteProps {
 
 const GuestRoute: FC<RouteProps> = ({ path, exact, component }) => {
     const { signedIn } = useSelector((rootState: RootState) => rootState.user);
-    console.log(`ゲストルート：${signedIn ? `認証済みなので${home}へリダイレクトします` : 'ログインしていません'}`);
-
     return signedIn ?
         <Redirect to={home} /> : <Route path={path} exact={exact} component={component.WrappedComponent} />;
 }
