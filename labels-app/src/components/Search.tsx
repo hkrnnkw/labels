@@ -161,6 +161,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== 'Enter' || !typing.length || typed === typing) return;
         doSearching(typing).catch(err => console.log(err));
+        e.currentTarget.blur();
     };
 
     // アルバムリストを生成
