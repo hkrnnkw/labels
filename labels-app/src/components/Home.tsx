@@ -6,7 +6,6 @@ import { RootState } from '../stores/index';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     Container, Button, Fab, Link, Typography, Dialog, DialogActions, DialogContent,
-    CircularProgress,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import { setNeedDefaults, setInitLabels } from '../stores/albums';
@@ -19,6 +18,7 @@ import { sortHandler } from '../handlers/sortHandler';
 import { SortDrawer } from './custom/SortDrawer';
 import { CustomGridList } from './custom/CustomGridList';
 import { FollowButton } from './custom/FollowButton';
+import { switchIsProcessing } from '../stores/app';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -32,10 +32,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             display: 'flex',
             justifyContent: 'center',
             position: 'relative',
-            '& .MuiCircularProgress-root': {
-                position: 'absolute',
-                top: '100px',
-            },
             '& button': {
                 height: '44px',
                 padding: theme.spacing(2),
@@ -61,7 +57,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        margin: theme.spacing(0, 0, 2),
+        margin: theme.spacing(1, 0, 2),
     },
     showAll: {
         width: '88px',
@@ -171,7 +167,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, []);
 
     useEffect(() => {
-        if (!uid.length || Object.keys(home).length || needDefaults === false) return;
+        if (!uid.length) return;
+        const needToInit: boolean = Object.keys(home).length <= 0 || needDefaults !== false;
+        dispatch(switchIsProcessing(needToInit));
+        if (!needToInit) return;
 
         const DEFAULT_LABELS: string[] = [
             '4AD', 'AD 93', 'aritech', 'Because Music', 'Brainfeeder', 'Dirty Hit', 'Dog Show Records',
@@ -233,6 +232,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     // サインインButtonの制御
     const handleSignIn = async () => {
         setClicked(true);
+        dispatch(switchIsProcessing(true));
         await signIn();
     };
 

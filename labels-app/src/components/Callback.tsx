@@ -5,9 +5,10 @@ import { useDispatch } from 'react-redux';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj, Spotify } from '../utils/types';
-import { CircularProgress, Typography } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import { home, errorOccurred, userNotFound } from '../utils/paths';
 import { setSpotifyTokens } from '../stores/user';
+import { switchIsProcessing } from '../stores/app';
 
 interface SpotifySignInResponse extends firebase.functions.HttpsCallableResult {
     readonly data: [string, Spotify];
@@ -23,10 +24,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         top: '64px',
         display: 'flex',
         justifyContent: 'center',
-        '& .MuiCircularProgress-root': {
-            position: 'absolute',
-            top: '100px',
-        },
         '& p': {
             height: '44px',
             padding: theme.spacing(2),
@@ -49,8 +46,9 @@ const Callback: FC = () => {
     const [path, setPath] = useState<string>();
 
     useEffect(() => {
+        dispatch(switchIsProcessing(true));
         window.scrollTo(0, 0);
-    }, []);
+    }, [dispatch]);
 
     useEffect(() => {
         // クエリ文字列からパラメータを取得
@@ -97,7 +95,6 @@ const Callback: FC = () => {
         <Redirect to={path} />
         :
         <div className={classes.contentClass}>
-            <CircularProgress color='secondary' />
             <Typography>Signing in...</Typography>
         </div>;
 };

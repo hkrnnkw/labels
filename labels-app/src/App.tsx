@@ -13,7 +13,7 @@ import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { SignOutDrawer } from './components/custom/SignOutDrawer';
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import { Link, Typography, useMediaQuery } from '@material-ui/core';
+import { LinearProgress, Link, Typography, useMediaQuery } from '@material-ui/core';
 import { RootState } from './stores';
 import { setSpotifyTokens, setSignInStatus, setFirebaseUser } from './stores/user';
 import { Spotify } from './utils/types';
@@ -49,14 +49,14 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     header: {
         width: '100vw',
-        height: '48px',
+        height: '44px',
         color: theme.palette.text.secondary,
         backgroundColor: theme.palette.background.default,
         position: 'fixed',
         top: 0,
         left: 0,
         zIndex: 1299,
-        paddingTop: theme.spacing(4),
+        padding: theme.spacing(4, 0, 1),
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -72,6 +72,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 textDecoration: 'none',
             },
         },
+        '& .MuiLinearProgress-root': {
+            width: '100vw',
+            position: 'fixed',
+            top: '60px',
+        },
     },
     '@media (min-width: 960px)': {
         contentClass: {
@@ -85,6 +90,7 @@ const App: FC = () => {
     const isMobileSize: boolean = useMediaQuery(theme.breakpoints.down('xs'), {noSsr: true});
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
+    const { isProcessing } = useSelector((rootState: RootState) => rootState.app);
     const { token, exp, uid, displayName, photoURL, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
@@ -160,6 +166,7 @@ const App: FC = () => {
                     <Typography variant='subtitle2'>v0.1 beta</Typography>
                 </div>
                 {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
+                {isProcessing && <LinearProgress color='secondary' />}
             </div>
             {isMobileSize ? mobileView : widerView}
         </div>
