@@ -172,6 +172,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        document.title = 'Labels';
     }, []);
 
     useEffect(() => {

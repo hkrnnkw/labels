@@ -37,6 +37,7 @@ const NotFound: FC = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        document.title = 'Labels - Error';
     }, []);
     
     const getMessage = (path: string): string => {

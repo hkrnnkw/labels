@@ -132,6 +132,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     useEffect(() => {
         // TODO 検索結果<List>のスクロール位置が初期化されない
         window.scrollTo(0, 0);
+        document.title = 'Labels';
     }, [typed]);
 
     // ライブラリに保存したアルバムを取得
