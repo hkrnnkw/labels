@@ -285,7 +285,6 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     Let's get started with Spotify.
                 </Button>
             }
-            {disabled && <CircularProgress color='secondary' />}
         </div>
     );
 

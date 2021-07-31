@@ -139,7 +139,7 @@ export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists, labelName }) =>
                         <ClearIcon fontSize='small' />
                     </IconButton>
                     <List className={classes.artist}>
-                        <ListItem id='subtitle'><ListItemText secondary={`Artists of ${labelName}`} /></ListItem>
+                        <ListItem id='subtitle'><ListItemText secondary={`${labelName} artists`} /></ListItem>
                         {generateAvatars(true)}
                     </List>
                 </div>

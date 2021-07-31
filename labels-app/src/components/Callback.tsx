@@ -88,7 +88,7 @@ const Callback: FC = () => {
         
         requestFirestoreCustomToken(results)
             .then(user => setPath(user ? home : userNotFound))
-            .catch(err => setPath(errorOccurred));
+            .catch(_ => setPath(errorOccurred));
     }, [location.search, dispatch]);
 
     return path ?

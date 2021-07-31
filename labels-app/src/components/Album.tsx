@@ -160,7 +160,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const [isSaved, setIsSaved] = useState<boolean>();
     const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
     const VARIOUS_ARTISTS: string = 'Various Artists';
-    const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     useEffect(() => {
         window.scrollTo(0, 0);
