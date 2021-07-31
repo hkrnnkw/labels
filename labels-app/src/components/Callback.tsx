@@ -49,6 +49,10 @@ const Callback: FC = () => {
     const [path, setPath] = useState<string>();
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         // クエリ文字列からパラメータを取得
         const getParams = (queryStr: string): StrKeyObj => {
             const obj: StrKeyObj = {};

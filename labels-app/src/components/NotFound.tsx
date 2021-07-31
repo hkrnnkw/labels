@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { withRouter, useLocation } from 'react-router';
 import { errorOccurred, userNotFound } from '../utils/paths';
 
@@ -6,6 +6,10 @@ const NotFound: FC = () => {
     const location = useLocation();
     const pathname: string = location.pathname;
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+    
     const getMessage = (path: string): string => {
         switch (path) {
             case errorOccurred:

@@ -167,6 +167,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
+    useEffect(() => {
         if (!uid.length || Object.keys(home).length || needDefaults === false) return;
 
         const DEFAULT_LABELS: string[] = [

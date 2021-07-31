@@ -163,6 +163,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         document.title = title;
     }, [title]);
 

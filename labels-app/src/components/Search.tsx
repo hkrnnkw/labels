@@ -129,6 +129,11 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     const typed: string = searched.query.keywords || '';
     const [typing, setTyping] = useState<string>(typed);
 
+    useEffect(() => {
+        // TODO 検索結果<List>のスクロール位置が初期化されない
+        window.scrollTo(0, 0);
+    }, [typed]);
+
     // ライブラリに保存したアルバムを取得
     useEffect(() => {
         const fetchSavedAlbums = async () => {

@@ -56,6 +56,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
     const [artistsOfLabel, setArtistsOfLabel] = useState<Artist[]>([]);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         document.title = labelName;
     }, [labelName]);
 

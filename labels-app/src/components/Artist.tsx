@@ -80,6 +80,7 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
     const [albumsOfYears, setAlbumsOfYears] = useState<Year>({});
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         document.title = artistName;
     }, [artistName]);
 
