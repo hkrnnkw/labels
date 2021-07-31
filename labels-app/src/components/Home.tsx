@@ -33,13 +33,21 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             justifyContent: 'center',
             position: 'relative',
             '& button': {
-                height: '44px',
-                padding: theme.spacing(2),
+                height: '48px',
+                color: theme.palette.background.default,
+                backgroundColor: theme.palette.secondary.main,
+                borderRadius: '24px',
+                padding: theme.spacing(2, 6),
                 position: 'absolute',
                 top: '200px',
                 '&:disabled': {
-                    color: theme.palette.text.disabled,
+                    backgroundColor: theme.palette.secondary.dark,
                 },
+            },
+            '& h6.MuiTypography-subtitle2': {
+                position: 'absolute',
+                top: '264px',
+                color: theme.palette.text.secondary,
             },
         },
     },
@@ -278,13 +286,12 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         </div>
     );
 
-    const guestHome = (disabled: boolean, appStatus: false | undefined): JSX.Element => (
+    const guestHome = (disabled: boolean): JSX.Element => (
         <div className={classes.contentClass} id='guest'>
-            {appStatus === false &&
-                <Button onClick={handleSignIn} disabled={disabled}>
-                    Let's get started with Spotify.
-                </Button>
-            }
+            <Button onClick={handleSignIn} disabled={disabled}>
+                Let's get started with Spotify
+            </Button>
+            <Typography variant='subtitle2'>Premium account required.</Typography>
         </div>
     );
 
@@ -293,7 +300,10 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const forSort: Label[] = showAll ? home : home.filter(label => label.newReleases.length);
         return privateHome(sortHandler(forSort, sortOrder), defaultLabels, falsyMessage, needDefaults);
     }
-    else return guestHome(clicked, signedIn);
+    else if (signedIn === false) {
+        return guestHome(clicked);
+    }
+    else return <div className={classes.contentClass} />;
 };
 
 export default withRouter(Home);
