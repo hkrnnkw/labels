@@ -84,7 +84,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     falsyMessage: {
-        color: theme.palette.text.secondary,
+        color: theme.palette.text.disabled,
         width: `calc(100vw - ${theme.spacing(8)}px)`,
         margin: theme.spacing(10, 4),
         textAlign: 'center',
@@ -100,7 +100,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         margin: theme.spacing(0, 0, 7),
         '& p': {
             margin: theme.spacing(0, 4),
-            color: theme.palette.text.secondary,
+            color: theme.palette.text.disabled,
         },
     },
     labelName: {

@@ -17,7 +17,7 @@ interface FollowButtonProps {
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        width: '80px',
+        minWidth: '80px',
         padding: theme.spacing(1, 2),
         border: `1px ${theme.palette.secondary.main} solid`,
         color: theme.palette.secondary.main,

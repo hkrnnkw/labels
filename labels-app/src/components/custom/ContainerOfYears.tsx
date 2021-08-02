@@ -30,6 +30,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 fontSize: '1.2rem',
                 color: theme.palette.text.secondary,
             },
+            '&#falsyMessage': {
+                color: theme.palette.text.disabled,
+            },
         },
     },
     '@media (min-width: 960px)': {
@@ -49,7 +52,7 @@ export const ContainerOfYears: FC<ContainerOfYearsProps> = ({ years }) => {
             <Container className={classes.container} id={year}>
                 <Typography id={'year'}>{year}</Typography>
                 {!albums.length ?
-                    <Typography>No releases.</Typography>
+                    <Typography id='falsyMessage'>No releases.</Typography>
                     :
                     <CustomGridList albums={albums} />
                 }
