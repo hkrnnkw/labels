@@ -54,3 +54,19 @@ const SortOrderCA = {
     NNR: NNR,
 } as const;
 export type SortOrder = typeof SortOrderCA[keyof typeof SortOrderCA];
+
+export type Copyright = {
+    text: string;
+    type: string;
+}
+
+export type Saved = {
+    albumId: string;
+    inLib: boolean;
+}
+
+export type Variant = {
+    saved: Saved;
+    labelName: string;
+    copyright: Copyright;
+}

@@ -1,5 +1,5 @@
 import { RouteComponentProps } from 'react-router-dom';
-import { Image } from './types';
+import { Copyright, Image, Variant } from './types';
 
 export interface Props extends RouteComponentProps {
     tokenChecker: () => Promise<string>;
@@ -48,14 +48,22 @@ export interface SimpleAlbum {
 }
 
 export interface Album extends SimpleAlbum {
-    copyright: {
-        text: string;
-        type: string;
-    };
+    copyright: Copyright;
     genres: string[];
     label: string;
     release_date: string;
     tracks: {
         items: SimpleTrack[];
     };
+}
+
+export interface CustomAlbum {
+    album_type: string;
+    artists: SimpleArtist[];
+    images: Image[];
+    name: string;
+    genres: string[];
+    release_date: string;
+    tracks: SimpleTrack[];
+    variants: Variant[];
 }
