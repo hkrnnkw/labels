@@ -8,10 +8,10 @@ import {
     List, ListItem, ListItemText, TextField, Typography, Link, InputAdornment, Button,
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
-import { Props, Album } from '../utils/interfaces';
+import { Props, Album, CustomAlbum } from '../utils/interfaces';
 import { SearchQuery, SearchResult } from '../utils/types';
 import { album as albumPath } from '../utils/paths';
-import { getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
+import { createCustomAlbum, getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
 import { setSaved, setSearched, clearSearched } from '../stores/albums';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -128,12 +128,11 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     const { saved, searched } = useSelector((rootState: RootState) => rootState.albums);
     const typed: string = searched.query.keywords || '';
     const [typing, setTyping] = useState<string>(typed);
+    const [customAlbums, setCustomAlbums] = useState<CustomAlbum[]>([]);
 
     useEffect(() => {
-        // TODO 検索結果<List>のスクロール位置が初期化されない
-        window.scrollTo(0, 0);
         document.title = 'Labels';
-    }, [typed]);
+    }, []);
 
     // ライブラリに保存したアルバムを取得
     useEffect(() => {
@@ -144,7 +143,22 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         };
         fetchSavedAlbums()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [saved.length, tokenChecker, dispatch]);
+    }, [tokenChecker, dispatch]);
+
+    useEffect(() => {
+        // TODO 検索結果<List>のスクロール位置が初期化されない
+        window.scrollTo(0, 0);
+        if (!saved.length) return;
+
+        const init = async (): Promise<CustomAlbum[]> => {
+            const token: string = await tokenChecker();
+            return typed.length ? await createCustomAlbum(searched.albums, token)
+                : await createCustomAlbum(saved, token, true);
+        };
+        init()
+            .then(res => setCustomAlbums(res))
+            .catch(err => console.log(err));
+    }, [typed, searched.albums, saved, tokenChecker]);
 
     // typingが空になったらsearchedを初期化（typedが空文字の場合はreturn）
     useEffect(() => {
@@ -171,7 +185,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     };
 
     // アルバムリストを生成
-    const generateAlbums = (albums: Album[]): JSX.Element => {
+    const generateAlbums = (albums: CustomAlbum[]): JSX.Element => {
         if (!albums.length && typed.length) return <Typography id='notFound'>Couldn't find "{typed}"</Typography>;
 
         const albumListItems: JSX.Element[] = albums.map(album => {
@@ -180,7 +194,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                     key={`${album.artists[0].name} - ${album.name}`}
                     className={classes.listItem}
                 >
-                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
+                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.variants[0].saved.albumId}`, state: { album: album } }}>
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}
@@ -221,7 +235,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                     Search
                 </Button>
             </span>
-            {generateAlbums(typed.length ? searched.albums : saved)}
+            {generateAlbums(customAlbums)}
         </div>
     )
 };
