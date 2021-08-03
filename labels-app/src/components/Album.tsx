@@ -11,8 +11,8 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import CloseIcon from '@material-ui/icons/Close';
 import { Props, Artist, CustomAlbum } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { convertReleaseDate, getArtists, isVariousAritist,
-    saveOrRemoveAlbumsForCurrentUser,
+import {
+    convertReleaseDate, getArtists, isVariousAritist, saveAlbumsToUserLibrary, removeAlbumsFromUserLibrary,
 } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
 
@@ -216,12 +216,17 @@ const Album: FC<Props> = ({ tokenChecker }) => {
 
     // アルバム保存／削除処理
     const operateUserLibrary = async () => {
-        if (isSaved === undefined) return;
-        const temp: boolean = isSaved;
-        setIsSaved(!isSaved);
-        if (!temp) setSnackbarOpen(true);
         const token: string = await tokenChecker();
-        await saveOrRemoveAlbumsForCurrentUser([id], temp, token);
+        if (isSaved) {
+            const ids: string[] = variants.flatMap(v => v.saved.inLib ? v.saved.albumId : []);
+            if (!ids.length) return;
+            await removeAlbumsFromUserLibrary(ids, token);
+        }
+        else {
+            setSnackbarOpen(true);
+            await saveAlbumsToUserLibrary([variants[0].saved.albumId], token);
+        }
+        setIsSaved(!isSaved);
     };
 
     return (
@@ -242,7 +247,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 />
                 <span className={classes.title}>
                     <Typography>{title}</Typography>
-                    <IconButton onClick={operateUserLibrary} disabled={isSaved === undefined}>
+                    <IconButton onClick={operateUserLibrary}>
                         {isSaved ? <FavoriteIcon /> : <FavoriteBorderIcon />}
                     </IconButton>
                 </span>

@@ -141,15 +141,23 @@ const checkIsAlbumsInUserLibrary = async (albumIds: string[], accessToken: strin
     const results: boolean[] = axiosRes.flatMap(res => res.data || []);
     return results.map((bool, i) => ({ albumId: albumIds[i], inLib: bool } as Saved));
 };
-};
 
-// アルバムをユーザライブラリに保存／から削除
-export const saveOrRemoveAlbumsForCurrentUser = async (albumIds: string[], alreadySaved: boolean, accessToken: string) => {
+// アルバムをユーザライブラリに保存
+export const saveAlbumsToUserLibrary = async (albumIds: string[], accessToken: string) => {
     const idsSliced: string[][] = sliceArrayByNumber(albumIds, 50);
     const tasks = idsSliced.map(ids => {
         const url = `https://api.spotify.com/v1/me/albums?ids=${ids.join('%2C')}`;
-        return alreadySaved ?
-            deleteReqProcessor(url, accessToken) : putReqProcessor(url, albumIds, accessToken);
+        return putReqProcessor(url, albumIds, accessToken);
+    });
+    await Promise.all(tasks);
+};
+
+// アルバムをユーザライブラリから削除
+export const removeAlbumsFromUserLibrary = async (albumIds: string[], accessToken: string) => {
+    const idsSliced: string[][] = sliceArrayByNumber(albumIds, 50);
+    const tasks = idsSliced.map(ids => {
+        const url = `https://api.spotify.com/v1/me/albums?ids=${ids.join('%2C')}`;
+        return deleteReqProcessor(url, accessToken);
     });
     await Promise.all(tasks);
 };
