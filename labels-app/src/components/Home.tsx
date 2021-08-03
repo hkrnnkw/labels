@@ -200,14 +200,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
             const results: SearchResult[] = await Promise.all(tasks);
 
-            const labelList: Label[] = results.flatMap(result => {
-                if (!haveFav && !result.albums.length) return [];
+            const labelList: Label[] = results.map(result => {
                 const labelName = result.query.label || '';
                 return {
                     name: labelName,
                     date: favLabels[labelName] || -1,
                     newReleases: result.albums,
-                }
+                } as Label;
             });
             haveFav ? dispatch(setInitLabels(labelList)) : setDefaultLabels(labelList);
             if (needDefaults === undefined) dispatch(setNeedDefaults(!haveFav));
