@@ -132,15 +132,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             backgroundColor: theme.palette.background.paper,
         },
         '& .MuiDialogContent-root': {
-            padding: 0,
-            marginTop: theme.spacing(4),
+            padding: theme.spacing(2, 0, 16),
             '& button': {
                 margin: theme.spacing(0, 4, 0, 0),
-                border: `1px ${theme.palette.secondary.dark} solid`,
-                color: theme.palette.secondary.dark,
                 '&#following': {
                     color: theme.palette.background.paper,
-                    backgroundColor: theme.palette.secondary.dark,
                 },
             },
             '& .MuiTypography-subtitle2': {
@@ -148,7 +144,12 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             },
         },
         '& .MuiDialogActions-root': {
-            backgroundColor: theme.palette.text.primary,
+            height: '32px',
+            fontWeight: 500,
+            color: theme.palette.background.paper,
+            backgroundColor: theme.palette.primary.main,
+            padding: theme.spacing(2, 4),
+            justifyContent: 'space-between',
             '& button': {
                 color: theme.palette.background.paper,
             },
@@ -254,12 +255,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             className={classes.dialog}
             fullScreen={true}
         >
+            <DialogActions>
+                <Typography>Which are your favorites?</Typography>
+                <Button onClick={handleClose}>{!Object.keys(home).length ? 'Skip' : 'Done'}</Button>
+            </DialogActions>
             <DialogContent>
                 {defaults.map(label => generateAlbumsOfLabel(label, true))}
             </DialogContent>
-            <DialogActions>
-                <Button onClick={handleClose}>Skip</Button>
-            </DialogActions>
         </Dialog>
     );
     
