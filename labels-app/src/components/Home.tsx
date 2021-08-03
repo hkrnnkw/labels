@@ -177,10 +177,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, []);
 
     useEffect(() => {
-        if (!uid.length) return;
-        const needToInit: boolean = Object.keys(home).length <= 0 || needDefaults !== false;
-        dispatch(switchIsProcessing(needToInit));
-        if (!needToInit) return;
+        dispatch(switchIsProcessing(needDefaults === undefined));
+        if (!uid.length || needDefaults === false) return;
 
         const DEFAULT_LABELS: string[] = [
             '4AD', 'AD 93', 'aritech', 'Because Music', 'Brainfeeder', 'Dirty Hit', 'Dog Show Records',
@@ -194,7 +192,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             const favLabels: { [name: string]: number; } = await getListOfFavLabelsFromFirestore(uid);
             const keys = Object.keys(favLabels);
             const haveFav = keys.length > 0;
-            const labelNames: string[] = haveFav ? keys : DEFAULT_LABELS;
+            const displayDefaults: boolean = needDefaults || !haveFav;
+            const labelNames: string[] = displayDefaults ? DEFAULT_LABELS : keys;
             
             const token: string = await tokenChecker();
             const tasks = labelNames.map(name => searchAlbums({ label: name, getNew: true }, token));
@@ -208,13 +207,13 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     newReleases: result.albums,
                 } as Label;
             });
-            haveFav ? dispatch(setInitLabels(labelList)) : setDefaultLabels(labelList);
+            displayDefaults ? setDefaultLabels(labelList) : dispatch(setInitLabels(labelList));
             if (needDefaults === undefined) dispatch(setNeedDefaults(!haveFav));
         };
 
         fetchLabels()
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [uid, home, needDefaults, dispatch, tokenChecker]);
+    }, [uid, needDefaults, dispatch, tokenChecker]);
 
     const generateAlbumsOfLabel = (label: Label, isDefault: boolean = false): JSX.Element => {
         const { name: labelName, newReleases } = label;
