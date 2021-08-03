@@ -15,6 +15,7 @@ import {
     convertReleaseDate, getArtists, isVariousAritist, saveAlbumsToUserLibrary, removeAlbumsFromUserLibrary,
 } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
+import { LabelsDrawer } from './custom/LabelsDrawer';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -156,6 +157,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
     const { state } = useLocation<{ album: CustomAlbum }>();
     const { artists: simpleArtists, images, name: title, variants, tracks, release_date } = state.album;
+    const labelNames = Array.from(new Set<string>(variants.map(v => v.labelName)));
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
     const [isSaved, setIsSaved] = useState<boolean>(variants.find(v => v.saved.inLib === true) !== undefined);
     const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
@@ -232,14 +234,20 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     return (
         <div className={classes.contentClass}>
             <Container className={classes.container}>
-                <Link
-                    className={classes.labelName}
-                    component={RouterLink}
-                    to={{ pathname: `${labelPath}/${variants[0].labelName}`, state: { labelName: variants[0].labelName } }}
-                >
-                    {variants[0].labelName}
-                </Link>
-                <FollowButton labelName={variants[0].labelName} tokenChecker={tokenChecker} />
+                {labelNames.length > 1 ?
+                    <LabelsDrawer labelNames={labelNames} tokenChecker={tokenChecker} />
+                    :
+                    <>
+                        <Link
+                            className={classes.labelName}
+                            component={RouterLink}
+                            to={{ pathname: `${labelPath}/${variants[0].labelName}`, state: { labelName: variants[0].labelName } }}
+                        >
+                            {variants[0].labelName}
+                        </Link>
+                        <FollowButton labelName={variants[0].labelName} tokenChecker={tokenChecker} />
+                    </>
+                }
                 <img
                     src={images[0].url}
                     alt={`${simpleArtists[0].name} - ${title}`}
