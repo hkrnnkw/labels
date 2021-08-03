@@ -212,6 +212,7 @@ const sliceArrayByNumber = (array: string[], num: number): string[][] => {
     });
 };
 
+// various artistsかどうか判別
 export const isVariousAritist = (artistName: string): boolean => {
     return artistName === 'ヴァリアス・アーティスト'
         || artistName.localeCompare('various artists', 'en', { sensitivity: 'base' }) === 0
