@@ -1,6 +1,6 @@
 import firebase, { f } from '../firebase';
-import { Album, Artist, SimpleAlbum } from '../utils/interfaces';
-import { Spotify, StrKeyObj, SearchQuery, SearchResult } from '../utils/types';
+import { Album, Artist, CustomAlbum, SimpleAlbum } from '../utils/interfaces';
+import { Spotify, StrKeyObj, SearchQuery, SearchResult, Saved, Variant } from '../utils/types';
 import axios, { AxiosResponse } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { getSpotifyRefreshTokenFromFirestore } from './dbHandler';
@@ -131,15 +131,16 @@ export const getArtistAlbums = async (artistId: string, accessToken: string): Pr
 };
 
 // アルバムがユーザライブラリに保存されているかチェック
-export const checkIsAlbumsInUserLibrary = async (albumIds: string[], accessToken: string): Promise<boolean[]> => {
+const checkIsAlbumsInUserLibrary = async (albumIds: string[], accessToken: string): Promise<Saved[]> => {
     const idsSliced: string[][] = sliceArrayByNumber(albumIds, 50);
     const tasks = idsSliced.map(ids => {
         const url = `https://api.spotify.com/v1/me/albums/contains?ids=${ids.join('%2C')}`;
         return getReqProcessor(url, accessToken);
     });
-    const results = await Promise.all(tasks);
-    const isSavedList: boolean[] = results.flatMap(res => res.data);
-    return isSavedList;
+    const axiosRes: AxiosResponse<boolean[]>[] = await Promise.all(tasks);
+    const results: boolean[] = axiosRes.flatMap(res => res.data || []);
+    return results.map((bool, i) => ({ albumId: albumIds[i], inLib: bool } as Saved));
+};
 };
 
 // アルバムをユーザライブラリに保存／から削除
@@ -216,3 +217,35 @@ export const isVariousAritist = (artistName: string): boolean => {
         || artistName.localeCompare('various artists', 'en', { sensitivity: 'base' }) === 0
         || artistName.localeCompare('v.a.', 'en', { sensitivity: 'base' }) === 0;
 };
+
+// CustomAlbumに整型
+export const createCustomAlbum = async (albums: Album[], accessToken: string, isSaved = false): Promise<CustomAlbum[]> => {
+    const ids: string[] = albums.map(album => album.id);
+    const checked: Saved[] = isSaved ? ids.map(id => ({ albumId: id, inLib: true } as Saved))
+        : await checkIsAlbumsInUserLibrary(ids, accessToken);
+    const customAlbums: CustomAlbum[] = [];
+    albums.forEach((album, i) => {
+        const { label, copyright, release_date, album_type, artists, images, name, genres, tracks } = album;
+        const variant: Variant = {
+            saved: checked[i],
+            labelName: label,
+            copyright: copyright,
+        };
+        const pushedIndex: number =
+            customAlbums.findIndex(ca => ca.name.localeCompare(name, 'en', { sensitivity: 'base' }) === 0);
+        if (pushedIndex < 0) {
+            customAlbums.push({
+                album_type: album_type,
+                artists: artists,
+                images: images,
+                name: name,
+                genres: genres,
+                release_date: release_date,
+                tracks: tracks.items,
+                variants: [variant],
+            } as CustomAlbum);
+        }
+        else customAlbums[pushedIndex].variants.push(variant);
+    });
+    return customAlbums;
+}

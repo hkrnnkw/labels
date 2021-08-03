@@ -1,14 +1,16 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import { Album } from '../../utils/interfaces';
+import { Album, CustomAlbum } from '../../utils/interfaces';
 import {
     GridList, GridListTile, Link, Typography,
 } from '@material-ui/core';
 import { album as albumPath } from '../../utils/paths';
+import { createCustomAlbum } from '../../handlers/spotifyHandler';
 
 interface CustomGridListProps {
     albums: Album[],
+    tokenChecker: () => Promise<string>,
 }
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -54,28 +56,39 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const CustomGridList: FC<CustomGridListProps> = ({ albums }) => {
+export const CustomGridList: FC<CustomGridListProps> = ({ albums, tokenChecker }) => {
     const classes = ambiguousStyles();
+    const [customAlbums, setCustomAlbums] = useState<CustomAlbum[]>([]);
 
-    // リリース日で降順ソート
-    const sortByReleaseDate = (rawList: Album[]): Album[] => {
-        const arrayForSort: Album[] = [...rawList];
-        return arrayForSort.sort((a: Album, b: Album) => {
-            const aDate = a.release_date, bDate = b.release_date;
-            return (aDate > bDate ? -1 : aDate < bDate ? 1 : 0);
-        });
-    };
-    const sorted: Album[] = sortByReleaseDate(albums);
+    useEffect(() => {
+        // リリース日で降順ソート
+        const sortByReleaseDate = (rawList: CustomAlbum[]): CustomAlbum[] => {
+            const arrayForSort: CustomAlbum[] = [...rawList];
+            return arrayForSort.sort((a: CustomAlbum, b: CustomAlbum) => {
+                const aDate = a.release_date, bDate = b.release_date;
+                return (aDate > bDate ? -1 : aDate < bDate ? 1 : 0);
+            });
+        };
+
+        const init = async (): Promise<CustomAlbum[]> => {
+            const token: string = await tokenChecker();
+            const _customAlbums = await createCustomAlbum(albums, token);
+            return sortByReleaseDate(_customAlbums);
+        };
+        init()
+            .then(res => setCustomAlbums(res))
+            .catch(err => console.log(err));
+    }, [albums, tokenChecker]);
 
     // アルバム一覧を形成
-    const createGridListTile = (_albums: Album[]): JSX.Element[] => _albums.map(album => {
+    const createGridListTile = (_albums: CustomAlbum[]): JSX.Element[] => _albums.map(album => {
         const artistNames: string[] = album.artists.map(artist => artist.name);
         return (
             <GridListTile
                 key={`${album.artists[0].name} - ${album.name}`}
                 cols={5}
             >
-                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.id}`, state: { album: album } }}>
+                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.variants[0].saved.albumId}`, state: { album: album } }}>
                     <img
                         src={album.images[0].url}
                         alt={`${album.artists[0].name} - ${album.name}`}
@@ -95,7 +108,7 @@ export const CustomGridList: FC<CustomGridListProps> = ({ albums }) => {
             spacing={0}
             cellHeight={'auto'}
         >
-            {createGridListTile(sorted)}
+            {createGridListTile(customAlbums)}
         </GridList>
     );
 };

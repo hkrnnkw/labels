@@ -108,7 +108,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
                 <AvatarsDrawer artists={artistsOfLabel} labelName={labelName} />
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             </div>
-            <ContainerOfYears years={albumsOfYears} />
+            <ContainerOfYears years={albumsOfYears} tokenChecker={tokenChecker} />
         </div>
     )
 };

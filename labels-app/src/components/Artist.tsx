@@ -118,7 +118,7 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
                     </List>
                 }
             </Container>
-            <ContainerOfYears years={albumsOfYears} />
+            <ContainerOfYears years={albumsOfYears} tokenChecker={tokenChecker} />
         </div>
     )
 };

@@ -9,9 +9,9 @@ import {
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import CloseIcon from '@material-ui/icons/Close';
-import { Props, Album as AlbumObj, Artist } from '../utils/interfaces';
+import { Props, Artist, CustomAlbum } from '../utils/interfaces';
 import { artist as artistPath, label as labelPath } from '../utils/paths';
-import { checkIsAlbumsInUserLibrary, convertReleaseDate, getArtists, isVariousAritist,
+import { convertReleaseDate, getArtists, isVariousAritist,
     saveOrRemoveAlbumsForCurrentUser,
 } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
@@ -154,10 +154,10 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 
 const Album: FC<Props> = ({ tokenChecker }) => {
     const classes = ambiguousStyles();
-    const { state } = useLocation<{ album: AlbumObj }>();
-    const { id, artists: simpleArtists, images, name: title, label: labelName, tracks, release_date } = state.album;
+    const { state } = useLocation<{ album: CustomAlbum }>();
+    const { artists: simpleArtists, images, name: title, variants, tracks, release_date } = state.album;
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
-    const [isSaved, setIsSaved] = useState<boolean>();
+    const [isSaved, setIsSaved] = useState<boolean>(variants.find(v => v.saved.inLib === true) !== undefined);
     const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
     const VARIOUS_ARTISTS: string = 'Various Artists';
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -167,22 +167,10 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         document.title = title;
     }, [title]);
 
-    // ユーザライブラリに保存されているかチェック
-    useEffect(() => {
-        const initSavedStatus = async (): Promise<boolean> => {
-            const token: string = await tokenChecker();
-            const result: boolean[] = await checkIsAlbumsInUserLibrary([id], token);
-            return result[0];
-        };
-        initSavedStatus()
-            .then(res => setIsSaved(res))
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [id, tokenChecker]);
-
     // アーティストの情報を取得
     useEffect(() => {
         const artistIds: string[] = isVA ?
-            tracks.items.flatMap(item => item.artists.map(artist => artist.id))
+            tracks.flatMap(track => track.artists.map(artist => artist.id))
             :
             simpleArtists.map(artist => artist.id);
 
@@ -193,7 +181,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         fetchArtists()
             .then(artists => setFullArtists(artists))
             .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
-    }, [isVA, tracks.items, simpleArtists, tokenChecker]);
+    }, [isVA, tracks, simpleArtists, tokenChecker]);
 
     // アーティスト名を並べる
     const createArtistNames = (artists: Artist[], lowerSide: boolean = false): JSX.Element[] => {
@@ -242,11 +230,11 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 <Link
                     className={classes.labelName}
                     component={RouterLink}
-                    to={{ pathname: `${labelPath}/${labelName}`, state: { labelName: labelName } }}
+                    to={{ pathname: `${labelPath}/${variants[0].labelName}`, state: { labelName: variants[0].labelName } }}
                 >
-                    {labelName}
+                    {variants[0].labelName}
                 </Link>
-                <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
+                <FollowButton labelName={variants[0].labelName} tokenChecker={tokenChecker} />
                 <img
                     src={images[0].url}
                     alt={`${simpleArtists[0].name} - ${title}`}
@@ -260,7 +248,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 </span>
                 <div className={classes.artist}>{createArtistNames(fullArtists)}</div>
                 <List className={classes.tracks}>
-                    {tracks.items.map(track =>
+                    {tracks.map(track =>
                         <ListItem><ListItemText>{track.name}</ListItemText></ListItem>)}
                 </List>
                 <Typography variant='subtitle2'>{convertReleaseDate(release_date)}</Typography>

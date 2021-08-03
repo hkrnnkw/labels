@@ -9,6 +9,7 @@ import { CustomGridList } from './CustomGridList';
 
 interface ContainerOfYearsProps {
     years: Year,
+    tokenChecker: () => Promise<string>,
 }
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
@@ -42,7 +43,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const ContainerOfYears: FC<ContainerOfYearsProps> = ({ years }) => {
+export const ContainerOfYears: FC<ContainerOfYearsProps> = ({ years, tokenChecker }) => {
     const classes = ambiguousStyles();
     const entries: [string, Album[]][] = Object.entries(years);
     const sorted = entries.sort((a, b) => a[0] > b[0] ? -1 : a[0] < b[0] ? 1 : 0);
@@ -54,7 +55,7 @@ export const ContainerOfYears: FC<ContainerOfYearsProps> = ({ years }) => {
                 {!albums.length ?
                     <Typography id='falsyMessage'>No releases.</Typography>
                     :
-                    <CustomGridList albums={albums} />
+                    <CustomGridList albums={albums} tokenChecker={tokenChecker} />
                 }
             </Container>
         ))}

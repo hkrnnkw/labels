@@ -232,7 +232,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 {!newReleases.length ?
                     <Typography>No releases recently.</Typography>
                     :
-                    <CustomGridList albums={newReleases} />
+                    <CustomGridList albums={newReleases} tokenChecker={tokenChecker} />
                 }
             </Container>
         );
