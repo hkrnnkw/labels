@@ -116,7 +116,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         '&#isDefault': {
-            width: `calc(100vw - ${theme.spacing(30)}px)`,
+            width: `calc(100vw - 122px)`,
             margin: theme.spacing(0, 2, 0, 4),
         },
     },
