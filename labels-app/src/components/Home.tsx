@@ -77,6 +77,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         backgroundColor: 'transparent',
         border: `1px solid ${theme.palette.secondary.main}`,
         transition: 'none',
+        padding: 0,
+        verticalAlign: 'middle',
+        textAlign: 'center',
         '&#selected': {
             color: theme.palette.background.default,
             backgroundColor: theme.palette.secondary.main,
