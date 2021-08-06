@@ -17,11 +17,10 @@ import { setSaved, setSearched, clearSearched } from '../stores/albums';
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         width: '100vw',
-        minHeight: `calc(100vh - 64px)`,
         height: 'max-content',
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
-        top: '64px',
+        top: '52px',
         '& p#notFound': {
             color: theme.palette.text.secondary,
             width: `calc(100% - ${theme.spacing(8)}px)`,

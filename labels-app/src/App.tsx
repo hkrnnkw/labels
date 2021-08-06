@@ -31,7 +31,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             width: '100vw',
             minHeight: `calc(100vh - 48px)`,
             height: 'max-content',
-            top: '64px',
+            top: '52px',
             display: 'flex',
             alignItems: 'center',
             flexDirection: 'column',
@@ -56,7 +56,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         top: 0,
         left: 0,
         zIndex: 1299,
-        padding: theme.spacing(4, 0, 1),
+        padding: theme.spacing(1, 0),
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -75,7 +75,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         '& .MuiLinearProgress-root': {
             width: '100vw',
             position: 'fixed',
-            top: '60px',
+            top: '48px',
         },
     },
     '@media (min-width: 960px)': {

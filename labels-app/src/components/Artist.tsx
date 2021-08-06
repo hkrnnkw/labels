@@ -13,11 +13,10 @@ import { ContainerOfYears } from './custom/ContainerOfYears';
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
         width: '100vw',
-        minHeight: `calc(100vh - 64px)`,
         height: 'max-content',
         backgroundColor: theme.palette.background.default,
         position: 'absolute',
-        top: '64px',
+        top: '52px',
     },
     container: {
         width: `calc(100vw - ${theme.spacing(8)}px)`,
