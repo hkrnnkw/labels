@@ -20,9 +20,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     container: {
         width: `calc(100vw - ${theme.spacing(8)}px)`,
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
+        display: 'block',
         overflow: 'hidden',
         padding: 0,
         margin: theme.spacing(0, 4, 6),
