@@ -24,7 +24,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         alignItems: 'baseline',
         overflow: 'hidden',
         padding: 0,
-        margin: theme.spacing(0, 0, 7),
+        margin: theme.spacing(0, 0, 11),
         '& p': {
             margin: theme.spacing(0, 4),
             '&#year': {
