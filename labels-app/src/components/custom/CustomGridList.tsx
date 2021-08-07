@@ -18,14 +18,17 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         minHeight: '100vh',
     },
     gridList: {
-        flexWrap: 'nowrap',
+        whiteSpace: 'nowrap',
+        display: 'block',
         transform: 'translateZ(0)',
         padding: theme.spacing(2, 4, 0),
-        columnGap: theme.spacing(2),
         msOverflowStyle: 'none',
         scrollbarWidth: 'none',
         '&::-webkit-scrollbar': {
             display: 'none',
+        },
+        '& li.MuiGridListTile-root': {
+            display: 'inline-block',
         },
         '& h6': {
             '&.MuiTypography-root': {
@@ -104,8 +107,8 @@ export const CustomGridList: FC<CustomGridListProps> = ({ albums, tokenChecker }
     return (
         <GridList
             className={classes.gridList}
-            cols={11}
-            spacing={0}
+            cols={12}
+            spacing={12}
             cellHeight={'auto'}
         >
             {createGridListTile(customAlbums)}

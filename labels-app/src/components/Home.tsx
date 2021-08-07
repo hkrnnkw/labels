@@ -134,7 +134,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             backgroundColor: theme.palette.background.paper,
         },
         '& .MuiDialogContent-root': {
-            padding: theme.spacing(2, 0, 16),
+            padding: theme.spacing(2, 0, 24),
             '& button': {
                 margin: theme.spacing(0, 4, 0, 0),
                 '&#following': {
