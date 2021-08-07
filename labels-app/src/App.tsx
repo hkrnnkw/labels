@@ -9,6 +9,7 @@ import Album from './components/Album';
 import Artist from './components/Artist';
 import Label from './components/Label';
 import Search from './components/Search';
+import Suggestion from './components/Suggestion';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { SignOutDrawer } from './components/custom/SignOutDrawer';
@@ -17,7 +18,7 @@ import { LinearProgress, Link, Typography, useMediaQuery } from '@material-ui/co
 import { RootState } from './stores';
 import { setSpotifyTokens, setSignInStatus, setFirebaseUser } from './stores/user';
 import { Spotify } from './utils/types';
-import { home, album, artist, label, callback, search } from './utils/paths';
+import { home, album, artist, label, callback, search, suggestion } from './utils/paths';
 import { refreshSpotifyToken } from './handlers/spotifyHandler';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
@@ -137,6 +138,7 @@ const App: FC = () => {
             <PrivateRoute path={artist} render={() => <Artist tokenChecker={tokenChecker} />} />
             <PrivateRoute path={label} render={() => <Label tokenChecker={tokenChecker} />} />
             <PrivateRoute path={search} render={() => <Search tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={suggestion} render={() => <Suggestion tokenChecker={tokenChecker} />} />
             <GuestRoute path={callback} component={Callback} />
             <Route component={NotFound} />
         </Switch>
