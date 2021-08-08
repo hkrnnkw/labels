@@ -111,8 +111,9 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, []);
 
     useEffect(() => {
+        if (!uid.length) return;
         dispatch(switchIsProcessing(needDefaults === undefined));
-        if (!uid.length || needDefaults !== undefined) return;
+        if (needDefaults !== undefined) return;
 
         // レーベルの情報を取得
         const fetchLabels = async () => {
