@@ -104,7 +104,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         <div className={classes.contentClass}>
             <Typography className={classes.labelName}>{labelName}</Typography>
             <div className={classes.subHeader}>
-                <AvatarsDrawer artists={artistsOfLabel} labelName={labelName} />
+                <AvatarsDrawer artists={artistsOfLabel} />
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             </div>
             <ContainerOfYears years={albumsOfYears} tokenChecker={tokenChecker} />

@@ -2,7 +2,7 @@ import React, { FC, useState, KeyboardEvent, MouseEvent } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
-    SwipeableDrawer, List, IconButton, ListItem, ListItemText, Link, Avatar,
+    Drawer, List, IconButton, ListItem, ListItemText, Link, Avatar, Button,
 } from '@material-ui/core';
 import ClearIcon from '@material-ui/icons/Clear';
 import { AvatarGroup } from '@material-ui/lab';
@@ -11,16 +11,16 @@ import { artist as artistPath } from '../../utils/paths';
 
 interface AvatarsDrawerProps {
     artists: Artist[],
-    labelName: string,
 }
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
-        width: `calc(100% - ${theme.spacing(20)}px)`,
         margin: theme.spacing(2, 0, 2, 1),
         display: 'flex',
+        justifyContent: 'space-between',
         position: 'relative',
         '& div.MuiAvatarGroup-root': {
+            width: 'max-content',
             '& .MuiAvatarGroup-avatar': {
                 border: 'none',
                 margin: theme.spacing(0, 0, 0, -1),
@@ -35,17 +35,18 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     openButton: {
-        width: '40px',
+        width: '36px',
         height: '40px',
         position: 'absolute',
-        right: 2,
+        right: '-4px',
         padding: 0,
     },
     paper: {
-        height: `calc(100vh - ${theme.spacing(19)}px)`,
+        height: `calc(100% - 98px)`,
         color: theme.palette.text.primary,
         backgroundColor: theme.palette.background.default,
-        borderRadius: '16px 16px 0 0',
+        zIndex: 1301,
+        border: 'none',
         '& .MuiTypography-colorTextSecondary': {
             color: theme.palette.text.secondary,
             fontSize: '0.8rem',
@@ -54,17 +55,15 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     artist: {
         width: `calc(100% - ${theme.spacing(8)}px)`,
-        display: 'flex',
-        alignItems: 'flex-start',
-        flexDirection: 'column',
-        flexWrap: 'nowrap',
+        height: '100vh',
+        display: 'block',
         margin: theme.spacing(0, 4),
-        paddingTop: theme.spacing(4),
+        paddingTop: theme.spacing(2),
         '& li': {
-            '&#subtitle': {
-                padding: 0,
-            },
-            padding: theme.spacing(4, 0, 0),
+            height: '40px',
+            display: 'inline-block',
+            padding: 0,
+            margin: theme.spacing(0, 0, 4),
             whiteSpace: 'nowrap',
             textOverflow: 'ellipsis',
             overflow: 'hidden',
@@ -79,19 +78,32 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     cancelButton: {
-        color: theme.palette.text.secondary,
-        backgroundColor: theme.palette.background.default,
+        width: '88px',
+        height: '88px',
+        color: theme.palette.background.default,
         position: 'fixed',
-        top: 0,
+        top: '98px',
         right: 0,
-        margin: theme.spacing(4),
+        margin: 0,
+        padding: 0,
+        borderBottom: `88px solid transparent`,
+        borderRight: `88px solid ${theme.palette.secondary.main}`,
+        borderRadius: 0,
+        zIndex: 1302,
+        '& span.MuiButton-label': {
+            width: '20px',
+            height: '20px',
+            position: 'absolute',
+            top: '16px',
+            left: '52px',
+        },
     },
     '@media (min-width: 960px)': {
 
     },
 }));
 
-export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists, labelName }) => {
+export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists }) => {
     const classes = ambiguousStyles();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -127,23 +139,22 @@ export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists, labelName }) =>
                 className={classes.openButton}
                 onClick={toggleDrawer(true)}
             />
-            <SwipeableDrawer
+            <Drawer
                 anchor={'bottom'}
+                variant='persistent'
                 open={drawerOpen}
                 onClose={toggleDrawer(false)}
-                onOpen={toggleDrawer(true)}
                 classes={{ paper: classes.paper }}
             >
                 <div role='presentation'>
-                    <IconButton className={classes.cancelButton} onClick={toggleDrawer(false)}>
+                    <Button className={classes.cancelButton} onClick={toggleDrawer(false)}>
                         <ClearIcon fontSize='small' />
-                    </IconButton>
+                    </Button>
                     <List className={classes.artist}>
-                        <ListItem id='subtitle'><ListItemText secondary={`${labelName} artists`} /></ListItem>
                         {generateAvatars(true)}
                     </List>
                 </div>
-            </SwipeableDrawer>
+            </Drawer>
         </div>
     );
 };
