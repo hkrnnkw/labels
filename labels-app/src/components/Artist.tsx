@@ -8,7 +8,8 @@ import {
 import { Props, Album, Artist as ArtistObj } from '../utils/interfaces';
 import { Year } from '../utils/types';
 import { getArtistAlbums } from '../handlers/spotifyHandler';
-import { ContainerOfYears } from './custom/ContainerOfYears';
+import { ContainerOfYear } from './custom/ContainerOfYear';
+import { sortYears } from '../handlers/sortHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -115,7 +116,8 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
                     </List>
                 }
             </Container>
-            <ContainerOfYears years={albumsOfYears} tokenChecker={tokenChecker} />
+            {sortYears(albumsOfYears)
+                .map(entry => <ContainerOfYear yearEntry={entry} tokenChecker={tokenChecker} />)}
         </div>
     )
 };

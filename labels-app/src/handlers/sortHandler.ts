@@ -1,4 +1,5 @@
-import { Label, SortOrder } from "../utils/types";
+import { Album } from "../utils/interfaces";
+import { Label, SortOrder, Year } from "../utils/types";
 
 export const RF = 'Recently followed';
 export const ABC = 'Alphabetical';
@@ -30,10 +31,17 @@ const sortAlphabetical = (labelList: Label[]): Label[] => {
     });
 };
 
+// 新リリースの多い順にソート
 const sortNumOfNewReleases = (labelList: Label[]): Label[] => {
     const arrayForSort: Label[] = [...labelList];
     return arrayForSort.sort((a: Label, b: Label) => {
         const aNum = a.newReleases.length, bNum = b.newReleases.length;
         return (aNum > bNum ? -1 : aNum < bNum ? 1 : 0);
     });
+};
+
+// 年順（降順）ソート
+export const sortYears = (years: Year): [string, Album[]][] => {
+    const entries: [string, Album[]][] = Object.entries(years);
+    return entries.sort((a, b) => a[0] > b[0] ? -1 : a[0] < b[0] ? 1 : 0);
 };

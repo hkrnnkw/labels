@@ -9,8 +9,9 @@ import { Props, Album, Artist } from '../utils/interfaces';
 import { SearchResult, Year } from '../utils/types';
 import { getArtists, searchAlbums, isVariousAritist } from '../handlers/spotifyHandler';
 import { FollowButton } from './custom/FollowButton';
-import { ContainerOfYears } from './custom/ContainerOfYears';
+import { ContainerOfYear } from './custom/ContainerOfYear';
 import { AvatarsDrawer } from './custom/AvatarsDrawer';
+import { sortYears } from '../handlers/sortHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -107,7 +108,8 @@ const Label: FC<Props> = ({ tokenChecker }) => {
                 <AvatarsDrawer artists={artistsOfLabel} />
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
             </div>
-            <ContainerOfYears years={albumsOfYears} tokenChecker={tokenChecker} />
+            {sortYears(albumsOfYears)
+                .map(entry => <ContainerOfYear yearEntry={entry} tokenChecker={tokenChecker} />)}
         </div>
     )
 };

@@ -1,14 +1,13 @@
 import React, { FC } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Album } from '../../utils/interfaces';
-import { Year } from '../../utils/types';
 import {
     Container, Typography,
 } from '@material-ui/core';
 import { CustomGridList } from './CustomGridList';
 
-interface ContainerOfYearsProps {
-    years: Year,
+interface ContainerOfYearProps {
+    yearEntry: [string, Album[]],
     tokenChecker: () => Promise<string>,
 }
 
@@ -43,21 +42,18 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const ContainerOfYears: FC<ContainerOfYearsProps> = ({ years, tokenChecker }) => {
+export const ContainerOfYear: FC<ContainerOfYearProps> = ({ yearEntry, tokenChecker }) => {
     const classes = ambiguousStyles();
-    const entries: [string, Album[]][] = Object.entries(years);
-    const sorted = entries.sort((a, b) => a[0] > b[0] ? -1 : a[0] < b[0] ? 1 : 0);
+    const [year, albums] = yearEntry;
 
-    return <>
-        {sorted.map(([year, albums]) => (
-            <Container className={classes.container} id={year}>
-                <Typography id={'year'}>{year}</Typography>
-                {!albums.length ?
-                    <Typography id='falsyMessage'>No releases.</Typography>
-                    :
-                    <CustomGridList albums={albums} tokenChecker={tokenChecker} />
-                }
-            </Container>
-        ))}
-    </>
+    return (
+        <Container className={classes.container} id={year}>
+            <Typography id={'year'}>{year}</Typography>
+            {!albums.length ?
+                <Typography id='falsyMessage'>No releases.</Typography>
+                :
+                <CustomGridList albums={albums} tokenChecker={tokenChecker} />
+            }
+        </Container>
+    )
 };
