@@ -63,7 +63,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        margin: theme.spacing(1, 0, 2),
+        margin: theme.spacing(2, 0),
     },
     showAll: {
         width: '88px',

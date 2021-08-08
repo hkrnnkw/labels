@@ -41,7 +41,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         alignItems: 'center',
         overflow: 'hidden',
         padding: 0,
-        margin: theme.spacing(0, 4, 6),
+        margin: theme.spacing(2, 4, 6),
     },
     labelName: {
         width: `calc(100% - 90px)`,

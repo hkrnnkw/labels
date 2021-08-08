@@ -23,7 +23,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         display: 'block',
         overflow: 'hidden',
         padding: 0,
-        margin: theme.spacing(0, 4, 6),
+        margin: theme.spacing(2, 4, 6),
         '& img': {
             width: '100%',
             height: 'auto',

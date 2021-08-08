@@ -14,7 +14,7 @@ import Callback from './components/Callback';
 import NotFound from './components/NotFound';
 import { SignOutDrawer } from './components/custom/SignOutDrawer';
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
-import { LinearProgress, Link, Typography, useMediaQuery } from '@material-ui/core';
+import { AppBar, LinearProgress, Link, Toolbar, Typography, useMediaQuery } from '@material-ui/core';
 import { RootState } from './stores';
 import { setSpotifyTokens, setSignInStatus, setFirebaseUser } from './stores/user';
 import { Spotify } from './utils/types';
@@ -49,18 +49,17 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     header: {
-        width: '100vw',
-        height: '44px',
         color: theme.palette.text.secondary,
         backgroundColor: theme.palette.background.default,
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        zIndex: 1299,
         padding: theme.spacing(1, 0),
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        '& div.MuiToolbar-regular': {
+            width: '100%',
+            minHeight: '44px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: 0,
+        },
         '& div#title': {
             display: 'flex',
             alignItems: 'baseline',
@@ -159,14 +158,16 @@ const App: FC = () => {
     return (
         <BrowserRouter>
         <div className={classes.contentClass}>
-            <div className={classes.header}>
-                <div id='title'>
-                    <Link component={RouterLink} to={home}>Labels</Link>
-                    <Typography variant='subtitle2'>v0.1 beta</Typography>
-                </div>
-                {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
-                {isProcessing && <LinearProgress color='secondary' />}
-            </div>
+            <AppBar position='fixed' className={classes.header}>
+                <Toolbar>
+                    <div id='title'>
+                        <Link component={RouterLink} to={home}>Labels</Link>
+                        <Typography variant='subtitle2'>v0.1 beta</Typography>
+                    </div>
+                    {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
+                    {isProcessing && <LinearProgress color='secondary' />}
+                </Toolbar>
+            </AppBar>
             {isMobileSize ? mobileView : widerView}
         </div>
         </BrowserRouter>

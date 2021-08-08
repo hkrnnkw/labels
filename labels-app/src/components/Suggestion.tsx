@@ -25,7 +25,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         fontWeight: 500,
         color: theme.palette.background.paper,
         backgroundColor: theme.palette.primary.main,
-        padding: theme.spacing(0, 4),
+        padding: theme.spacing(1, 4),
         '& div.MuiToolbar-regular': {
             width: '100%',
             minHeight: '44px',
@@ -41,7 +41,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     container: {
-        padding: theme.spacing(13, 0, 6),
+        padding: theme.spacing(15, 0, 6),
         '& button': {
             margin: theme.spacing(0, 4, 0, 0),
             '&#following': {

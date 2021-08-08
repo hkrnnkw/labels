@@ -42,7 +42,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         padding: 0,
     },
     paper: {
-        height: `calc(100% - 98px)`,
+        height: `calc(100% - 106px)`,
         color: theme.palette.text.primary,
         backgroundColor: theme.palette.background.default,
         zIndex: 1301,
@@ -82,7 +82,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         height: '88px',
         color: theme.palette.background.default,
         position: 'fixed',
-        top: '98px',
+        top: '106px',
         right: 0,
         margin: 0,
         padding: 0,

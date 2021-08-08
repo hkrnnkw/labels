@@ -29,7 +29,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         lineHeight: 1.2,
         fontWeight: 700,
         wordBreak: 'break-all',
-        margin: theme.spacing(0, 4),
+        margin: theme.spacing(2, 4, 0),
         padding: theme.spacing(2, 0),
         display: 'inline',
     },

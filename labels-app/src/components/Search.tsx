@@ -36,7 +36,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         justifyContent: 'space-between',
         width: '100vw',
         backgroundColor: theme.palette.background.default,
-        padding: theme.spacing(1, 0),
+        padding: theme.spacing(4, 0, 2),
         position: 'fixed',
         zIndex: 3,
         '& div.MuiFormControl-root.MuiTextField-root': {
@@ -81,7 +81,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
     list: {
         height: '100%',
-        margin: theme.spacing(13, 4, 0),
+        margin: theme.spacing(15, 4, 0),
     },
     listItem: {
         width: `calc(100vw - ${theme.spacing(8)}px)`,
