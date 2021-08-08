@@ -12,6 +12,11 @@ const theme = createMuiTheme({
                 textDecoration: 'none',
                 fontWeight: 700,
             },
+            underlineHover: {
+                '&:hover': {
+                    textDecoration: 'none',
+                },
+            },
         },
         MuiButton: {
             label: {

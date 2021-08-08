@@ -69,9 +69,6 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 fontSize: '1.25rem',
                 padding: theme.spacing(0, 4),
             },
-            '& a.MuiLink-underlineHover:hover': {
-                textDecoration: 'none',
-            },
         },
         '& .MuiLinearProgress-root': {
             width: '100vw',
