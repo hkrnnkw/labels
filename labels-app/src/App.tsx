@@ -22,6 +22,7 @@ import { home, album, artist, label, callback, search, suggestion } from './util
 import { refreshSpotifyToken } from './handlers/spotifyHandler';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
+import labels_logo from './img/labels_logo.svg';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -62,11 +63,15 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
         '& div#title': {
             display: 'flex',
-            alignItems: 'baseline',
+            alignItems: 'center',
             justifyContent: 'flex-start',
             '& a.MuiLink-root': {
-                fontSize: '1.25rem',
-                padding: theme.spacing(0, 4),
+                height: '36px',
+                padding: theme.spacing(1, 4),
+                '& img': {
+                    width: '36px',
+                    height: '36px',
+                },
             },
         },
         '& .MuiLinearProgress-root': {
@@ -161,7 +166,9 @@ const App: FC = () => {
             <AppBar position='fixed' className={classes.header}>
                 <Toolbar>
                     <div id='title'>
-                        <Link component={RouterLink} to={home}>Labels</Link>
+                        <Link component={RouterLink} to={home}>
+                            <img src={labels_logo} alt="Labels_logo" />
+                        </Link>
                         <Typography variant='subtitle2'>v0.1 beta</Typography>
                     </div>
                     {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
