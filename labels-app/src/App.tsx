@@ -18,7 +18,7 @@ import { AppBar, LinearProgress, Link, Toolbar, Typography, useMediaQuery } from
 import { RootState } from './stores';
 import { setSpotifyTokens, setSignInStatus, setFirebaseUser } from './stores/user';
 import { Spotify } from './utils/types';
-import { home, album, artist, label, callback, search, suggestion } from './utils/paths';
+import { paths } from './utils/paths';
 import { refreshSpotifyToken } from './handlers/spotifyHandler';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
@@ -134,13 +134,13 @@ const App: FC = () => {
     // モバイルサイト
     const mobileView: JSX.Element = (
         <Switch>
-            <Route path={home} exact render={() => <Home tokenChecker={tokenChecker} />} />
-            <PrivateRoute path={album} render={() => <Album tokenChecker={tokenChecker} />} />
-            <PrivateRoute path={artist} render={() => <Artist tokenChecker={tokenChecker} />} />
-            <PrivateRoute path={label} render={() => <Label tokenChecker={tokenChecker} />} />
-            <PrivateRoute path={search} render={() => <Search tokenChecker={tokenChecker} />} />
-            <PrivateRoute path={suggestion} render={() => <Suggestion tokenChecker={tokenChecker} />} />
-            <GuestRoute path={callback} component={Callback} />
+            <Route path={paths.home} exact render={() => <Home tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={paths.album} render={() => <Album tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={paths.artist} render={() => <Artist tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={paths.label} render={() => <Label tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={paths.search} render={() => <Search tokenChecker={tokenChecker} />} />
+            <PrivateRoute path={paths.suggestion} render={() => <Suggestion tokenChecker={tokenChecker} />} />
+            <GuestRoute path={paths.callback} component={Callback} />
             <Route component={NotFound} />
         </Switch>
     );
@@ -166,7 +166,7 @@ const App: FC = () => {
             <AppBar position='fixed' className={classes.header}>
                 <Toolbar>
                     <div id='title'>
-                        <Link component={RouterLink} to={home}>
+                        <Link component={RouterLink} to={paths.home}>
                             <img src={labels_logo} alt="Labels_logo" />
                         </Link>
                         <Typography variant='subtitle2'>v0.1 beta</Typography>

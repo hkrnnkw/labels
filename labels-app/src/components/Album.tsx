@@ -10,7 +10,7 @@ import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import CloseIcon from '@material-ui/icons/Close';
 import { Props, Artist, CustomAlbum } from '../utils/interfaces';
-import { artist as artistPath, label as labelPath } from '../utils/paths';
+import { paths } from '../utils/paths';
 import {
     convertReleaseDate, getArtists, isVariousAritist, saveAlbumsToUserLibrary, removeAlbumsFromUserLibrary,
 } from '../handlers/spotifyHandler';
@@ -194,7 +194,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 <ListItem id={lowerSide ? undefined : 'higherSide'}>
                     <Link
                         component={RouterLink}
-                        to={{ pathname: `${artistPath}/${artist.id}`, state: { artist: artist } }}
+                        to={{ pathname: `${paths.artist}/${artist.id}`, state: { artist: artist } }}
                     >
                         <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
                         <ListItemText>{artist.name}</ListItemText>
@@ -240,7 +240,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                         <Link
                             className={classes.labelName}
                             component={RouterLink}
-                            to={{ pathname: `${labelPath}/${variants[0].labelName}`, state: { labelName: variants[0].labelName } }}
+                            to={{ pathname: `${paths.label}/${variants[0].labelName}`, state: { labelName: variants[0].labelName } }}
                         >
                             {variants[0].labelName}
                         </Link>

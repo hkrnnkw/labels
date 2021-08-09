@@ -7,7 +7,7 @@ import {
 import ClearIcon from '@material-ui/icons/Clear';
 import { AvatarGroup } from '@material-ui/lab';
 import { Artist } from '../../utils/interfaces';
-import { artist as artistPath } from '../../utils/paths';
+import { paths } from '../../utils/paths';
 
 interface AvatarsDrawerProps {
     artists: Artist[],
@@ -118,7 +118,7 @@ export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists }) => {
         if (onDrawer) {
             return artists.map(artist => (
                 <ListItem>
-                    <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
+                    <Link component={RouterLink} to={{ pathname: `${paths.artist}/${artist}`, state: { artist: artist } }}>
                         <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
                         <ListItemText primary={artist.name} />
                     </Link>
@@ -126,7 +126,7 @@ export const AvatarsDrawer: FC<AvatarsDrawerProps> = ({ artists }) => {
             ));
         }
         return artists.map(artist => (
-            <Link component={RouterLink} to={{ pathname: `${artistPath}/${artist}`, state: { artist: artist } }}>
+            <Link component={RouterLink} to={{ pathname: `${paths.artist}/${artist}`, state: { artist: artist } }}>
                 <Avatar alt={artist.name} src={artist.images[0]?.url || ''} />
             </Link>
         ));

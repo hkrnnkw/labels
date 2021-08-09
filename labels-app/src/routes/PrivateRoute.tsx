@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../stores/index';
-import { home } from '../utils/paths';
+import { paths } from '../utils/paths';
 
 interface RouteProps {
     path: string;
@@ -12,7 +12,7 @@ interface RouteProps {
 
 const PrivateRoute: FC<RouteProps> = ({ path, exact, render }) => {
     const { signedIn } = useSelector((rootState: RootState) => rootState.user);
-    return signedIn ? <Route path={path} exact={exact} render={render} /> : <Redirect to={home} />;
+    return signedIn ? <Route path={path} exact={exact} render={render} /> : <Redirect to={paths.home} />;
 }
 
 export default PrivateRoute;

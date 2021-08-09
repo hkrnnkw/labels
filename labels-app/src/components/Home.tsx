@@ -11,7 +11,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import { setNeedDefaults, setInitLabels } from '../stores/albums';
 import { Label, SearchResult } from '../utils/types';
 import { Props } from '../utils/interfaces';
-import { search as searchPath, suggestion } from '../utils/paths';
+import { paths } from '../utils/paths';
 import { searchAlbums, signIn } from '../handlers/spotifyHandler';
 import { getListOfFavLabelsFromFirestore } from '../handlers/dbHandler';
 import { sortHandler } from '../handlers/sortHandler';
@@ -159,7 +159,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                     Show all
                 </Button>
             </div>
-            <Fab color='primary' aria-label='search' component={RouterLink} to={searchPath} className={classes.searchButton}>
+            <Fab color='primary' aria-label='search' component={RouterLink} to={paths.search} className={classes.searchButton}>
                 <SearchIcon style={{ fontSize: 28 }} />
             </Fab>
             {needDefaults === undefined ? null :
@@ -183,7 +183,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         const falsyMessage: string = !home.length ? 'Not following any label.' : 'No releases recently.';
         const forSort: Label[] = showAll ? home : home.filter(label => label.newReleases.length);
         return needDefaults ? 
-            <Redirect to={suggestion} /> : privateHome(sortHandler(forSort, sortOrder), falsyMessage);
+            <Redirect to={paths.suggestion} /> : privateHome(sortHandler(forSort, sortOrder), falsyMessage);
     }
     else if (signedIn === false) {
         return guestHome(clicked);

@@ -10,7 +10,7 @@ import { Label, SearchResult } from '../utils/types';
 import { Props } from '../utils/interfaces';
 import { searchAlbums } from '../handlers/spotifyHandler';
 import { ContainerOfLabel } from './custom/ContainerOfLabel';
-import { home as homePath } from '../utils/paths';
+import { paths } from '../utils/paths';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     contentClass: {
@@ -104,7 +104,7 @@ const Suggestion: FC<Props> = ({ tokenChecker }) => {
             <AppBar position='fixed' className={classes.header}>
                 <Toolbar>
                     <Typography>Which are your favorites?</Typography>
-                    <Link component={RouterLink} to={homePath} onClick={() => dispatch(setNeedDefaults(false))}>
+                    <Link component={RouterLink} to={paths.home} onClick={() => dispatch(setNeedDefaults(false))}>
                         {!Object.keys(home).length ? 'Skip' : 'Done'}
                     </Link>
                 </Toolbar>

@@ -1,12 +1,14 @@
-// 正常系
-export const album = '/album';
-export const artist = '/artist';
-export const callback = '/callback';
-export const home = '/';
-export const label = '/label';
-export const search = '/search';
-export const suggestion = '/suggestion';
+export const paths = {
+    // 正常系
+    album:          '/album',
+    artist:         '/artist',
+    callback:       '/callback',
+    home:           '/',
+    label:          '/label',
+    search:         '/search',
+    suggestion:     '/suggestion',
 
-// 異常系
-export const errorOccurred = '/erroroccurred';
-export const userNotFound = '/usernotfound';
+    // 異常系
+    errorOccurred:  '/erroroccurred',
+    userNotFound:   '/usernotfound',
+};

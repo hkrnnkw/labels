@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Container, Link, Typography } from '@material-ui/core';
 import { Label } from '../../utils/types';
-import { label as labelPath } from '../../utils/paths';
+import { paths } from '../../utils/paths';
 import { CustomGridList } from './CustomGridList';
 import { FollowButton } from './FollowButton';
 
@@ -60,7 +60,7 @@ export const ContainerOfLabel: FC<ContainerOfLabelProps> = ({ label, tokenChecke
                 className={classes.labelName}
                 id={isDefault ? 'isDefault' : undefined}
                 component={RouterLink}
-                to={{ pathname: `${labelPath}/${labelName}`, state: { labelName: labelName } }}
+                to={{ pathname: `${paths.label}/${labelName}`, state: { labelName: labelName } }}
             >
                 {labelName}
             </Link>

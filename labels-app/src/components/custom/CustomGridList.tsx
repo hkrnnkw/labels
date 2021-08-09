@@ -5,7 +5,7 @@ import { Album, CustomAlbum } from '../../utils/interfaces';
 import {
     GridList, GridListTile, Link, Typography,
 } from '@material-ui/core';
-import { album as albumPath } from '../../utils/paths';
+import { paths } from '../../utils/paths';
 import { createCustomAlbum } from '../../handlers/spotifyHandler';
 
 interface CustomGridListProps {
@@ -91,7 +91,7 @@ export const CustomGridList: FC<CustomGridListProps> = ({ albums, tokenChecker }
                 key={`${album.artists[0].name} - ${album.name}`}
                 cols={5}
             >
-                <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.variants[0].saved.albumId}`, state: { album: album } }}>
+                <Link component={RouterLink} to={{ pathname: `${paths.album}/${album.variants[0].saved.albumId}`, state: { album: album } }}>
                     <img
                         src={album.images[0].url}
                         alt={`${album.artists[0].name} - ${album.name}`}

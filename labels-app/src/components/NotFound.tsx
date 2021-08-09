@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from 'react';
 import { withRouter, useLocation } from 'react-router';
-import { errorOccurred, userNotFound } from '../utils/paths';
+import { paths } from '../utils/paths';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { Typography } from '@material-ui/core/';
 
@@ -41,9 +41,9 @@ const NotFound: FC = () => {
     
     const getMessage = (path: string): string => {
         switch (path) {
-            case errorOccurred:
+            case paths.errorOccurred:
                 return 'An error has occurred.';
-            case userNotFound:
+            case paths.userNotFound:
                 return `Couldn't sign in.`;
             default:
                 return '404 Not found';

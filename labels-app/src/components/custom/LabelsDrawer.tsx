@@ -4,7 +4,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     SwipeableDrawer, List, ListItem, ListItemText, Link, Button,
 } from '@material-ui/core';
-import { label as labelPath } from '../../utils/paths';
+import { paths } from '../../utils/paths';
 import { FollowButton } from './FollowButton';
 
 interface LabelsDrawerProps {
@@ -100,7 +100,7 @@ export const LabelsDrawer: FC<LabelsDrawerProps> = ({ labelNames, tokenChecker }
     const generateLabels = () => {
         return labelNames.map(labelName => (
             <ListItem>
-                <Link component={RouterLink} to={{ pathname: `${labelPath}/${labelName}`, state: { labelName: labelName } }}>
+                <Link component={RouterLink} to={{ pathname: `${paths.label}/${labelName}`, state: { labelName: labelName } }}>
                     <ListItemText primary={labelName} />
                 </Link>
                 <FollowButton labelName={labelName} tokenChecker={tokenChecker} />
@@ -113,7 +113,7 @@ export const LabelsDrawer: FC<LabelsDrawerProps> = ({ labelNames, tokenChecker }
             <Link
                 className={classes.labelName}
                 component={RouterLink}
-                to={{ pathname: `${labelPath}/${labelNames[0]}`, state: { labelName: labelNames[0] } }}
+                to={{ pathname: `${paths.label}/${labelNames[0]}`, state: { labelName: labelNames[0] } }}
             >
                 {labelNames[0]}
             </Link>

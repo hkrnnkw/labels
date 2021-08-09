@@ -10,7 +10,7 @@ import {
 import SearchIcon from '@material-ui/icons/Search';
 import { Props, Album, CustomAlbum } from '../utils/interfaces';
 import { SearchQuery, SearchResult } from '../utils/types';
-import { album as albumPath } from '../utils/paths';
+import { paths } from '../utils/paths';
 import { createCustomAlbum, getSavedAlbums, searchAlbums } from '../handlers/spotifyHandler';
 import { setSaved, setSearched, clearSearched } from '../stores/albums';
 
@@ -193,7 +193,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
                     key={`${album.artists[0].name} - ${album.name}`}
                     className={classes.listItem}
                 >
-                    <Link component={RouterLink} to={{ pathname: `${albumPath}/${album.variants[0].saved.albumId}`, state: { album: album } }}>
+                    <Link component={RouterLink} to={{ pathname: `${paths.album}/${album.variants[0].saved.albumId}`, state: { album: album } }}>
                         <img
                             src={album.images[0].url}
                             alt={`${album.artists[0].name} - ${album.name}`}

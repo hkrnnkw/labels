@@ -3,7 +3,7 @@ import { WithRouterStatics } from 'react-router';
 import { Route, Redirect } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '../stores/index';
-import { home } from '../utils/paths';
+import { paths } from '../utils/paths';
 
 interface RouteProps {
     path: string;
@@ -14,7 +14,7 @@ interface RouteProps {
 const GuestRoute: FC<RouteProps> = ({ path, exact, component }) => {
     const { signedIn } = useSelector((rootState: RootState) => rootState.user);
     return signedIn ?
-        <Redirect to={home} /> : <Route path={path} exact={exact} component={component.WrappedComponent} />;
+        <Redirect to={paths.home} /> : <Route path={path} exact={exact} component={component.WrappedComponent} />;
 }
 
 export default GuestRoute;

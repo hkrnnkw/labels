@@ -6,7 +6,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import firebase, { f, auth } from '../firebase';
 import { StrKeyObj, Spotify } from '../utils/types';
 import { Typography } from '@material-ui/core';
-import { home, errorOccurred, userNotFound } from '../utils/paths';
+import { paths } from '../utils/paths';
 import { setSpotifyTokens } from '../stores/user';
 import { switchIsProcessing } from '../stores/app';
 
@@ -81,13 +81,13 @@ const Callback: FC = () => {
 
         const results: StrKeyObj = getParams(location.search);
         if (results['error'] && results['error'] === 'access_denied') {
-            setPath(home);
+            setPath(paths.home);
             return;
         }
         
         requestFirestoreCustomToken(results)
-            .then(user => setPath(user ? home : userNotFound))
-            .catch(_ => setPath(errorOccurred));
+            .then(user => setPath(user ? paths.home : paths.userNotFound))
+            .catch(_ => setPath(paths.errorOccurred));
     }, [location.search, dispatch]);
 
     return path ?
