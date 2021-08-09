@@ -181,7 +181,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         };
         fetchArtists()
             .then(artists => setFullArtists(artists))
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [isVA, tracks, simpleArtists, tokenChecker]);
 
     // アーティスト名を並べる

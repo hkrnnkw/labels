@@ -74,7 +74,7 @@ export const FollowButton: FC<FollowButtonProps> = ({ labelName, tokenChecker })
                 dispatch(setAddLabel(newLabel));
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
         }
     };
 

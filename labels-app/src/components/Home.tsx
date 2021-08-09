@@ -137,7 +137,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         };
 
         fetchLabels()
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [uid, needDefaults, dispatch, tokenChecker]);
 
     // サインインButtonの制御

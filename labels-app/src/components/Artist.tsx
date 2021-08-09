@@ -97,7 +97,7 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
         }
         fetchAlbums()
             .then(results => setAlbumsOfYears(results))
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [artistId, tokenChecker]);
 
     return (

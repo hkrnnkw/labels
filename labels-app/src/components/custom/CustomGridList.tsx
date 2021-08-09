@@ -80,7 +80,7 @@ export const CustomGridList: FC<CustomGridListProps> = ({ albums, tokenChecker }
         };
         init()
             .then(res => setCustomAlbums(res))
-            .catch(err => console.log(err));
+            .catch(err => console.error(err));
     }, [albums, tokenChecker]);
 
     // アルバム一覧を形成

@@ -141,7 +141,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             dispatch(setSaved(results));
         };
         fetchSavedAlbums()
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [tokenChecker, dispatch]);
 
     useEffect(() => {
@@ -156,7 +156,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         };
         init()
             .then(res => setCustomAlbums(res))
-            .catch(err => console.log(err));
+            .catch(err => console.error(err));
     }, [typed, searched.albums, saved, tokenChecker]);
 
     // typingが空になったらsearchedを初期化（typedが空文字の場合はreturn）
@@ -173,13 +173,13 @@ const Search: FC<Props> = ({ tokenChecker }) => {
             const result: SearchResult = await searchAlbums(searchQuery, token);
             dispatch(setSearched(result));
         } catch (err) {
-            console.log(`検索エラー：${err}`);
+            console.error(`検索エラー：${err}`);
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== 'Enter' || !typing.length || typed === typing) return;
-        doSearching(typing).catch(err => console.log(err));
+        doSearching(typing).catch(err => console.error(err));
         e.currentTarget.blur();
     };
 

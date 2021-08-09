@@ -96,7 +96,7 @@ const Suggestion: FC<Props> = ({ tokenChecker }) => {
         };
 
         fetchLabels()
-            .catch(err => console.error(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [tokenChecker]);
 
     return (

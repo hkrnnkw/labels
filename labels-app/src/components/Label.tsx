@@ -80,7 +80,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         };
         fetchLabel()
             .then(albums => setAlbumsOfYears(albums))
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [labelName, tokenChecker]);
 
     // レーベルのアーティストを取得
@@ -98,7 +98,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         };
         fetchArtists()
             .then(artists => setArtistsOfLabel(artists))
-            .catch(err => console.log(`Spotifyフェッチエラー：${err}`));
+            .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [albumsOfYears, tokenChecker]);
 
     return (
