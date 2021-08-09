@@ -8,11 +8,12 @@ import Home from './components/Home';
 import Album from './components/Album';
 import Artist from './components/Artist';
 import Label from './components/Label';
+import Licenses from './components/Licenses';
 import Search from './components/Search';
 import Suggestion from './components/Suggestion';
 import Callback from './components/Callback';
 import NotFound from './components/NotFound';
-import { SignOutDrawer } from './components/custom/SignOutDrawer';
+import { ConfigDrawer } from './components/custom/ConfigDrawer';
 import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/styles';
 import { AppBar, LinearProgress, Link, Toolbar, Typography, useMediaQuery } from '@material-ui/core';
 import { RootState } from './stores';
@@ -141,6 +142,7 @@ const App: FC = () => {
             <PrivateRoute path={paths.search} render={() => <Search tokenChecker={tokenChecker} />} />
             <PrivateRoute path={paths.suggestion} render={() => <Suggestion tokenChecker={tokenChecker} />} />
             <GuestRoute path={paths.callback} component={Callback} />
+            <Route path={paths.licenses} component={Licenses} />
             <Route component={NotFound} />
         </Switch>
     );
@@ -171,7 +173,7 @@ const App: FC = () => {
                         </Link>
                         <Typography variant='subtitle2'>v0.1 beta</Typography>
                     </div>
-                    {signedIn && <SignOutDrawer displayName={displayName} photoURL={photoURL} />}
+                    {signedIn && <ConfigDrawer displayName={displayName} photoURL={photoURL} />}
                     {isProcessing && <LinearProgress color='secondary' />}
                 </Toolbar>
             </AppBar>

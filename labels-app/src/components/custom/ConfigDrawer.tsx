@@ -1,14 +1,17 @@
 import React, { FC, useState, KeyboardEvent, MouseEvent } from 'react';
 import { useDispatch } from 'react-redux';
+import { Link as RouterLink } from 'react-router-dom';
 import { auth } from '../../firebase';
 import { setClearUser } from '../../stores/user';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
     SwipeableDrawer, List, Button, ListItem, ListItemText, Avatar, IconButton,
+    Link,
 } from '@material-ui/core';
 import PersonIcon from '@material-ui/icons/Person';
+import { paths } from '../../utils/paths';
 
-interface SignOutDrawerProps {
+interface ConfigDrawerProps {
     displayName: string,
     photoURL: string | null,
 }
@@ -44,7 +47,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL }) => {
+export const ConfigDrawer: FC<ConfigDrawerProps> = ({ displayName, photoURL }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -84,7 +87,12 @@ export const SignOutDrawer: FC<SignOutDrawerProps> = ({ displayName, photoURL })
                     role="presentation"
                 >
                     <List>
-                        <ListItem button onClick={signOut}>
+                        <ListItem key='licenses'>
+                            <Link component={RouterLink} to={paths.licenses} onClick={() => setDrawerOpen(false)}>
+                                <ListItemText primary={'See licenses'} />
+                            </Link>
+                        </ListItem>
+                        <ListItem key='signOut' button onClick={signOut}>
                             <ListItemText primary={'Sign out'} id={'signOut'}/>
                         </ListItem>
                     </List>

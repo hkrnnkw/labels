@@ -5,6 +5,7 @@ export const paths = {
     callback:       '/callback',
     home:           '/',
     label:          '/label',
+    licenses:       '/licenses',
     search:         '/search',
     suggestion:     '/suggestion',
 
