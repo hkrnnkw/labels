@@ -70,3 +70,11 @@ export type Variant = {
     labelName: string;
     copyright: Copyright;
 }
+
+export type License = {
+    licenses?: string;
+    repository?: string;
+    publisher?: string;
+    copyright?: string;
+    licenseText?: string;
+}
