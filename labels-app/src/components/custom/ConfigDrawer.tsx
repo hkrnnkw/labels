@@ -25,8 +25,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     openButton: {
+        color: theme.palette.secondary.main,
         display: 'flex',
-        minWidth: '36px',
         padding: theme.spacing(1, 0),
         margin: theme.spacing(0, 4),
         '& .MuiButton-label': {
@@ -34,8 +34,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         },
     },
     icon: {
-        width: '36px',
-        height: '36px',
+        width: '28px',
+        height: '28px',
     },
     cancelButton: {
         width: '100vw',
@@ -67,15 +67,12 @@ export const ConfigDrawer: FC<ConfigDrawerProps> = ({ displayName, photoURL }) =
 
     return (
         <div>
-            {!photoURL ?
-                <IconButton className={classes.openButton} onClick={toggleDrawer(true)}>
+            <IconButton className={classes.openButton} onClick={toggleDrawer(true)}>
+                {!photoURL ?
                     <PersonIcon className={classes.icon} />
-                </IconButton>
-                :
-                <Button className={classes.openButton} onClick={toggleDrawer(true)}>
-                    <Avatar alt={displayName} src={photoURL} className={classes.icon} />
-                </Button>
-            }
+                    :
+                    <Avatar alt={displayName} src={photoURL} className={classes.icon} />}
+            </IconButton>
             <SwipeableDrawer
                 anchor={'bottom'}
                 open={drawerOpen}
