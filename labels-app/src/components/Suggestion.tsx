@@ -25,19 +25,20 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         fontWeight: 500,
         color: theme.palette.background.paper,
         backgroundColor: theme.palette.primary.main,
-        padding: theme.spacing(1, 4),
         '& div.MuiToolbar-regular': {
-            width: '100%',
+            width: `calc(100% - ${theme.spacing(4)}px)`,
             minHeight: '44px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            padding: 0,
-        },
-        '& a.MuiLink-root': {
-            color: theme.palette.background.paper,
-            margin: 0,
-            fontSize: '0.8rem',
+            padding: theme.spacing(1, 2),
+            '& .MuiTypography-root': {
+                padding: theme.spacing(2),
+            },
+            '& a.MuiLink-root': {
+                color: theme.palette.background.paper,
+                fontSize: '0.8rem',
+            },
         },
     },
     container: {
