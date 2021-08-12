@@ -97,6 +97,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 '& .MuiAvatar-root': {
                     marginRight: theme.spacing(3),
                 },
+                '& .MuiAvatar-colorDefault': {
+                    backgroundColor: theme.palette.secondary.main,
+                },
             },
             '&#higherSide': {
                 padding: theme.spacing(0),
@@ -170,10 +173,11 @@ const Album: FC<Props> = ({ tokenChecker }) => {
 
     // アーティストの情報を取得
     useEffect(() => {
-        const artistIds: string[] = isVA ?
+        const tempArtistIds: string[] = isVA ?
             tracks.flatMap(track => track.artists.map(artist => artist.id))
             :
             simpleArtists.map(artist => artist.id);
+        const artistIds = Array.from(new Set<string>(tempArtistIds));
 
         const fetchArtists = async (): Promise<Artist[]> => {
             const token: string = await tokenChecker();

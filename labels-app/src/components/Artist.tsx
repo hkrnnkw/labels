@@ -103,10 +103,8 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
     return (
         <div className={classes.contentClass}>
             <Container className={classes.container}>
-                <img
-                    src={images[0].url}
-                    alt={artistName}
-                />
+                {images[0]?.url &&
+                    <img src={images[0].url} alt={artistName} />}
                 <Typography>{artistName}</Typography>
                 {genres.length > 0 &&
                     <List id='genres'>
