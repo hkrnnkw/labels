@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import {
@@ -33,6 +33,13 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             color: theme.palette.text.primary,
             padding: theme.spacing(2, 0),
             margin: theme.spacing(0, 0, 2),
+        },
+        '& p#load': {
+            width: `calc(100% - ${theme.spacing(8)}px)`,
+            height: '44px',
+            position: 'absolute',
+            top: '200px',
+            color: theme.palette.text.primary,
         },
     },
     list: {
@@ -76,36 +83,48 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 
 const Licenses: FC = () => {
     const classes = ambiguousStyles();
-    const _licensesFile: { [key: string]: {} } = licensesFile;
-    const entries: [string, License][] = Object.entries(_licensesFile);
+    const [open, setOpen] = useState(false);
+    const [listItems, setListItems] = useState<JSX.Element[]>([]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
         document.title = 'Labels';
+        setOpen(true);
     }, []);
 
-    const createLicenseList = (_entries: [string, License][]): JSX.Element[] => {
-        return _entries.map(([key, value]) => {
-            const { licenses, repository, publisher, copyright, licenseText } = value;
-            return (
-                <ListItem key={key}>
-                    <Link href={repository} target='_blank' rel='noopener noreferrer'>
-                        <ListItemText>{key}<OpenInNewIcon/></ListItemText>
-                    </Link>
-                    <ListItemText primary={`published by ${publisher}`} />
-                    <ListItemText primary={licenses} />
-                    <ListItemText secondary={licenseText} id='licenseText' />
-                    <ListItemText secondary={copyright} />
-                </ListItem>
-            )
-        });
-    };
+    useEffect(() => {
+        if (!open) return;
+
+        const createLicenseList = async (_licensesFile: { [key: string]: {} }): Promise<JSX.Element[]> => {
+            const entries: [string, License][] = Object.entries(_licensesFile);
+            return entries.map(([key, value]) => {
+                const { licenses, repository, publisher, copyright, licenseText } = value;
+                return (
+                    <ListItem key={key}>
+                        <Link href={repository} target='_blank' rel='noopener noreferrer'>
+                            <ListItemText>{key}<OpenInNewIcon/></ListItemText>
+                        </Link>
+                        <ListItemText primary={`published by ${publisher}`} />
+                        <ListItemText primary={licenses} />
+                        <ListItemText secondary={licenseText} id='licenseText' />
+                        <ListItemText secondary={copyright} />
+                    </ListItem>
+                )
+            });
+        };
+        createLicenseList(licensesFile)
+            .then(res => setListItems(res))
+            .catch(err => console.error(err));
+    }, [open]);
 
     return (
         <div className={classes.contentClass}>
             <Container className={classes.container}>
                 <Typography variant='h2'>Open source licenses</Typography>
-                <List className={classes.list}>{createLicenseList(entries)}</List>
+                {!listItems.length ?
+                    <Typography id='load'>Loading...</Typography>
+                    :
+                    <List className={classes.list}>{listItems}</List>}
             </Container>
         </div>
     );
