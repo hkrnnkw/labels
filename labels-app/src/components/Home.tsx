@@ -30,22 +30,35 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             display: 'flex',
             justifyContent: 'center',
             position: 'relative',
+            '& .MuiTypography-root': {
+                position: 'absolute',
+            },
+            '& h1': {
+                color: theme.palette.primary.main,
+                fontSize: '3.2rem',
+                fontWeight: 700,
+                top: '64px',
+            },
+            '& h6': {
+                color: theme.palette.text.secondary,
+                '&.MuiTypography-subtitle1': {
+                    top: '124px',
+                },
+                '&.MuiTypography-subtitle2': {
+                    top: '264px',
+                },
+            },
             '& button': {
                 height: '48px',
                 color: theme.palette.background.default,
                 backgroundColor: theme.palette.secondary.main,
                 borderRadius: '24px',
-                padding: theme.spacing(2, 6),
+                padding: theme.spacing(2, 8),
                 position: 'absolute',
                 top: '200px',
                 '&:disabled': {
                     backgroundColor: theme.palette.secondary.dark,
                 },
-            },
-            '& h6.MuiTypography-subtitle2': {
-                position: 'absolute',
-                top: '264px',
-                color: theme.palette.text.secondary,
             },
         },
     },
@@ -100,9 +113,9 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
 const Home: FC<Props> = ({ tokenChecker }) => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
+    const { isProcessing } = useSelector((rootState: RootState) => rootState.app);
     const { signedIn, uid } = useSelector((rootState: RootState) => rootState.user);
     const { home, sortOrder, needDefaults } = useSelector((rootState: RootState) => rootState.albums);
-    const [clicked, setClicked] = useState(false);
     const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
@@ -142,7 +155,6 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     // サインインButtonの制御
     const handleSignIn = async () => {
-        setClicked(true);
         dispatch(switchIsProcessing(true));
         await signIn();
     };
@@ -172,6 +184,8 @@ const Home: FC<Props> = ({ tokenChecker }) => {
 
     const guestHome = (disabled: boolean): JSX.Element => (
         <div className={classes.contentClass} id='guest'>
+            <Typography variant='h1'>Labels</Typography>
+            <Typography variant='subtitle1'>A record label viewer</Typography>
             <Button onClick={handleSignIn} disabled={disabled}>
                 Let's get started with Spotify
             </Button>
@@ -186,7 +200,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
             <Redirect to={paths.suggestion} /> : privateHome(sortHandler(forSort, sortOrder), falsyMessage);
     }
     else if (signedIn === false) {
-        return guestHome(clicked);
+        return guestHome(isProcessing);
     }
     else return <div className={classes.contentClass} />;
 };
