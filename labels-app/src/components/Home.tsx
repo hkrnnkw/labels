@@ -27,9 +27,8 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
         position: 'absolute',
         top: '52px',
         '&#guest': {
-            display: 'flex',
-            justifyContent: 'center',
-            position: 'relative',
+            width: `calc(100vw - ${theme.spacing(8)}px)`,
+            margin: theme.spacing(0, 4),
             '& .MuiTypography-root': {
                 position: 'absolute',
             },
@@ -37,23 +36,24 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
                 color: theme.palette.primary.main,
                 fontSize: '3.2rem',
                 fontWeight: 700,
-                top: '64px',
+                top: '40px',
             },
             '& h6': {
                 color: theme.palette.text.secondary,
                 '&.MuiTypography-subtitle1': {
-                    top: '124px',
+                    top: '108px',
+                    lineHeight: 1.4,
                 },
                 '&.MuiTypography-subtitle2': {
-                    top: '264px',
+                    top: '260px',
                 },
             },
             '& button': {
+                width: '100%',
                 height: '48px',
                 color: theme.palette.background.default,
                 backgroundColor: theme.palette.secondary.main,
-                borderRadius: '24px',
-                padding: theme.spacing(2, 8),
+                borderRadius: '4px',
                 position: 'absolute',
                 top: '200px',
                 '&:disabled': {
@@ -185,7 +185,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     const guestHome = (disabled: boolean): JSX.Element => (
         <div className={classes.contentClass} id='guest'>
             <Typography variant='h1'>Labels</Typography>
-            <Typography variant='subtitle1'>A record label viewer</Typography>
+            <Typography variant='subtitle1'>Do you know what's new on your favorite record label?</Typography>
             <Button onClick={handleSignIn} disabled={disabled}>
                 Let's get started with Spotify
             </Button>
