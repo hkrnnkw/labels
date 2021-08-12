@@ -53,25 +53,26 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     header: {
         color: theme.palette.text.secondary,
         backgroundColor: theme.palette.background.default,
-        padding: theme.spacing(1, 0),
         '& div.MuiToolbar-regular': {
-            width: '100%',
+            width: `calc(100% - ${theme.spacing(4)}px)`,
             minHeight: '44px',
-            display: 'flex',
-            alignItems: 'center',
             justifyContent: 'space-between',
-            padding: 0,
+            padding: theme.spacing(1, 2),
         },
         '& div#title': {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
             '& a.MuiLink-root': {
                 height: '36px',
-                padding: theme.spacing(1, 4),
-                '& img': {
-                    width: '36px',
-                    height: '36px',
+                padding: theme.spacing(1, 2),
+                color: theme.palette.text.secondary,
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                '&#logo': {
+                    display: 'inline-block',
+                    verticalAlign: 'middle',
+                    '& img': {
+                        width: '36px',
+                        height: '36px',
+                    },
                 },
             },
         },
@@ -94,7 +95,7 @@ const App: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
     const { isProcessing } = useSelector((rootState: RootState) => rootState.app);
-    const { token, exp, uid, displayName, photoURL, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
+    const { token, exp, uid, signedIn, refreshToken } = useSelector((rootState: RootState) => rootState.user);
     const [user, setUser] = useState<firebase.User | null>(null);
 
     // Firebase Authチェック（ログイン状態が変更されるたびに発火する）
@@ -168,14 +169,16 @@ const App: FC = () => {
             <AppBar position='fixed' className={classes.header}>
                 <Toolbar>
                     <div id='title'>
-                        <Link component={RouterLink} to={paths.home}>
+                        <Link component={RouterLink} to={paths.home} id={'logo'}>
                             <img src={labels_logo} alt="Labels_logo" />
                         </Link>
-                        <Typography variant='subtitle2'>v0.1 beta</Typography>
+                        <Link href={'https://github.com/hkrnnkw/labels'} target='_blank' rel='noopener noreferrer'>
+                            v0.1 beta
+                        </Link>
                     </div>
-                    {signedIn && <ConfigDrawer displayName={displayName} photoURL={photoURL} />}
-                    {isProcessing && <LinearProgress color='secondary' />}
+                    <ConfigDrawer />
                 </Toolbar>
+                {isProcessing && <LinearProgress color='secondary' />}
             </AppBar>
             {isMobileSize ? mobileView : widerView}
         </div>

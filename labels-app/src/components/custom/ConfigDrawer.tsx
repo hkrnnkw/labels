@@ -1,6 +1,7 @@
 import React, { FC, useState, KeyboardEvent, MouseEvent } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Link as RouterLink } from 'react-router-dom';
+import { RootState } from '../../stores/index';
 import { auth } from '../../firebase';
 import { setClearUser } from '../../stores/user';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -10,11 +11,8 @@ import {
 } from '@material-ui/core';
 import PersonIcon from '@material-ui/icons/Person';
 import { paths } from '../../utils/paths';
-
-interface ConfigDrawerProps {
-    displayName: string,
-    photoURL: string | null,
-}
+import { switchIsProcessing } from '../../stores/app';
+import { signIn } from '../../handlers/spotifyHandler';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     paper: {
@@ -27,8 +25,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     openButton: {
         color: theme.palette.secondary.main,
         display: 'flex',
-        padding: theme.spacing(1, 0),
-        margin: theme.spacing(0, 4),
+        padding: theme.spacing(2),
         '& .MuiButton-label': {
             justifyContent: 'flex-start',
         },
@@ -47,9 +44,11 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
     },
 }));
 
-export const ConfigDrawer: FC<ConfigDrawerProps> = ({ displayName, photoURL }) => {
+export const ConfigDrawer: FC = () => {
     const dispatch = useDispatch();
     const classes = ambiguousStyles();
+    const { isProcessing } = useSelector((rootState: RootState) => rootState.app);
+    const { signedIn, displayName, photoURL } = useSelector((rootState: RootState) => rootState.user);
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     // メニューの開閉
@@ -59,10 +58,16 @@ export const ConfigDrawer: FC<ConfigDrawerProps> = ({ displayName, photoURL }) =
         setDrawerOpen(open);
     };
 
-    const signOut = async () => {
-        dispatch(setClearUser());
-        await auth.signOut();
+    const handleSignInOut = async (toOut: boolean | undefined) => {
         setDrawerOpen(false);
+        if (toOut) {
+            dispatch(setClearUser());
+            await auth.signOut();
+        }
+        else {
+            dispatch(switchIsProcessing(true));
+            await signIn();
+        }
     }
 
     return (
@@ -86,11 +91,17 @@ export const ConfigDrawer: FC<ConfigDrawerProps> = ({ displayName, photoURL }) =
                     <List>
                         <ListItem key='licenses'>
                             <Link component={RouterLink} to={paths.licenses} onClick={() => setDrawerOpen(false)}>
-                                <ListItemText primary={'See licenses'} />
+                                <ListItemText primary={'View licenses'} />
                             </Link>
                         </ListItem>
-                        <ListItem key='signOut' button onClick={signOut}>
-                            <ListItemText primary={'Sign out'} id={'signOut'}/>
+                        <ListItem
+                            key='signInOut'
+                            button
+                            onClick={() => handleSignInOut(signedIn)}
+                            disabled={isProcessing}
+                        >
+                            {signedIn ? <ListItemText primary={'Sign out'} id={'signOut'} />
+                                : <ListItemText primary={'Sign in'} />}
                         </ListItem>
                     </List>
                     <Button
