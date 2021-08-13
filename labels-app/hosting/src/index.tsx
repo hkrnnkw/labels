@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import store from './stores/index';
+import './index.css';
 import App from './App';
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 

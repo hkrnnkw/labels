@@ -40,6 +40,7 @@ const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
             position: 'absolute',
             top: '200px',
             color: theme.palette.text.primary,
+            textAlign: 'center',
         },
     },
     list: {
