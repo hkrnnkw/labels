@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 
 // ユーザ管理
-export const manageUser = async (spotifyRefreshToken: string, spotifyID: string, displayName: string,
+export const manageUser = async (spotifyRefreshToken: string, spotifyID: string, displayName: string | null,
     photoURL: string | null, email: string): Promise<string> => {
         
     // Spotifyのリフレッシュトークンを保存

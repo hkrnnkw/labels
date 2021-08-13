@@ -18,14 +18,14 @@ export const refreshSpotifyToken = async (uid: string): Promise<Spotify> => {
     const refreshToken: string | null = await getSpotifyRefreshTokenFromFirestore(uid).catch(() => { return null });
     if (!refreshToken) throw new Error('リフレッシュトークンを取得できませんでした');
 
-    const retrieveNewSpotifyObjUsingRefreshToken: firebase.functions.HttpsCallable = f.httpsCallable('spotify_refreshAccessToken');
+    const retrieveNewSpotifyObjUsingRefreshToken: firebase.functions.HttpsCallable = f.httpsCallable('spotifyRefreshAccessToken');
     const res: newAccessTokenResponse = await retrieveNewSpotifyObjUsingRefreshToken({ refreshToken: refreshToken });
     return res.data;
 };
 
 // CloudFunctions経由でauthorizeURLをリクエストし、そこへリダイレクト
 export const signIn = async (): Promise<void> => {
-    const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotify_redirect');
+    const spotifyRedirect: firebase.functions.HttpsCallable = f.httpsCallable('spotifyRedirect');
     const param: StrKeyObj = { state: uuidv4() };
     const res: SpotifyRedirectResponse = await spotifyRedirect(param);
     window.location.href = res.data;
@@ -234,7 +234,7 @@ export const createCustomAlbum = async (albums: Album[], accessToken: string, is
         : await checkIsAlbumsInUserLibrary(ids, accessToken);
     const customAlbums: CustomAlbum[] = [];
     albums.forEach((album, i) => {
-        const { label, copyright, release_date, album_type, artists, images, name, genres, tracks } = album;
+        const { label, copyright, release_date, albumType, artists, images, name, genres, tracks } = album;
         const variant: Variant = {
             saved: checked[i],
             labelName: label,
@@ -244,7 +244,7 @@ export const createCustomAlbum = async (albums: Album[], accessToken: string, is
             customAlbums.findIndex(ca => ca.name.localeCompare(name, 'en', { sensitivity: 'base' }) === 0);
         if (pushedIndex < 0) {
             customAlbums.push({
-                album_type: album_type,
+                albumType: albumType,
                 artists: artists,
                 images: images,
                 name: name,

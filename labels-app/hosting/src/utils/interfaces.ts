@@ -40,7 +40,7 @@ interface SimpleTrack {
 }
 
 export interface SimpleAlbum {
-    album_type: string;
+    albumType: string;
     artists: SimpleArtist[];
     id: string;
     images: Image[];
@@ -58,7 +58,7 @@ export interface Album extends SimpleAlbum {
 }
 
 export interface CustomAlbum {
-    album_type: string;
+    albumType: string;
     artists: SimpleArtist[];
     images: Image[];
     name: string;

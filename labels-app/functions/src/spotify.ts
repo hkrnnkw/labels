@@ -1,8 +1,8 @@
 import * as functions from 'firebase-functions';
 import { manageUser } from './firestore';
+import SpotifyWebApi = require('spotify-web-api-node');
 
 const f = functions.region('asia-northeast1');
-const SpotifyWebApi = require('spotify-web-api-node');
 const clientId = functions.config().spotify.client_id;
 const clientSecret = functions.config().spotify.client_secret;
 const redirectUri = 'https://la-bels.web.app/callback';
@@ -12,31 +12,20 @@ const spotifyApi = new SpotifyWebApi({
     redirectUri: redirectUri,
 });
 
-interface Album {
-    album_type: string;
-    artists: Object[];
-    copyright: Object;
-    genres: string[];
-    id: string;
-    images: Object[];
-    label: string;
-    name: string;
-    release_date: string;
-    tracks: Object;
-};
-
 // ClientCredentialsを1時間ごとに更新
 export const updateClientCredentials = f.pubsub.schedule('every 60 minutes').onRun(async (context) => {
+    console.log(`timestamp: ${context.timestamp}`);
     try {
         const auth = await spotifyApi.clientCredentialsGrant();
         spotifyApi.setAccessToken(auth.body['access_token']);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     }
 });
 
 // ClientCredentialsFlowによりトークンをセットし、レーベルごとのアルバムデータを取得する
 export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
+    console.log(`appId: ${context.app?.appId}`);
     const auth = await spotifyApi.clientCredentialsGrant();
     spotifyApi.setAccessToken(auth.body['access_token']);
     const labels: string[] = data.labels;
@@ -49,34 +38,33 @@ export const getAlbumsOfLabels = f.https.onCall(async (data, context) => {
             return await spotifyApi.searchAlbums(`label:"${label}" year:${year}`, { limit: limit });
         }));
         return response.map(res => {
-            const albums: Album[] = res.body.albums.items;
+            const pagingObject: SpotifyApi.PagingObject<SpotifyApi.AlbumObjectSimplified> | undefined = res.body.albums;
+            const albums: SpotifyApi.AlbumObjectSimplified[] = pagingObject?.items || [];
             return albums.map(album => album.id);
         });
     };
 
     // idを元にalbum object (full)を取得し、それを整型してから返す
-    const fetchAlbumsOfLabels = async (albumIds: string[][], labelList: string[]): Promise<Album[][]> => {
-        const response = await Promise.all(albumIds.map(async (albumId) => {
-            return await spotifyApi.getAlbums(albumId);
-        }));
-        return response.map(res => {
-            const albums: Album[] = res.body.albums.filter((elem: Album) => labelList.includes(elem.label));
-            return albums;
-        });
+    const fetchAlbumsOfLabels = async (albumIds: string[][], labelList: string[]): Promise<SpotifyApi.AlbumObjectFull[][]> => {
+        const response = await Promise.all(
+            albumIds.map(async (albumId) => await spotifyApi.getAlbums(albumId))
+        );
+        return response.map(res => res.body.albums.filter(elem => labelList.includes(elem.label)));
     }
 
     try {
         const albumIdsOfLabels: string[][] = await fetchAlbumIdsOfLabels(labels);
-        const albumsOfLabels: Album[][] = await fetchAlbumsOfLabels(albumIdsOfLabels, labels);
-        return albumsOfLabels.filter((elem: Album[]) => elem.length);
+        const albumsOfLabels: SpotifyApi.AlbumObjectFull[][] = await fetchAlbumsOfLabels(albumIdsOfLabels, labels);
+        return albumsOfLabels.filter((elem: SpotifyApi.AlbumObjectFull[]) => elem.length);
     } catch (err) {
-        console.log(err);
+        console.error(err);
         return [];
     }
 });
 
 // ユーザの承認用URLを取得し、返す
 export const redirect = f.https.onCall((data, context) => {
+    console.log(`uid: ${context.auth?.uid}`);
     const scopes = ['user-read-private', 'user-read-email', 'user-top-read', 'user-read-recently-played',
         'streaming', 'playlist-modify-public', 'user-library-read', 'user-library-modify'];
     const state: string = data.state;
@@ -86,19 +74,20 @@ export const redirect = f.https.onCall((data, context) => {
 
 // アクセストークンを取得（正常に処理されたら、Firestoreにアカウントを作成）
 export const signIn = f.https.onCall(async (data, context) => {
+    console.log(`uid: ${context.auth?.uid}`);
     try {
-        const response: { body: { [x: string]: any; } } = await spotifyApi.authorizationCodeGrant(data.code)
+        const response = await spotifyApi.authorizationCodeGrant(data.code);
         const spotifyToken: string = response.body['access_token'];
         const refreshToken: string = response.body['refresh_token'];
         spotifyApi.setAccessToken(spotifyToken);
         spotifyApi.setRefreshToken(refreshToken);
         const date = new Date();
         const expiresIn = date.setMinutes(date.getMinutes() + 58);
-        const user: { body: { [x: string]: any; } } = await spotifyApi.getMe();
+        const user = await spotifyApi.getMe();
         const spotifyUserID: string = user.body['id'];
-        const userName: string = user.body['display_name'];
-        const img = user.body['images'][0];
-        const profilePic: string | null = img ? img['url'] : null;
+        const userName = user.body['display_name'] || null;
+        const imgs: SpotifyApi.ImageObject[] | undefined = user.body['images'];
+        const profilePic: string | null = imgs ? imgs[0]['url'] : null;
         const email: string = user.body['email'];
         const customToken: string = await manageUser(refreshToken, spotifyUserID, userName, profilePic, email);
         return [customToken, {
@@ -106,7 +95,7 @@ export const signIn = f.https.onCall(async (data, context) => {
             exp: expiresIn,
         }];
     } catch (err) {
-        console.log(`不具合が発生：${err.message}`);
+        console.error(err);
         return ['', {}];
     };
 });
@@ -120,13 +109,13 @@ export const refreshAccessToken = f.https.onCall(async (data, context) => {
         spotifyApi.setAccessToken(spotifyToken);
         const date = new Date();
         const expiresIn = date.setMinutes(date.getMinutes() + 58);
-        console.log(`アクセストークンを更新しました：${spotifyToken}`);
+        console.log(`uid: ${context.auth?.uid}, spotifyToken was refreshed: ${spotifyToken}`);
         return {
             token: spotifyToken,
             exp: expiresIn,
         };
     } catch (err) {
-        console.log('アクセストークンを更新できませんでした ', err);
+        console.error(`uid: ${context.auth?.uid}, ${err}`);
         return {};
     }
 });

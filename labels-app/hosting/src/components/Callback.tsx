@@ -67,7 +67,7 @@ const Callback: FC = () => {
         // Spotify認証のあと、Firebase認証
         const requestFirestoreCustomToken = async (params: StrKeyObj): Promise<firebase.User | null> => {
             // CloudFunctions経由で、AuthorizationCodeFlow
-            const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotify_signIn');
+            const spotifySignIn: firebase.functions.HttpsCallable = f.httpsCallable('spotifySignIn');
             const res: SpotifySignInResponse = await spotifySignIn(params);
             
             const [customToken, spotifyTokens] = res.data;
