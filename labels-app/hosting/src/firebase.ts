@@ -1,6 +1,9 @@
 import firebase from 'firebase/app';
+// eslint-disable-next-line
 import 'firebase/functions';
+// eslint-disable-next-line
 import 'firebase/auth';
+// eslint-disable-next-line
 import 'firebase/firestore';
 
 const config: Object = {
