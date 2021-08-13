@@ -5,7 +5,7 @@ import {
     Container, Link, List, ListItem, ListItemText, Typography,
 } from '@material-ui/core';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
-import licensesFile from '../licenses.json'
+import licensesFile from '../licenses/licenses.json'
 import { License } from '../utils/types';
 
 const ambiguousStyles = makeStyles((theme: Theme) => createStyles({
