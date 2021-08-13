@@ -12,7 +12,7 @@
   },
   "hosting": {
     "site": "la-bels",
-    "public": "build",
+    "public": "./hosting/build",
     "ignore": [
       "firebase.json",
       "**/.*",
