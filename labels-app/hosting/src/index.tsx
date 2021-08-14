@@ -9,6 +9,11 @@ import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 
 const theme = createMuiTheme({
     overrides: {
+        MuiTypography: {
+            root: {
+                fontFamily: `'Roboto', 'Helvetica', 'Arial', sans-serif`,
+            },
+        },
         MuiLink: {
             root: {
                 textDecoration: 'none',
