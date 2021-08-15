@@ -145,7 +145,6 @@ const Search: FC<Props> = ({ tokenChecker }) => {
     }, [tokenChecker, dispatch]);
 
     useEffect(() => {
-        // TODO 検索結果<List>のスクロール位置が初期化されない
         window.scrollTo(0, 0);
         if (!saved.length) return;
 

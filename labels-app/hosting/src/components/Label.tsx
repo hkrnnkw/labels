@@ -101,8 +101,6 @@ const Label: FC<Props> = ({ tokenChecker }) => {
             .catch(err => console.error(`Spotify fetching error: ${err}`));
     }, [albumsOfYears, tokenChecker]);
 
-    // TODO ジャンルを各アルバムから抽出し、視覚化（ex.グラフ）
-
     return (
         <div className={classes.contentClass}>
             <Typography className={classes.labelName}>{labelName}</Typography>

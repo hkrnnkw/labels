@@ -148,7 +148,6 @@ const App: FC = () => {
         </Switch>
     );
 
-    // TODO mediumサイズとPCサイズに分離し、それぞれスタイリング
     const widerView: JSX.Element = (
         <div className={classes.contentClass} id='wider'>
             <QRCode
