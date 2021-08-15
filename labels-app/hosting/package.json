@@ -1,6 +1,7 @@
 {
   "name": "hosting",
   "scripts": {
+    "licenses": "license-checker --production --json --customPath ./src/licenses/license-format.json --out ./src/licenses/licenses.json --unknown",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
