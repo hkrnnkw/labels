@@ -97,6 +97,7 @@ export const LabelsDrawer: FC<LabelsDrawerProps> = ({ labelNames, tokenChecker }
         setDrawerOpen(open);
     };
 
+    // レーベル一覧用にリストアイテムを生成
     const generateLabels = () => {
         return labelNames.map(labelName => (
             <ListItem>

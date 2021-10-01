@@ -59,6 +59,7 @@ export const SortDrawer: FC<SortDrawerProps> = ({ currentSortOrder }) => {
         setDrawerOpen(open);
     };
 
+    // 新たなソート順序をstate更新
     const doSort = (newSortOrder: SortOrder) => {
         dispatch(setSortOrder(newSortOrder));
         setDrawerOpen(false);

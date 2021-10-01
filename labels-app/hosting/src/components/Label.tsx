@@ -62,6 +62,7 @@ const Label: FC<Props> = ({ tokenChecker }) => {
 
     // レーベルの各年のアルバムを取得
     useEffect(() => {
+        // 今年を含んで5年分（過去）のnumber型配列を作成
         const getLast5Years = (): number[] => {
             const today = new Date();
             const thisYear = today.getFullYear();
@@ -88,7 +89,9 @@ const Label: FC<Props> = ({ tokenChecker }) => {
         const albums: Album[] = Object.values(albumsOfYears).flat();
         if (!albums.length) return;
 
+        // 各アルバムからアーティストを取り出して配列に格納
         const simpleArtists = albums.flatMap(album => album.artists || []);
+        // 各アーティストのidを配列に格納
         const tempArtistIds: string[] = simpleArtists.flatMap(artist => isVariousAritist(artist.name) ? [] : [artist.id]);
         const artistIds = Array.from(new Set<string>(tempArtistIds));
 

@@ -83,9 +83,11 @@ const Artist: FC<Props> = ({ tokenChecker }) => {
     }, [artistName]);
 
     useEffect(() => {
+        // アルバムを取得する
         const fetchAlbums = async (): Promise<Year> => {
             const token: string = await tokenChecker();
             const albums: Album[] = await getArtistAlbums(artistId, token);
+            // リリース年別に取得したアルバムを振り分け、オブジェクトを作成
             const yearObj: Year = {};
             for (const album of albums) {
                 const yearKey: string = album.release_date.split('-')[0];

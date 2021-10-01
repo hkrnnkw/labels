@@ -148,6 +148,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         window.scrollTo(0, 0);
         if (!saved.length) return;
 
+        // 検索キーワードがすでにstoreに保存されていたら、その検索結果を表示
         const init = async (): Promise<CustomAlbum[]> => {
             const token: string = await tokenChecker();
             return typed.length ? await createCustomAlbum(searched.albums, token)
@@ -176,6 +177,7 @@ const Search: FC<Props> = ({ tokenChecker }) => {
         }
     };
 
+    // Enter押下時
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== 'Enter' || !typing.length || typed === typing) return;
         doSearching(typing).catch(err => console.error(err));

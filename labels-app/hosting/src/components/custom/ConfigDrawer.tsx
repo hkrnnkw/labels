@@ -58,6 +58,7 @@ export const ConfigDrawer: FC = () => {
         setDrawerOpen(open);
     };
 
+    // サインイン／アウト操作
     const handleSignInOut = async (toOut: boolean | undefined) => {
         setDrawerOpen(false);
         if (toOut) {

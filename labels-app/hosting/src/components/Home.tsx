@@ -124,8 +124,11 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     }, []);
 
     useEffect(() => {
+        // サインインしていない（uidがない）ならreturn
         if (!uid.length) return;
+        // needDefaults === undefinedのとき（起動時）に、処理中フラグを立てる
         dispatch(switchIsProcessing(needDefaults === undefined));
+        // needDefaultsが初期化済みであればreturn
         if (needDefaults !== undefined) return;
 
         // レーベルの情報を取得
@@ -146,6 +149,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
                 } as Label;
             });
             dispatch(setInitLabels(labelList));
+            // フォロー中のレーベル（keys）がなければ、needDefaultsをtrueにする
             dispatch(setNeedDefaults(keys.length <= 0));
         };
 
@@ -159,6 +163,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         await signIn();
     };
     
+    // サインインしているときのホーム
     const privateHome = (sorted: Label[], falsyMessage: string): JSX.Element => (
         <div className={classes.contentClass}>
             <div className={classes.header}>
@@ -182,6 +187,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
         </div>
     );
 
+    // サインアウトしているときのホーム
     const guestHome = (disabled: boolean): JSX.Element => (
         <div className={classes.contentClass} id='guest'>
             <Typography variant='h1'>Labels</Typography>
@@ -196,6 +202,7 @@ const Home: FC<Props> = ({ tokenChecker }) => {
     if (signedIn) {
         const falsyMessage: string = !home.length ? 'Not following any label.' : 'No releases recently.';
         const forSort: Label[] = showAll ? home : home.filter(label => label.newReleases.length);
+        // フォロー中のレーベルがない（デフォルトが必要）とき、Suggestion.tsxへリダイレクト
         return needDefaults ? 
             <Redirect to={paths.suggestion} /> : privateHome(sortHandler(forSort, sortOrder), falsyMessage);
     }

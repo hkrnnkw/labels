@@ -161,7 +161,10 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     const { artists: simpleArtists, images, name: title, variants, tracks, release_date } = state.album;
     const labelNames = Array.from(new Set<string>(variants.map(v => v.labelName)));
     const [fullArtists, setFullArtists] = useState<Artist[]>([]);
+
+    // アルバムがSpotifyライブラリに保存されているか
     const [isSaved, setIsSaved] = useState<boolean>(variants.find(v => v.saved.inLib === true) !== undefined);
+
     const isVA: boolean = simpleArtists.length === 1 && isVariousAritist(simpleArtists[0].name);
     const VARIOUS_ARTISTS: string = 'Various Artists';
     const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -173,6 +176,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
 
     // アーティストの情報を取得
     useEffect(() => {
+        // Various Artistsなら、楽曲情報からアーティストを取得
         const tempArtistIds: string[] = isVA ?
             tracks.flatMap(track => track.artists.map(artist => artist.id))
             :
@@ -193,6 +197,7 @@ const Album: FC<Props> = ({ tokenChecker }) => {
         // Various Artistsの場合
         if (isVA && !lowerSide) return [<Typography variant='subtitle2'>{VARIOUS_ARTISTS}</Typography>];
 
+        // ページ下部にアーティスト名を並べる or アーティストが1人
         if (lowerSide || artists.length === 1) {
             return artists.map(artist => (
                 <ListItem id={lowerSide ? undefined : 'higherSide'}>
@@ -206,12 +211,14 @@ const Album: FC<Props> = ({ tokenChecker }) => {
                 </ListItem>
             ));
         }
+        // ページ上部に複数のアーティスト名を並べる
         else {
             const artistNames: string[] = artists.map(artist => artist.name);
             return [<Typography variant='subtitle2'>{artistNames.join(', ')}</Typography>];
         }
     };
     
+    // スナックバーを閉じる
     const handleClose = (event: MouseEvent | SyntheticEvent<Element, Event>, reason: string) => {
         if (reason === 'clickaway') {
             return;
@@ -222,11 +229,13 @@ const Album: FC<Props> = ({ tokenChecker }) => {
     // アルバム保存／削除処理
     const operateUserLibrary = async () => {
         const token: string = await tokenChecker();
+        // すでにライブラリに保存されていたら、取り除く
         if (isSaved) {
             const ids: string[] = variants.flatMap(v => v.saved.inLib ? v.saved.albumId : []);
             if (!ids.length) return;
             await removeAlbumsFromUserLibrary(ids, token);
         }
+        // ライブラリに保存されていなかったら、保存する
         else {
             setSnackbarOpen(true);
             await saveAlbumsToUserLibrary([variants[0].saved.albumId], token);
